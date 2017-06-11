@@ -1,3 +1,6 @@
+Reynolds+Blender
+================
+
 This is a reference implementation to demonstrate the integration of
 pre-processing components from [Reynolds](https://github.com/dmsurti/reynolds)
 to build a GUI for the pre-processing steps of [OpenFoam](http://openfoam.com).
@@ -7,3 +10,8 @@ constraint:
 
 1. Write Blender add-ons with standalone operators that invoke the Reynolds
    API.
+
+BlockMeshDict Addon Interface
+---
+
+![](docs/img/block-mesh-dict.png?raw=true)
