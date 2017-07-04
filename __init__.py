@@ -40,14 +40,20 @@ bl_info = {
 
 if "bpy" in locals():
     import importlib
+    importlib.reload(foam)
     importlib.reload(block_mesh_addon)
 else:
-    from . import block_mesh_addon
+    from . import foam, block_mesh_addon
 
 import bpy
 
 def register():
+    foam.register()
     block_mesh_addon.register()
 
 def unregister():
+    foam.unregister()
     block_mesh_addon.unregister()
+
+if __name__ == '__main__':
+    register()

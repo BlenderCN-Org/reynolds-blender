@@ -58,7 +58,6 @@ import os
 # ----------------
 from reynolds.blockmesh.mesh_components import Vertex3, Block, SimpleGrading, Face, BoundaryRegion
 from reynolds.blockmesh.mesh_dict import MeshDict
-from reynolds.foam.start import FoamRunner
 from reynolds.blockmesh.mesh_runner import MeshRunner
 from reynolds.solver.solver_runner import SolverRunner
 
@@ -503,25 +502,6 @@ class BMDGenerateDictOperator(bpy.types.Operator):
 
         return{'FINISHED'}
 
-class BMDStartOpenFoamOperator(bpy.types.Operator):
-    bl_idname = "reynolds.start_of"
-    bl_label = "Start OpenFoam"
-
-    def execute(self, context):
-        scene = context.scene
-        bmd_tool = scene.bmd_tool
-        obj = context.active_object
-
-        print("Start openfoam")
-
-        fr = FoamRunner()
-        status = fr.start()
-        if status:
-            print("OpenFoam started: SUCCESS")
-        else:
-            print("OpenFoam started: FAILURE")
-
-        return{'FINISHED'}
 
 class BMDSolveCaseOperator(bpy.types.Operator):
     bl_idname = "reynolds.solve_case"
@@ -637,9 +617,7 @@ class BlockMeshDictPanel(Panel):
         rbrow2.separator()
         rbrow3 = rbox.row()
         rbrow3.operator("reynolds.generate_bmd", icon="FILE_TEXT")
-        rbrow3.operator("reynolds.start_of", icon="OUTLINER_OB_FONT")
         rbrow3.operator("reynolds.solve_case", icon="IPO_BACK")
-
 
 # ------------------------------------------------------------------------
 # register and unregister
@@ -660,7 +638,6 @@ def register():
     bpy.utils.register_class(BMDRegionsAssignOperator)
     bpy.utils.register_class(BMDRegionsRemoveOperator)
     bpy.utils.register_class(BMDGenerateDictOperator)
-    bpy.utils.register_class(BMDStartOpenFoamOperator)
     bpy.utils.register_class(BMDSolveCaseOperator)
     bpy.utils.register_class(BlockMeshDictPanel)
     bpy.types.Scene.vertex_labels = {}
@@ -688,7 +665,6 @@ def unregister():
     bpy.utils.unregister_class(BMDRegionsAssignOperator)
     bpy.utils.unregister_class(BMDRegionsRemoveOperator)
     bpy.utils.unregister_class(BMDGenerateDictOperator)
-    bpy.utils.unregister_class(BMDStartOpenFoamOperator)
     bpy.utils.unregister_class(BMDSolveCaseOperator)
     bpy.utils.unregister_class(BlockMeshDictPanel)
     del bpy.types.Scene.vertex_labels
