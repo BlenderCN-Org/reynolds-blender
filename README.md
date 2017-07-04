@@ -14,4 +14,6 @@ constraint:
 BlockMeshDict Addon Interface
 ---
 
-![](docs/img/block-mesh-dict.png?raw=true)
+![](docs/img/add-on.png?raw=true)
+
+![](docs/img/open-foam-gui.png?raw=true)
