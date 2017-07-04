@@ -25,21 +25,10 @@
 #     along with reynolds-blender.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------------------------
 
-bl_info = {
-    "name": "OpenFoam BlockMeshDict Add-On",
-    "description": "",
-    "author": "Deepak Surti",
-    "version": (0, 0, 1),
-    "blender": (2, 78, 0),
-    "location": "3D View > Tools",
-    "warning": "", # used for warning icon and text in addons panel
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "Development"
-}
-
+# -----------
+# bpy imports
+# -----------
 import bpy, bmesh
-
 from bpy.props import (StringProperty,
                        BoolProperty,
                        IntProperty,
@@ -55,16 +44,21 @@ from bpy.types import (Panel,
                        PropertyGroup,
                        UIList
                        )
-                       
-from bpy.path import abspath                       
-                       
-from mathutils import Matrix, Vector               
+from bpy.path import abspath
+from mathutils import Matrix, Vector
 
-import operator                       
+# --------------
+# python imports
+# --------------
+import operator
 import os
-from reynolds.blockmesh.mesh_components import Vertex3, Block, SimpleGrading, Face, BoundaryRegion  
-from reynolds.blockmesh.mesh_dict import MeshDict  
-from reynolds.foam.start import FoamRunner  
+
+# ----------------
+# reynolds imports
+# ----------------
+from reynolds.blockmesh.mesh_components import Vertex3, Block, SimpleGrading, Face, BoundaryRegion
+from reynolds.blockmesh.mesh_dict import MeshDict
+from reynolds.foam.start import FoamRunner
 from reynolds.blockmesh.mesh_runner import MeshRunner
 from reynolds.solver.solver_runner import SolverRunner
 
@@ -136,14 +130,13 @@ class VerticesItems(UIList):
         split.prop(item, "name", text="", emboss=False, translate=False, icon='BORDER_RECT')
 
     def invoke(self, context, event):
-        pass   
-    
+        pass
+
 # Create custom property group
 class BMDVertexLabel(bpy.types.PropertyGroup):
     '''name = StringProperty() '''
     id = IntProperty()
-    
-    
+
 # ------------------------------------------------------------------------
 #    custom UI list for adding regions
 # ------------------------------------------------------------------------
@@ -190,7 +183,7 @@ class RegionsListActions(bpy.types.Operator):
                 scn.bmd_rindex -= 1
                 self.report({'INFO'}, info)
                 scn.bmd_regions.remove(idx)
-                
+
 
         if self.action == 'ADD':
             item = scn.bmd_regions.add()
@@ -209,28 +202,28 @@ class RegionsItems(UIList):
         split.prop(item, "name", text="", emboss=False, translate=False, icon='BORDER_RECT')
 
     def invoke(self, context, event):
-        pass   
-    
+        pass
+
 # Create custom property group
 class BMDRegionLabel(bpy.types.PropertyGroup):
     '''name = StringProperty() '''
     id = IntProperty()
-            
+
     region_type = EnumProperty(
         name="Type:",
         description="Patch/Region Type.",
         items=[ ('empty', "empty", ""),
                 ('wall', "wall", ""),
                ]
-        ) 
-        
+        )
+
     region_name = StringProperty(
         name="Patch/Region Name",
         description=":",
         default="",
         maxlen=1024,
         )
-             
+
 # ------------------------------------------------------------------------
 #    store properties in the active scene
 # ------------------------------------------------------------------------
@@ -240,19 +233,19 @@ class BlockMeshDictSettings(PropertyGroup):
         name = "Convert to meters",
         description="Scaling factor by which all vertex coordinates are multiplied.",
         default=0.001)
-        
+
     n_cells = IntVectorProperty(
         name = "Cells",
         description = "Number of cells in XYZ axis direction",
         default=(1, 1, 1),
         subtype="XYZ")
-        
+
     n_grading = IntVectorProperty(
         name = "Cell expansion ratios",
         description = "Cell expansion ratios",
         default=(1, 1, 1),
         subtype="XYZ")
-        
+
     region_name = StringProperty(
         name="Patch/Region Name",
         description=":",
@@ -267,21 +260,21 @@ class BlockMeshDictSettings(PropertyGroup):
                 ('wall', "wall", ""),
                ]
         )
-        
+
     bmd_path = StringProperty(
         name="",
         description="Choose a directory:",
         default="",
         maxlen=1024,
         subtype='DIR_PATH')
-        
+
     solver_name = StringProperty(
         name="Solver Name",
         description=":",
         default="",
         maxlen=1024,
         )
-   
+
 # ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
@@ -296,7 +289,7 @@ class BMDVerticesOperator(bpy.types.Operator):
 
         obj = context.edit_object
         bm = bmesh.from_edit_mesh(obj.data)
-        
+
         for f in bm.faces:
             if f.select:
                 f_idx = f.index
@@ -305,11 +298,11 @@ class BMDVerticesOperator(bpy.types.Operator):
                     x, y, z = obj.matrix_world * obj.data.vertices[v_idx].co
                     print(v_idx, ':', x, y, z)
                 break
-      
+
         for v in obj.data.vertices:
             x, y, z = v.co
             print(x, y, z)
-      
+
         return {'FINISHED'}
 
 
@@ -321,14 +314,14 @@ class BMDBlocksOperator(bpy.types.Operator):
         scene = context.scene
         bmd_tool = scene.bmd_tool
         obj = context.active_object
-        
+
         # print the values to the console
         print("Assigning blocks ", scene.vertex_labels)
-        
+
         mode = bpy.context.active_object.mode
         # switch from Edit mode to Object mode so the selection gets updated
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         hex = []
         for v in obj.data.vertices:
             if v.select:
@@ -336,7 +329,7 @@ class BMDBlocksOperator(bpy.types.Operator):
                 print(scene.vertex_labels[v.index])
                 hex.append(scene.vertex_labels[v.index])
                 print(hex)
-        
+
         hex.sort()
         print("blocks hex: ", hex)
         scene.blocks.clear()
@@ -345,7 +338,7 @@ class BMDBlocksOperator(bpy.types.Operator):
         # reset mode
         bpy.ops.object.mode_set(mode=mode)
         return {'FINISHED'}
-    
+
 class BMDVertexAssignOperator(bpy.types.Operator):
     bl_idname = "reynolds.assign_vertex"
     bl_label = "Assign"
@@ -354,9 +347,9 @@ class BMDVertexAssignOperator(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         obj = context.active_object
-        
+
         print("Assigning vertex ", scene.vertex_labels)
-        
+
         mode = bpy.context.active_object.mode
         # switch from Edit mode to Object mode so the selection gets updated
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -369,11 +362,11 @@ class BMDVertexAssignOperator(bpy.types.Operator):
                     item = scene.bmd_vertices[scene.bmd_vindex]
                     item.name = "Vertex " + str(v.index)
                     scene.vertex_labels[v.index] = scene.bmd_vindex
-                
+
         print(scene.vertex_labels)
         # reset mode
         bpy.ops.object.mode_set(mode=mode)
-        return{'FINISHED'}    
+        return{'FINISHED'}
 
 
 class BMDVertexRemoveOperator(bpy.types.Operator):
@@ -383,10 +376,10 @@ class BMDVertexRemoveOperator(bpy.types.Operator):
 
     def execute(self, context):
         print("Removing assigned vertex")
-        
+
         scene = context.scene
         obj = context.active_object
-        
+
         print(scene.bmd_vindex, scene.bmd_vertices[scene.bmd_vindex])
         item = scene.bmd_vertices[scene.bmd_vindex]
         _, v_index = item.name.split("Vertex ", 1)
@@ -401,27 +394,27 @@ class BMDRegionsAssignOperator(bpy.types.Operator):
     bl_idname = "reynolds.assign_region"
     bl_label = "Assign"
     bl_description = "Assign faces to the region"
-    
+
     def execute(self, context):
         print("Assigning region")
-        
+
         scene = context.scene
         obj = context.active_object
         bmd_tool = scene.bmd_tool
-        
+
         bm = bmesh.from_edit_mesh(obj.data)
-        
+
         r_faces = []
-        
+
         for f in bm.faces:
             if f.select:
                 print("Selected face: ", f.index, f)
                 print("normal ", f.normal, f.normal.magnitude)
-                
+
                 print (obj.data.polygons[f.index].vertices)
                 f_vertex_labels = []
                 p = obj.data.polygons[f.index]
-                r_vertices = []                
+                r_vertices = []
                 for v_index in p.vertices:
                     r_vertices.append(v_index)
                 print(r_vertices)
@@ -432,7 +425,7 @@ class BMDRegionsAssignOperator(bpy.types.Operator):
                     f_vertex_labels.append(scene.vertex_labels[v])
                 print(f_vertex_labels)
                 r_faces.append(f_vertex_labels)
-        
+
         print(r_faces)
         item = scene.bmd_regions[scene.bmd_rindex]
         region_name = scene.bmd_tool.region_name
@@ -442,7 +435,7 @@ class BMDRegionsAssignOperator(bpy.types.Operator):
         scene.regions[region_name] = r
         print(scene.regions)
         return{'FINISHED'}
-    
+
 class BMDRegionsRemoveOperator(bpy.types.Operator):
     bl_idname = "reynolds.remove_region"
     bl_label = "Remove"
@@ -450,17 +443,17 @@ class BMDRegionsRemoveOperator(bpy.types.Operator):
 
     def execute(self, context):
         print("Removing region")
-        
+
         scene = context.scene
         obj = context.active_object
-        
+
         print(scene.bmd_rindex, scene.bmd_regions[scene.bmd_rindex])
         item = scene.bmd_regions[scene.bmd_rindex]
         r_name, _ = item.name.split(" : ", 1)
         scene.regions.pop(r_name, None)
         item.name = ""
         return{'FINISHED'}
-    
+
 class BMDGenerateDictOperator(bpy.types.Operator):
     bl_idname = "reynolds.generate_bmd"
     bl_label = "Generate Block Mesh Dict"
@@ -469,7 +462,7 @@ class BMDGenerateDictOperator(bpy.types.Operator):
         scene = context.scene
         bmd_tool = scene.bmd_tool
         obj = context.active_object
-        
+
         print("Select dir for generated blockmeshdict file")
 
         abs_bmd_path = bpy.path.abspath(bmd_tool.bmd_path)
@@ -482,14 +475,14 @@ class BMDGenerateDictOperator(bpy.types.Operator):
             print(v)
             bmd_v = Vertex3(v.x, v.z, v.y) # Swap y, z
             bmd_vertices.append(bmd_v)
-            
+
         # generate bmd blocks
         block_cells = bmd_tool.n_cells
         block_grading = bmd_tool.n_grading
         sg = SimpleGrading([block_grading[0], block_grading[1], block_grading[2]])
         bmd_block = Block(scene.blocks, [block_cells[0], block_cells[1], block_cells[2]], sg)
         print(bmd_block)
-        
+
         # generate bmd regions
         bmd_regions = []
         for name, r in scene.regions.items():
@@ -499,17 +492,17 @@ class BMDGenerateDictOperator(bpy.types.Operator):
                 faces.append(Face(f))
             br = BoundaryRegion(n, type, faces)
             bmd_regions.append(br)
-        
+
         bmd = MeshDict(bmd_tool.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
-        
+
         print(bmd.dict_string())
-        
+
         bmd_file_path = os.path.join(abs_bmd_path, "system", "blockMeshDict")
         with open(bmd_file_path, "w") as f:
             f.write(bmd.dict_string())
-        
+
         return{'FINISHED'}
-    
+
 class BMDStartOpenFoamOperator(bpy.types.Operator):
     bl_idname = "reynolds.start_of"
     bl_label = "Start OpenFoam"
@@ -518,7 +511,7 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
         scene = context.scene
         bmd_tool = scene.bmd_tool
         obj = context.active_object
-        
+
         print("Start openfoam")
 
         fr = FoamRunner()
@@ -527,10 +520,10 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
             print("OpenFoam started: SUCCESS")
         else:
             print("OpenFoam started: FAILURE")
-        
+
         return{'FINISHED'}
-            
-class BMDStartOpenFoamOperator(bpy.types.Operator):
+
+class BMDSolveCaseOperator(bpy.types.Operator):
     bl_idname = "reynolds.solve_case"
     bl_label = "Solve OpenFoam Case"
 
@@ -538,7 +531,7 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
         scene = context.scene
         bmd_tool = scene.bmd_tool
         obj = context.active_object
-        
+
         print("Start openfoam")
         case_dir = bpy.path.abspath(bmd_tool.bmd_path)
         mr = MeshRunner(case_dir=case_dir)
@@ -554,9 +547,9 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
                 print("Case solving failed", out, err)
         else:
             print("BlockMesh failed", out, err)
-            
+
         return{'FINISHED'}
-    
+
 # ------------------------------------------------------------------------
 #    block mesh dict tool in edit mode
 # ------------------------------------------------------------------------
@@ -564,10 +557,10 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
 class BlockMeshDictPanel(Panel):
     bl_idname = "of_bmd_panel"
     bl_label = "Block Mesh Dict"
-    bl_space_type = "VIEW_3D"   
-    bl_region_type = "TOOLS"    
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"   
+    bl_context = "mesh_edit"
 
     @classmethod
     def poll(self,context):
@@ -577,11 +570,11 @@ class BlockMeshDictPanel(Panel):
         layout = self.layout
         scene = context.scene
         bmd_tool = scene.bmd_tool
-        
+
         # --------------
         # Vertices Panel
         # --------------
-        
+
         rbox = layout.box()
         rbox.label(text="Vertices")
         rbox.prop(bmd_tool, "convert_to_meters")
@@ -592,26 +585,26 @@ class BlockMeshDictPanel(Panel):
         col.operator("vertices.list_action", icon='ZOOMIN', text="").action = 'ADD'
         col.operator("vertices.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
         col.separator()
-        
+
         rbrow2 = rbox.row()
         rbrow2.operator("reynolds.assign_vertex", icon="VERTEXSEL")
         rbrow2.operator("reynolds.remove_vertex", icon="X")
         rbrow2.separator()
-        
+
         # ------------
         # Blocks Panel
         # ------------
-        
+
         bbox = layout.box()
         bbox.label(text="Blocks")
         bbox.prop(bmd_tool, "n_cells")
         bbox.prop(bmd_tool, "n_grading")
         bbox.operator("reynolds.blocks", icon="MESH_CUBE")
-        
+
         # --------------
         # Regions Panel
         # --------------
-        
+
         rbox = layout.box()
         rbox.label(text="Regions")
         rbrow = rbox.row()
@@ -621,7 +614,7 @@ class BlockMeshDictPanel(Panel):
         col.operator("regions.list_action", icon='ZOOMIN', text="").action = 'ADD'
         col.operator("regions.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
         col.separator()
-        
+
         rbrow2 = rbox.row()
         rbrow2.prop(bmd_tool, "region_name")
         rbrow2.prop(bmd_tool, "region_type")
@@ -629,11 +622,11 @@ class BlockMeshDictPanel(Panel):
         rbrow3 = rbox.row()
         rbrow3.operator("reynolds.assign_region", icon="VERTEXSEL")
         rbrow3.operator("reynolds.remove_region", icon="X")
-        
+
         # -----------------------------
         # Generate blockmesh dict panel
         # -----------------------------
-        
+
         rbox = layout.box()
         rbox.label(text="Case")
         rbrow = rbox.row()
@@ -646,14 +639,30 @@ class BlockMeshDictPanel(Panel):
         rbrow3.operator("reynolds.generate_bmd", icon="FILE_TEXT")
         rbrow3.operator("reynolds.start_of", icon="OUTLINER_OB_FONT")
         rbrow3.operator("reynolds.solve_case", icon="IPO_BACK")
-     
+
 
 # ------------------------------------------------------------------------
 # register and unregister
 # ------------------------------------------------------------------------
 
 def register():
-    bpy.utils.register_module(__name__)
+    bpy.utils.register_class(VerticesListActions)
+    bpy.utils.register_class(VerticesItems)
+    bpy.utils.register_class(BMDVertexLabel)
+    bpy.utils.register_class(RegionsListActions)
+    bpy.utils.register_class(RegionsItems)
+    bpy.utils.register_class(BMDRegionLabel)
+    bpy.utils.register_class(BlockMeshDictSettings)
+    bpy.utils.register_class(BMDVerticesOperator)
+    bpy.utils.register_class(BMDBlocksOperator)
+    bpy.utils.register_class(BMDVertexAssignOperator)
+    bpy.utils.register_class(BMDVertexRemoveOperator)
+    bpy.utils.register_class(BMDRegionsAssignOperator)
+    bpy.utils.register_class(BMDRegionsRemoveOperator)
+    bpy.utils.register_class(BMDGenerateDictOperator)
+    bpy.utils.register_class(BMDStartOpenFoamOperator)
+    bpy.utils.register_class(BMDSolveCaseOperator)
+    bpy.utils.register_class(BlockMeshDictPanel)
     bpy.types.Scene.vertex_labels = {}
     bpy.types.Scene.blocks = []
     bpy.types.Scene.regions = {}
@@ -662,10 +671,26 @@ def register():
     bpy.types.Scene.bmd_regions = CollectionProperty(type=BMDRegionLabel)
     bpy.types.Scene.bmd_rindex = IntProperty()
     bpy.types.Scene.bmd_tool = PointerProperty(type=BlockMeshDictSettings)
-    
+
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    bpy.utils.unregister_class(VerticesListActions)
+    bpy.utils.unregister_class(VerticesItems)
+    bpy.utils.unregister_class(BMDVertexLabel)
+    bpy.utils.unregister_class(RegionsListActions)
+    bpy.utils.unregister_class(RegionsItems)
+    bpy.utils.unregister_class(BMDRegionLabel)
+    bpy.utils.unregister_class(BlockMeshDictSettings)
+    bpy.utils.unregister_class(BMDVerticesOperator)
+    bpy.utils.unregister_class(BMDBlocksOperator)
+    bpy.utils.unregister_class(BMDVertexAssignOperator)
+    bpy.utils.unregister_class(BMDVertexRemoveOperator)
+    bpy.utils.unregister_class(BMDRegionsAssignOperator)
+    bpy.utils.unregister_class(BMDRegionsRemoveOperator)
+    bpy.utils.unregister_class(BMDGenerateDictOperator)
+    bpy.utils.unregister_class(BMDStartOpenFoamOperator)
+    bpy.utils.unregister_class(BMDSolveCaseOperator)
+    bpy.utils.unregister_class(BlockMeshDictPanel)
     del bpy.types.Scene.vertex_labels
     del bpy.types.Scene.blocks
     del bpy.types.Scene.regions
