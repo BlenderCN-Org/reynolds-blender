@@ -260,13 +260,6 @@ class BlockMeshDictSettings(PropertyGroup):
                ]
         )
 
-    bmd_path = StringProperty(
-        name="",
-        description="Choose a directory:",
-        default="",
-        maxlen=1024,
-        subtype='DIR_PATH')
-
     solver_name = StringProperty(
         name="Solver Name",
         description=":",
@@ -460,11 +453,12 @@ class BMDGenerateDictOperator(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         bmd_tool = scene.bmd_tool
+        case_info_tool = scene.case_info_tool
         obj = context.active_object
 
         print("Select dir for generated blockmeshdict file")
 
-        abs_bmd_path = bpy.path.abspath(bmd_tool.bmd_path)
+        abs_case_dir_path = bpy.path.abspath(case_info_tool.case_dir_path)
 
         # generate bmd vertices
         bmd_vertices = []
@@ -496,7 +490,7 @@ class BMDGenerateDictOperator(bpy.types.Operator):
 
         print(bmd.dict_string())
 
-        bmd_file_path = os.path.join(abs_bmd_path, "system", "blockMeshDict")
+        bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
         with open(bmd_file_path, "w") as f:
             f.write(bmd.dict_string())
 
@@ -510,10 +504,11 @@ class BMDSolveCaseOperator(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         bmd_tool = scene.bmd_tool
+        case_info_tool = scene.case_info_tool
         obj = context.active_object
 
         print("Start openfoam")
-        case_dir = bpy.path.abspath(bmd_tool.bmd_path)
+        case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
         mr = MeshRunner(case_dir=case_dir)
         status, out, err = mr.run()
         if status:
@@ -609,9 +604,6 @@ class BlockMeshDictPanel(Panel):
 
         rbox = layout.box()
         rbox.label(text="Case")
-        rbrow = rbox.row()
-        rbrow.prop(bmd_tool, "bmd_path")
-        rbrow.separator()
         rbrow2 = rbox.row()
         rbrow2.prop(bmd_tool, "solver_name")
         rbrow2.separator()

@@ -29,12 +29,22 @@
 # bpy imports
 # -----------
 import bpy
-from bpy.types import Panel
+from bpy.types import (Panel,
+                       PropertyGroup)
+from bpy.props import StringProperty
 
 # ---------------
 # reynolds imports
 # ----------------
 from reynolds.foam.start import FoamRunner
+
+class CaseSettings(PropertyGroup):
+    case_dir_path = StringProperty(
+        name="",
+        description="Choose a directory:",
+        default="",
+        maxlen=1024,
+        subtype='DIR_PATH')
 
 class BMDStartOpenFoamOperator(bpy.types.Operator):
     bl_idname = "reynolds.start_of"
@@ -71,13 +81,16 @@ class FoamPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+        case_info_tool = scene.case_info_tool
 
         # --------------
         # Foam Panel
         # --------------
 
         rbox = layout.box()
-        rbox.label(text="Start")
+        rbox.label(text="Case Dir")
+        rbrow = rbox.row()
+        rbrow.prop(case_info_tool, "case_dir_path")
         rbrow = rbox.row()
         rbrow.operator("reynolds.start_of", icon="VERTEXSEL")
 
@@ -88,10 +101,12 @@ class FoamPanel(Panel):
 def register():
     bpy.utils.register_class(BMDStartOpenFoamOperator)
     bpy.utils.register_class(FoamPanel)
+    bpy.utils.register_class(CaseSettings)
 
 def unregister():
     bpy.utils.unregister_class(BMDStartOpenFoamOperator)
     bpy.utils.unregister_class(FoamPanel)
+    bpy.utils.unregister_class(CaseSettings)
 
 if __name__ == '__main__':
     register()

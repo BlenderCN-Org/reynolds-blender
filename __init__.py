@@ -26,7 +26,7 @@
 #------------------------------------------------------------------------------
 
 bl_info = {
-    "name": "OpenFoam BlockMeshDict Add-On",
+    "name": "OpenFoam Add-On",
     "description": "",
     "author": "Deepak Surti",
     "version": (0, 0, 1),
@@ -41,19 +41,24 @@ bl_info = {
 if "bpy" in locals():
     import importlib
     importlib.reload(foam)
-    importlib.reload(block_mesh_addon)
+    importlib.reload(block_mesh)
 else:
-    from . import foam, block_mesh_addon
+    from . import foam, block_mesh
 
 import bpy
 
+from bpy.props import (StringProperty,
+                       PointerProperty)
+
 def register():
     foam.register()
-    block_mesh_addon.register()
+    block_mesh.register()
+    bpy.types.Scene.case_info_tool = PointerProperty(type=foam.CaseSettings)
 
 def unregister():
     foam.unregister()
-    block_mesh_addon.unregister()
+    block_mesh.unregister()
+    del bpy.types.Scene.case_info_tool
 
 if __name__ == '__main__':
     register()
