@@ -42,8 +42,9 @@ if "bpy" in locals():
     import importlib
     importlib.reload(foam)
     importlib.reload(block_mesh)
+    importlib.reload(solver)
 else:
-    from . import foam, block_mesh
+    from . import foam, block_mesh, solver
 
 import bpy
 
@@ -53,11 +54,13 @@ from bpy.props import (StringProperty,
 def register():
     foam.register()
     block_mesh.register()
+    solver.register()
     bpy.types.Scene.case_info_tool = PointerProperty(type=foam.CaseSettings)
 
 def unregister():
     foam.unregister()
     block_mesh.unregister()
+    solver.unregister()
     del bpy.types.Scene.case_info_tool
 
 if __name__ == '__main__':

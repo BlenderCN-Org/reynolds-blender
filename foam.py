@@ -46,6 +46,13 @@ class CaseSettings(PropertyGroup):
         maxlen=1024,
         subtype='DIR_PATH')
 
+    solver_name = StringProperty(
+        name="Solver Name",
+        description=":",
+        default="",
+        maxlen=1024,
+        )
+
 class BMDStartOpenFoamOperator(bpy.types.Operator):
     bl_idname = "reynolds.start_of"
     bl_label = "Start OpenFoam"

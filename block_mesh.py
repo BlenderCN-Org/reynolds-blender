@@ -260,13 +260,6 @@ class BlockMeshDictSettings(PropertyGroup):
                ]
         )
 
-    solver_name = StringProperty(
-        name="Solver Name",
-        description=":",
-        default="",
-        maxlen=1024,
-        )
-
 # ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
@@ -497,9 +490,9 @@ class BMDGenerateDictOperator(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class BMDSolveCaseOperator(bpy.types.Operator):
-    bl_idname = "reynolds.solve_case"
-    bl_label = "Solve OpenFoam Case"
+class BMDBlockMeshRunnerOperator(bpy.types.Operator):
+    bl_idname = "reynolds.block_mesh_runner"
+    bl_label = "Run blockMesh"
 
     def execute(self, context):
         scene = context.scene
@@ -513,13 +506,6 @@ class BMDSolveCaseOperator(bpy.types.Operator):
         status, out, err = mr.run()
         if status:
             print("blockMesh success")
-            sr = SolverRunner(solver_name=bmd_tool.solver_name,
-                              case_dir=case_dir)
-            status, out, err = sr.run()
-            if status:
-                print("Case solved successfully")
-            else:
-                print("Case solving failed", out, err)
         else:
             print("BlockMesh failed", out, err)
 
@@ -603,13 +589,10 @@ class BlockMeshDictPanel(Panel):
         # -----------------------------
 
         rbox = layout.box()
-        rbox.label(text="Case")
-        rbrow2 = rbox.row()
-        rbrow2.prop(bmd_tool, "solver_name")
-        rbrow2.separator()
+        rbox.label(text="BlockMesh")
         rbrow3 = rbox.row()
         rbrow3.operator("reynolds.generate_bmd", icon="FILE_TEXT")
-        rbrow3.operator("reynolds.solve_case", icon="IPO_BACK")
+        rbrow3.operator("reynolds.block_mesh_runner", icon="FILE_TEXT")
 
 # ------------------------------------------------------------------------
 # register and unregister
@@ -630,7 +613,7 @@ def register():
     bpy.utils.register_class(BMDRegionsAssignOperator)
     bpy.utils.register_class(BMDRegionsRemoveOperator)
     bpy.utils.register_class(BMDGenerateDictOperator)
-    bpy.utils.register_class(BMDSolveCaseOperator)
+    bpy.utils.register_class(BMDBlockMeshRunnerOperator)
     bpy.utils.register_class(BlockMeshDictPanel)
     bpy.types.Scene.vertex_labels = {}
     bpy.types.Scene.blocks = []
@@ -657,7 +640,7 @@ def unregister():
     bpy.utils.unregister_class(BMDRegionsAssignOperator)
     bpy.utils.unregister_class(BMDRegionsRemoveOperator)
     bpy.utils.unregister_class(BMDGenerateDictOperator)
-    bpy.utils.unregister_class(BMDSolveCaseOperator)
+    bpy.utils.unregister_class(BMDBlockMeshRunnerOperator)
     bpy.utils.unregister_class(BlockMeshDictPanel)
     del bpy.types.Scene.vertex_labels
     del bpy.types.Scene.blocks
