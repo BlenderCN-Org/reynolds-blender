@@ -8,7 +8,6 @@ class TestAddon(unittest.TestCase):
         # every addon must provide the "bl_info" dict
         self.assertIsNotNone(reynolds_blender.bl_info)
 
-# manually invoke the test
 suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestAddon)
 unittest.TextTestRunner().run(suite)
 
