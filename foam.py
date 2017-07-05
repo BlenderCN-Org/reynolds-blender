@@ -33,6 +33,9 @@ from bpy.types import (Panel,
                        PropertyGroup)
 from bpy.props import StringProperty
 
+
+from progress_report import ProgressReport
+
 # ---------------
 # reynolds imports
 # ----------------
@@ -65,11 +68,11 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
         print("Start openfoam")
 
         fr = FoamRunner()
-        status = fr.start()
-        if status:
-            print("OpenFoam started: SUCCESS")
+
+        if fr.start():
+            self.report({'INFO'}, 'OpenFoam started: SUCCESS')
         else:
-            print("OpenFoam started: FAILURE")
+            self.report({'INFO'}, 'OpenFoam started: FAILED')
 
         return{'FINISHED'}
 

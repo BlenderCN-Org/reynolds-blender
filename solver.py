@@ -31,6 +31,8 @@
 import bpy
 from bpy.types import Panel
 
+from progress_report import ProgressReport
+
 # ----------------
 # reynolds imports
 # ----------------
@@ -46,15 +48,16 @@ class BMDSolveCaseOperator(bpy.types.Operator):
         case_info_tool = scene.case_info_tool
         obj = context.active_object
 
-        print("Solve case ...")
         case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
         sr = SolverRunner(solver_name=case_info_tool.solver_name,
                           case_dir=case_dir)
-        status, out, err = sr.run()
-        if status:
-            print("Case solved successfully")
+        for info in sr.run():
+            self.report({'WARNING'}, info)
+
+        if sr.run_status:
+            self.report({'INFO'}, 'Case solving: SUCCESS')
         else:
-            print("Case solving failed", out, err)
+            self.report({'INFO'}, 'Case solving: FAILED')
 
         return{'FINISHED'}
 
