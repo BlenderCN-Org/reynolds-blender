@@ -56,10 +56,9 @@ import os
 # ----------------
 # reynolds imports
 # ----------------
-from reynolds.blockmesh.mesh_components import Vertex3, Block, SimpleGrading, Face, BoundaryRegion
-from reynolds.blockmesh.mesh_dict import MeshDict
-from reynolds.blockmesh.mesh_runner import MeshRunner
-from reynolds.solver.solver_runner import SolverRunner
+from reynolds.json.schema_gen import FoamDictJSONGenerator
+from reynolds.dict.foam_dict_gen import FoamDictGenerator
+from reynolds.foam.cmd_runner import FoamCmdRunner
 
 # ------------------------------------------------------------------------
 #    custom UI list for adding vertices
@@ -459,33 +458,71 @@ class BMDGenerateDictOperator(bpy.types.Operator):
         for v_index, _ in sorted_labels:
             v = obj.data.vertices[v_index].co
             print(v)
-            bmd_v = Vertex3(v.x, v.z, v.y) # Swap y, z
+            bmd_v = [v.x, v.z, v.y] # Swap y, z
             bmd_vertices.append(bmd_v)
 
         # generate bmd blocks
+        bmd_blocks_dict = {}
+        bmd_blocks_dict['vertex_nums'] = scene.blocks
         block_cells = bmd_tool.n_cells
+        bmd_blocks_dict['num_cells'] = [block_cells[0],
+                                        block_cells[1],
+                                        block_cells[2]]
+        bmd_blocks_dict['grading'] = 'simpleGrading'
         block_grading = bmd_tool.n_grading
-        sg = SimpleGrading([block_grading[0], block_grading[1], block_grading[2]])
-        bmd_block = Block(scene.blocks, [block_cells[0], block_cells[1], block_cells[2]], sg)
-        print(bmd_block)
+        bmd_blocks_dict['grading_x'] = [[1, 1, block_grading[0]]]
+        bmd_blocks_dict['grading_y'] = [[1, 1, block_grading[1]]]
+        bmd_blocks_dict['grading_z'] = [[1, 1, block_grading[2]]]
+        print(bmd_blocks_dict)
 
         # generate bmd regions
         bmd_regions = []
         for name, r in scene.regions.items():
+            br = {}
             n, type, face_labels = r
+            br['name'] = n
+            br['type'] = type
             faces = []
             for f in face_labels:
-                faces.append(Face(f))
-            br = BoundaryRegion(n, type, faces)
+                faces.append(f)
+            br['faces'] = faces
             bmd_regions.append(br)
+        print(bmd_regions)
 
-        bmd = MeshDict(bmd_tool.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
+        block_mesh_dict_gen = FoamDictJSONGenerator('blockMeshDict.schema')
+        block_mesh_dict_json = block_mesh_dict_gen.json_obj
 
-        print(bmd.dict_string())
+         # set header info
+        block_mesh_dict_json['version'] = '2.0'
+        block_mesh_dict_json['format'] = 'ascii'
+        block_mesh_dict_json['class'] = 'dictionary'
+        block_mesh_dict_json['object'] = 'blockMeshDict'
+
+        # set convert to meters
+        block_mesh_dict_json['convertToMeters'] = bmd_tool.convert_to_meters
+
+        # set vertices
+        print(bmd_vertices)
+        block_mesh_dict_json['vertices'] = bmd_vertices
+
+        # set blocks
+        block_mesh_dict_json['blocks'] = bmd_blocks_dict
+
+        # set boundary
+        block_mesh_dict_json['boundary'] = bmd_regions
+
+        # generate the blockMeshDict
+        foam_dict_gen = FoamDictGenerator(block_mesh_dict_json,
+                                          'blockMeshDict.foam')
+        block_mesh_dict = foam_dict_gen.foam_dict
+
+        # bmd = MeshDict(bmd_tool.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
+
+        print(block_mesh_dict)
 
         bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
         with open(bmd_file_path, "w") as f:
-            f.write(bmd.dict_string())
+            f.write(block_mesh_dict)
 
         return{'FINISHED'}
 
@@ -502,12 +539,15 @@ class BMDBlockMeshRunnerOperator(bpy.types.Operator):
 
         print("Start openfoam")
         case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
-        mr = MeshRunner(case_dir=case_dir)
-        status, out, err = mr.run()
-        if status:
-            print("blockMesh success")
+        mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir)
+
+        for info in mr.run():
+            self.report({'WARNING'}, info)
+
+        if mr.run_status:
+            self.report({'INFO'}, 'Blockmesh : SUCCESS')
         else:
-            print("BlockMesh failed", out, err)
+            self.report({'INFO'}, 'Blockmesh : FAILED')
 
         return{'FINISHED'}
 

@@ -37,7 +37,7 @@ from progress_report import ProgressReport
 # reynolds imports
 # ----------------
 
-from reynolds.solver.solver_runner import SolverRunner
+from reynolds.foam.cmd_runner import FoamCmdRunner
 
 class BMDSolveCaseOperator(bpy.types.Operator):
     bl_idname = "reynolds.solve_case"
@@ -49,8 +49,8 @@ class BMDSolveCaseOperator(bpy.types.Operator):
         obj = context.active_object
 
         case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
-        sr = SolverRunner(solver_name=case_info_tool.solver_name,
-                          case_dir=case_dir)
+        sr = FoamCmdRunner(cmd_name=case_info_tool.solver_name,
+                           case_dir=case_dir)
         for info in sr.run():
             self.report({'WARNING'}, info)
 

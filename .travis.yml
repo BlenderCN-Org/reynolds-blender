@@ -46,8 +46,13 @@ install:
   - rm -rf ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/scripts/addons/reynolds_blender
   - cp -R ${TRAVIS_BUILD_DIR}/reynolds_blender ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/scripts/addons
 
+  # install pip in blender python
+  - cd ${TRAVIS_BUILD_DIR}
+  - ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/python/bin/python3.5m get-pip.py
+  - ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/python/bin/pip install -r requirements.txt
+
   # install reynolds in blender python
-  - cd reynolds
+  - cd ${TRAVIS_BUILD_DIR}/../tmp/reynolds
   - ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/python/bin/python3.5m setup.py install
 
   # go back to root directory
