@@ -31,7 +31,7 @@
 import bpy
 from bpy.types import (Panel,
                        PropertyGroup)
-from bpy.props import StringProperty
+from bpy.props import StringProperty, BoolProperty
 
 
 from progress_report import ProgressReport
@@ -55,6 +55,11 @@ class CaseSettings(PropertyGroup):
         default="",
         maxlen=1024,
         )
+
+    case_solved = BoolProperty(
+        name="",
+        description="Case solved status",
+        default=False)
 
 class BMDStartOpenFoamOperator(bpy.types.Operator):
     bl_idname = "reynolds.start_of"

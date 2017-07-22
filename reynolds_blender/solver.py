@@ -48,6 +48,10 @@ class BMDSolveCaseOperator(bpy.types.Operator):
         case_info_tool = scene.case_info_tool
         obj = context.active_object
 
+        # ----------------------------------
+        # Reset the status of a previous run
+        # ----------------------------------
+        case_info_tool.case_solved = False
         case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
         sr = FoamCmdRunner(cmd_name=case_info_tool.solver_name,
                            case_dir=case_dir)
@@ -55,8 +59,10 @@ class BMDSolveCaseOperator(bpy.types.Operator):
             self.report({'WARNING'}, info)
 
         if sr.run_status:
+            case_info_tool.case_solved = True
             self.report({'INFO'}, 'Case solving: SUCCESS')
         else:
+            case_info_tool.case_solved = False
             self.report({'INFO'}, 'Case solving: FAILED')
 
         return{'FINISHED'}

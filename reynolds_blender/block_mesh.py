@@ -77,6 +77,9 @@ class VerticesListActions(bpy.types.Operator):
         )
     )
 
+    def execute(self, context):
+        return self.invoke(context, None)
+
     def invoke(self, context, event):
 
         scn = context.scene
@@ -151,6 +154,9 @@ class RegionsListActions(bpy.types.Operator):
             ('ADD', "Add", ""),
         )
     )
+
+    def execute(self, context):
+        return self.invoke(context, None)
 
     def invoke(self, context, event):
 
