@@ -14,5 +14,5 @@ def register_classes(module_name):
 
 def unregister_classes(module_name):
     for name, cls_member in get_module_class_members(module_name):
-        print('Registering ', name)
+        print('UnRegistering ', name)
         bpy.utils.unregister_class(cls_member)
