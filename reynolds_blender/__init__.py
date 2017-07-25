@@ -46,6 +46,9 @@ if "bpy" in locals():
 else:
     from . import foam, block_mesh, solver
 
+
+from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
+
 import bpy
 
 from bpy.props import (StringProperty,
@@ -55,13 +58,13 @@ def register():
     foam.register()
     block_mesh.register()
     solver.register()
-    bpy.types.Scene.case_info_tool = PointerProperty(type=foam.CaseSettings)
+    set_scene_attrs("common_attrs.json")
 
 def unregister():
     foam.unregister()
     block_mesh.unregister()
     solver.unregister()
-    del bpy.types.Scene.case_info_tool
+    del_scene_attrs("common_attrs.json")
 
 if __name__ == '__main__':
     register()
