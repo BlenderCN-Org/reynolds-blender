@@ -31,15 +31,13 @@ class TestBlockMesh(unittest.TestCase):
         # --------------------
         # select case directory
         # --------------------
-        case_info_tool = scene.case_info_tool
         # use blender path format, the addon converts to abs path
-        case_info_tool.case_dir_path = '//cavity'
+        scene.case_dir_path = '//cavity'
 
         # ------------------
         # set convertToMeters
         # -------------------
-        bmd_tool = scene.bmd_tool
-        bmd_tool.convert_to_meters = 0.1
+        scene.convert_to_meters = 0.1
 
         # -------------------------------------------------------------
         # assign vertices with indices: 0, 1, 3, 2, 4, 5, 7, 6 in order
@@ -74,16 +72,16 @@ class TestBlockMesh(unittest.TestCase):
         # -------------------
         # set number of cells
         # -------------------
-        scene.bmd_tool.n_cells[0] = 20
-        scene.bmd_tool.n_cells[1] = 20
-        scene.bmd_tool.n_cells[2] = 1
+        scene.n_cells[0] = 20
+        scene.n_cells[1] = 20
+        scene.n_cells[2] = 1
 
         # -------------------------
         # set cell expansion ratios
         # -------------------------
-        scene.bmd_tool.n_grading[0] = 1
-        scene.bmd_tool.n_grading[1] = 1
-        scene.bmd_tool.n_grading[2] = 1
+        scene.n_grading[0] = 1
+        scene.n_grading[1] = 1
+        scene.n_grading[2] = 1
 
         # -----------------------------------------------------------------
         # set boundary
@@ -96,8 +94,8 @@ class TestBlockMesh(unittest.TestCase):
                     'fixedWalls': ([3, 5, 2], 'wall'),
                     'frontAndBack': ([0, 1], 'empty')}
         for name, (faces, type) in patches.items():
-            scene.bmd_tool.region_name = name
-            scene.bmd_tool.region_type = type
+            scene.region_name = name
+            scene.region_type = type
             mesh = bmesh.from_edit_mesh(obj.data)
             mesh.faces.ensure_lookup_table()
             for f in faces:
@@ -122,14 +120,14 @@ class TestBlockMesh(unittest.TestCase):
         # ---------------
         # set solver name
         # ---------------
-        case_info_tool.solver_name = 'icoFoam'
+        scene.solver_name = 'icoFoam'
 
         # ----------
         # solve case
         # ----------
         bpy.ops.reynolds.solve_case()
 
-        self.assertTrue(case_info_tool.case_solved)
+        self.assertTrue(scene.case_solved)
 
 suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestBlockMesh)
 unittest.TextTestRunner().run(suite)
