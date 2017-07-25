@@ -41,6 +41,7 @@ from progress_report import ProgressReport
 # ------------------------
 
 from reynolds_blender.gui.register import register_classes, unregister_classes
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 
 # ---------------
 # reynolds imports
@@ -82,16 +83,12 @@ class FoamPanel(Panel):
         layout = self.layout
         scene = context.scene
 
-        # --------------
-        # Foam Panel
-        # --------------
+        # -------------------------------------
+        # Render Foam Panel using JSON GUI Spec
+        # -------------------------------------
 
-        rbox = layout.box()
-        rbox.label(text="Case Dir")
-        rbrow = rbox.row()
-        rbrow.prop(scene, "case_dir_path")
-        rbrow = rbox.row()
-        rbrow.operator("reynolds.start_of", icon="VERTEXSEL")
+        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.json')
+        gui_renderer.render()
 
 # ------------------------------------------------------------------------
 # register and unregister

@@ -1,0 +1,33 @@
+{
+  "gui_elements":
+  [
+    {
+      "box":
+      [
+        {
+          "label": {"text": "Solver"}
+        },
+        {
+          "row":
+          [
+            {
+              "prop": {"scene_attr": "solver_name"}
+            },
+            {
+              "separator" : {"nums" : 1}
+            }
+          ]
+        },
+        {
+          "row":
+          [
+            {
+              "operator": {"id": "reynolds.solve_case",
+                           "icon": "IPO_BACK"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
