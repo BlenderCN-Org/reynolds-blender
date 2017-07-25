@@ -89,23 +89,12 @@ class SolverPanel(Panel):
         layout = self.layout
         scene = context.scene
 
-        # -------------------------------------
-        # Render Foam Panel using JSON GUI Spec
-        # -------------------------------------
+        # ---------------------------------------
+        # Render Solver Panel using JSON GUI Spec
+        # ---------------------------------------
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.json')
         gui_renderer.render()
-
-        # --------------
-        # Solver Panel
-        # --------------
-        # rbox = layout.box()
-        # rbox.label(text="Solver")
-        # rbrow2 = rbox.row()
-        # rbrow2.prop(scene, "solver_name")
-        # rbrow2.separator()
-        # rbrow3 = rbox.row()
-        # rbrow3.operator("reynolds.solve_case", icon="IPO_BACK")
 
 def register():
     register_classes(__name__)

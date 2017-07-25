@@ -1,8 +1,44 @@
+#------------------------------------------------------------------------------
+# Reynolds-Blender | The Blender add-on for Reynolds, an OpenFoam toolbox.
+#------------------------------------------------------------------------------
+# Copyright|
+#------------------------------------------------------------------------------
+#     Deepak Surti       (dmsurti@gmail.com)
+#     Prabhu R           (IIT Bombay, prabhu@aero.iitb.ac.in)
+#     Shivasubramanian G (IIT Bombay, sgopalak@iitb.ac.in)
+#------------------------------------------------------------------------------
+# License
+#
+#     This file is part of reynolds-blender.
+#
+#     reynolds-blender is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     reynolds-blender is distributed in the hope that it will be useful, but
+#     WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+#     Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with reynolds-blender.  If not, see <http://www.gnu.org/licenses/>.
+#------------------------------------------------------------------------------
+
+# -----------
+# bpy imports
+# -----------
 import bpy
 
+# --------------
+# python imports
+# --------------
 import json
 import os
 
+# ------------------------
+# reynolds blender imports
+# ------------------------
 from .register import register_classes
 
 class ReynoldsGUIRenderer(object):
@@ -12,8 +48,6 @@ class ReynoldsGUIRenderer(object):
 
         current_dir = os.path.realpath(os.path.dirname(__file__))
         gui_file = os.path.join(current_dir, "../json", "panels", gui_filename)
-
-        print('Reading GUI Spec from : ', gui_file)
 
         self.gui_spec = {}
         with open(gui_file) as f:
@@ -26,8 +60,6 @@ class ReynoldsGUIRenderer(object):
     def _render_gui_element(self, gui_element, parent):
         name = list(gui_element.keys())[0]
         metadata = gui_element[name]
-
-        print('Rendering element: ', name, metadata)
 
         if name == 'box':
             box = parent.box()
@@ -42,13 +74,28 @@ class ReynoldsGUIRenderer(object):
             for child in metadata:
                 self._render_gui_element(child, row)
 
+        if name == 'col':
+            col = parent.column()
+            for child in metadata:
+                self._render_gui_element(child, col)
+
         if name == 'prop':
             parent.prop(self.scene, metadata['scene_attr'])
 
         if name == 'operator':
-            parent.operator(metadata['id'], icon=metadata['icon'])
+            action = metadata.get('action', False)
+            if action:
+                parent.operator(metadata['id'], icon=metadata['icon'],
+                                text="").action = action
+            else:
+                parent.operator(metadata['id'], icon=metadata['icon'])
 
         if name == 'separator':
             for i in range(metadata['nums']):
                 parent.separator()
+
+        if name == 'template_list':
+            parent.template_list('ReynoldsListItems', "", self.scene,
+                                 metadata['coll_data_propname'], self.scene,
+                                 metadata['coll_index_propname'])
 

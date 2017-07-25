@@ -60,6 +60,7 @@ import os
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.custom_list import create_custom_list_operator
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 
 # ----------------
 # reynolds imports
@@ -373,67 +374,14 @@ class BlockMeshDictPanel(Panel):
         layout = self.layout
         scene = context.scene
 
-        # --------------
-        # Vertices Panel
-        # --------------
+        # ---------------------------------------
+        # Render Block Panel using JSON GUI Spec
+        # ---------------------------------------
 
-        rbox = layout.box()
-        rbox.label(text="Vertices")
-        rbox.prop(scene, "convert_to_meters")
-        rbrow = rbox.row()
-        rbrow.template_list("ReynoldsListItems", "", scene, "bmd_vertices", scene, "bmd_vindex", rows=2)
+        gui_renderer = ReynoldsGUIRenderer(scene, layout,
+                                           'block_mesh_panel.json')
+        gui_renderer.render()
 
-        col = rbrow.column(align=True)
-        col.operator("vertices.list_action", icon='ZOOMIN', text="").action = 'ADD'
-        col.operator("vertices.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
-        col.separator()
-
-        rbrow2 = rbox.row()
-        rbrow2.operator("reynolds.assign_vertex", icon="VERTEXSEL")
-        rbrow2.operator("reynolds.remove_vertex", icon="X")
-        rbrow2.separator()
-
-        # ------------
-        # Blocks Panel
-        # ------------
-
-        bbox = layout.box()
-        bbox.label(text="Blocks")
-        bbox.prop(scene, "n_cells")
-        bbox.prop(scene, "n_grading")
-        bbox.operator("reynolds.blocks", icon="MESH_CUBE")
-
-        # --------------
-        # Regions Panel
-        # --------------
-
-        rbox = layout.box()
-        rbox.label(text="Regions")
-        rbrow = rbox.row()
-        rbrow.template_list("ReynoldsListItems", "", scene, "bmd_regions", scene, "bmd_rindex", rows=2)
-
-        col = rbrow.column(align=True)
-        col.operator("regions.list_action", icon='ZOOMIN', text="").action = 'ADD'
-        col.operator("regions.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
-        col.separator()
-
-        rbrow2 = rbox.row()
-        rbrow2.prop(scene, "region_name")
-        rbrow2.prop(scene, "region_type")
-        rbrow2.separator()
-        rbrow3 = rbox.row()
-        rbrow3.operator("reynolds.assign_region", icon="VERTEXSEL")
-        rbrow3.operator("reynolds.remove_region", icon="X")
-
-        # -----------------------------
-        # Generate blockmesh dict panel
-        # -----------------------------
-
-        rbox = layout.box()
-        rbox.label(text="BlockMesh")
-        rbrow3 = rbox.row()
-        rbrow3.operator("reynolds.generate_bmd", icon="FILE_TEXT")
-        rbrow3.operator("reynolds.block_mesh_runner", icon="FILE_TEXT")
 
 # ------------------------------------------------------------------------
 # register and unregister
