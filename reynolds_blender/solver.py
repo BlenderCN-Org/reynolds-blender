@@ -33,6 +33,13 @@ from bpy.types import Panel
 
 from progress_report import ProgressReport
 
+# ------------------------
+# reynolds blender imports
+# ------------------------
+
+from reynolds_blender.gui.register import register_classes, unregister_classes
+
+
 # ----------------
 # reynolds imports
 # ----------------
@@ -45,24 +52,23 @@ class BMDSolveCaseOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        case_info_tool = scene.case_info_tool
         obj = context.active_object
 
         # ----------------------------------
         # Reset the status of a previous run
         # ----------------------------------
-        case_info_tool.case_solved = False
-        case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
-        sr = FoamCmdRunner(cmd_name=case_info_tool.solver_name,
+        scene.case_solved = False
+        case_dir = bpy.path.abspath(scene.case_dir_path)
+        sr = FoamCmdRunner(cmd_name=scene.solver_name,
                            case_dir=case_dir)
         for info in sr.run():
             self.report({'WARNING'}, info)
 
         if sr.run_status:
-            case_info_tool.case_solved = True
+            scene.case_solved = True
             self.report({'INFO'}, 'Case solving: SUCCESS')
         else:
-            case_info_tool.case_solved = False
+            scene.case_solved = False
             self.report({'INFO'}, 'Case solving: FAILED')
 
         return{'FINISHED'}
@@ -82,7 +88,6 @@ class SolverPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        case_info_tool = scene.case_info_tool
 
         # --------------
         # Solver Panel
@@ -90,18 +95,16 @@ class SolverPanel(Panel):
         rbox = layout.box()
         rbox.label(text="Solver")
         rbrow2 = rbox.row()
-        rbrow2.prop(case_info_tool, "solver_name")
+        rbrow2.prop(scene, "solver_name")
         rbrow2.separator()
         rbrow3 = rbox.row()
         rbrow3.operator("reynolds.solve_case", icon="IPO_BACK")
 
 def register():
-    bpy.utils.register_class(BMDSolveCaseOperator)
-    bpy.utils.register_class(SolverPanel)
+    register_classes(__name__)
 
 def unregister():
-    bpy.utils.unregister_class(BMDSolveCaseOperator)
-    bpy.utils.unregister_class(SolverPanel)
+    unregister_classes(__name__)
 
 if __name__ == '__main__':
     register()
