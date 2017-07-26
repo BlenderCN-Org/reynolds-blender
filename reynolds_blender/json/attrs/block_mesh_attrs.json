@@ -1,0 +1,69 @@
+{
+    "attrs" :
+    {
+        "vertex_labels":
+        {
+          "type": "PyDict"
+        },
+        "blocks":
+        {
+          "type": "PyList"
+        },
+        "regions":
+        {
+          "type": "PyDict"
+        },
+        "convert_to_meters":
+        {
+          "type": "Float",
+          "name": "Convert to meters",
+          "description": "Scaling factor by which all vertex coordinates are multiplied.",
+          "default": 0.001
+        },
+        "n_cells":
+        {
+          "type": "IntVector",
+          "name": "Cells",
+          "description": "Number of cells in XYZ direction",
+          "default": [1, 1, 1]
+        },
+        "n_grading":
+        {
+          "type": "IntVector",
+          "name": "Cell expansion ratios",
+          "description": "Cell expansion ratios",
+          "default": [1, 1, 1],
+          "subtype": "XYZ"
+        },
+        "region_name":
+        {
+          "type": "String",
+          "name": "Patch/Region Name",
+          "description": "",
+          "default": "",
+          "maxlen": 1024
+        },
+        "region_type":
+        {
+          "type": "Enum",
+          "name": "Type:",
+          "description:": "Patch/Region Type",
+          "items": [["empty", "empty", ""],
+                    ["wall", "wall", ""],
+                    ["patch", "patch", ""],
+                    ["cyclic", "cyclic", ""]]
+        },
+        "vertices_list":
+        {
+            "type": "UIList",
+            "coll_data_prop": "bmd_vertices",
+            "coll_data_index": "bmd_vindex"
+        },
+        "regions_list":
+        {
+            "type": "UIList",
+            "coll_data_prop": "bmd_regions",
+            "coll_data_index": "bmd_rindex"
+        }
+    }
+}

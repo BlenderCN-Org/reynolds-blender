@@ -25,46 +25,27 @@
 #     along with reynolds-blender.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------------------------
 
-bl_info = {
-    "name": "OpenFoam Add-On",
-    "description": "",
-    "author": "Deepak Surti",
-    "version": (0, 0, 1),
-    "blender": (2, 78, 0),
-    "location": "3D View > Tools",
-    "warning": "", # used for warning icon and text in addons panel
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "Development"
-}
-
-if "bpy" in locals():
-    import importlib
-    importlib.reload(foam)
-    importlib.reload(block_mesh)
-    importlib.reload(solver)
-else:
-    from . import foam, block_mesh, solver
-
-
-from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
-
+# -----------
+# bpy imports
+# -----------
 import bpy
 
-from bpy.props import (StringProperty,
-                       PointerProperty)
+# --------------
+# python imports
+# --------------
+import sys, inspect
 
-def register():
-    foam.register()
-    block_mesh.register()
-    solver.register()
-    set_scene_attrs("common_attrs.json")
+def get_module_class_members(module_name):
+    return [cls_member for cls_member in
+            inspect.getmembers(sys.modules[module_name], inspect.isclass)
+            if getattr(cls_member[1], '__module__', None) == module_name]
 
-def unregister():
-    foam.unregister()
-    block_mesh.unregister()
-    solver.unregister()
-    del_scene_attrs("common_attrs.json")
+def register_classes(module_name):
+    for name, cls_member in get_module_class_members(module_name):
+        print('Registering ', name)
+        bpy.utils.register_class(cls_member)
 
-if __name__ == '__main__':
-    register()
+def unregister_classes(module_name):
+    for name, cls_member in get_module_class_members(module_name):
+        print('UnRegistering ', name)
+        bpy.utils.unregister_class(cls_member)

@@ -36,30 +36,17 @@ from bpy.props import StringProperty, BoolProperty
 
 from progress_report import ProgressReport
 
+# ------------------------
+# reynolds blender imports
+# ------------------------
+
+from reynolds_blender.gui.register import register_classes, unregister_classes
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+
 # ---------------
 # reynolds imports
 # ----------------
 from reynolds.foam.start import FoamRunner
-
-class CaseSettings(PropertyGroup):
-    case_dir_path = StringProperty(
-        name="",
-        description="Choose a directory:",
-        default="",
-        maxlen=1024,
-        subtype='DIR_PATH')
-
-    solver_name = StringProperty(
-        name="Solver Name",
-        description=":",
-        default="",
-        maxlen=1024,
-        )
-
-    case_solved = BoolProperty(
-        name="",
-        description="Case solved status",
-        default=False)
 
 class BMDStartOpenFoamOperator(bpy.types.Operator):
     bl_idname = "reynolds.start_of"
@@ -67,7 +54,6 @@ class BMDStartOpenFoamOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        bmd_tool = scene.bmd_tool
         obj = context.active_object
 
         print("Start openfoam")
@@ -96,32 +82,23 @@ class FoamPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        case_info_tool = scene.case_info_tool
 
-        # --------------
-        # Foam Panel
-        # --------------
+        # -------------------------------------
+        # Render Foam Panel using JSON GUI Spec
+        # -------------------------------------
 
-        rbox = layout.box()
-        rbox.label(text="Case Dir")
-        rbrow = rbox.row()
-        rbrow.prop(case_info_tool, "case_dir_path")
-        rbrow = rbox.row()
-        rbrow.operator("reynolds.start_of", icon="VERTEXSEL")
+        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.json')
+        gui_renderer.render()
 
 # ------------------------------------------------------------------------
 # register and unregister
 # ------------------------------------------------------------------------
 
 def register():
-    bpy.utils.register_class(BMDStartOpenFoamOperator)
-    bpy.utils.register_class(FoamPanel)
-    bpy.utils.register_class(CaseSettings)
+    register_classes(__name__)
 
 def unregister():
-    bpy.utils.unregister_class(BMDStartOpenFoamOperator)
-    bpy.utils.unregister_class(FoamPanel)
-    bpy.utils.unregister_class(CaseSettings)
+    unregister_classes(__name__)
 
 if __name__ == '__main__':
     register()

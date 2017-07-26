@@ -1,0 +1,26 @@
+{
+    "attrs":
+    {
+        "case_dir_path": {
+            "type": "String",
+            "name": "",
+            "description": "Choose a directory",
+            "default": "",
+            "maxlen": 1024,
+            "subtype": "DIR_PATH"
+        },
+        "solver_name": {
+            "type": "String",
+            "name": "Solver Name",
+            "description" : ":",
+            "default": "",
+            "maxlen": 1024
+        },
+        "case_solved": {
+            "type": "Bool",
+            "name":"",
+            "description": "Case solved status",
+            "default": false
+        }
+    }
+}

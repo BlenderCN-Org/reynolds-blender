@@ -53,217 +53,21 @@ from mathutils import Matrix, Vector
 import operator
 import os
 
+# ------------------------
+# reynolds blender imports
+# ------------------------
+
+from reynolds_blender.gui.register import register_classes, unregister_classes
+from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
+from reynolds_blender.gui.custom_list import create_custom_list_operator
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+
 # ----------------
 # reynolds imports
 # ----------------
 from reynolds.json.schema_gen import FoamDictJSONGenerator
 from reynolds.dict.foam_dict_gen import FoamDictGenerator
 from reynolds.foam.cmd_runner import FoamCmdRunner
-
-# ------------------------------------------------------------------------
-#    custom UI list for adding vertices
-# ------------------------------------------------------------------------
-
-class VerticesListActions(bpy.types.Operator):
-    bl_idname = "vertices.list_action"
-    bl_label = "List Action"
-
-    action = bpy.props.EnumProperty(
-        items=(
-            ('UP', "Up", ""),
-            ('DOWN', "Down", ""),
-            ('REMOVE', "Remove", ""),
-            ('ADD', "Add", ""),
-        )
-    )
-
-    def execute(self, context):
-        return self.invoke(context, None)
-
-    def invoke(self, context, event):
-
-        scn = context.scene
-        idx = scn.bmd_vindex
-
-        try:
-            item = scn.bmd_vertices[idx]
-        except IndexError:
-            pass
-
-        else:
-            if self.action == 'DOWN' and idx < len(scn.bmd_vertices) - 1:
-                item_next = scn.bmd_vertices[idx+1].name
-                scn.bmd_vindex += 1
-                info = 'Item %d selected' % (scn.bmd_vindex + 1)
-                self.report({'INFO'}, info)
-
-            elif self.action == 'UP' and idx >= 1:
-                item_prev = scn.bmd_vertices[idx-1].name
-                scn.bmd_vindex -= 1
-                info = 'Item %d selected' % (scn.bmd_vindex - 1)
-                self.report({'INFO'}, info)
-
-            elif self.action == 'REMOVE':
-                item = scn.bmd_vertices[scn.bmd_vindex]
-                info = 'Item %s removed from list' % (item.name)
-                scn.bmd_vindex -= 1
-                self.report({'INFO'}, info)
-                scn.bmd_vertices.remove(idx)
-                if item.name != "":
-                    _, v_index = item.name.split("Vertex ", 1)
-                    if v_index in scn.vertex_labels:
-                        scn.vertex_labels.pop(v_index)
-
-        if self.action == 'ADD':
-            item = scn.bmd_vertices.add()
-            item.id = len(scn.bmd_vertices)
-            scn.bmd_vindex = (len(scn.bmd_vertices)-1)
-            info = '%s added to list' % (item.name)
-            self.report({'INFO'}, info)
-
-        return {"FINISHED"}
-
-class VerticesItems(UIList):
-
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        split = layout.split(0.3)
-        split.label("Label: %d" % (index))
-        split.prop(item, "name", text="", emboss=False, translate=False, icon='BORDER_RECT')
-
-    def invoke(self, context, event):
-        pass
-
-# Create custom property group
-class BMDVertexLabel(bpy.types.PropertyGroup):
-    '''name = StringProperty() '''
-    id = IntProperty()
-
-# ------------------------------------------------------------------------
-#    custom UI list for adding regions
-# ------------------------------------------------------------------------
-
-class RegionsListActions(bpy.types.Operator):
-    bl_idname = "regions.list_action"
-    bl_label = "List Action"
-
-    action = bpy.props.EnumProperty(
-        items=(
-            ('UP', "Up", ""),
-            ('DOWN', "Down", ""),
-            ('REMOVE', "Remove", ""),
-            ('ADD', "Add", ""),
-        )
-    )
-
-    def execute(self, context):
-        return self.invoke(context, None)
-
-    def invoke(self, context, event):
-
-        scn = context.scene
-        idx = scn.bmd_rindex
-
-        try:
-            item = scn.bmd_regions[idx]
-        except IndexError:
-            pass
-
-        else:
-            if self.action == 'DOWN' and idx < len(scn.bmd_regions) - 1:
-                item_next = scn.bmd_regions[idx+1].name
-                scn.bmd_rindex += 1
-                info = 'Item %d selected' % (scn.bmd_rindex + 1)
-                self.report({'INFO'}, info)
-
-            elif self.action == 'UP' and idx >= 1:
-                item_prev = scn.bmd_regions[idx-1].name
-                scn.bmd_rindex -= 1
-                info = 'Item %d selected' % (scn.bmd_rindex - 1)
-                self.report({'INFO'}, info)
-
-            elif self.action == 'REMOVE':
-                item = scn.bmd_regions[scn.bmd_rindex]
-                info = 'Item %s removed from list' % (item.name)
-                scn.bmd_rindex -= 1
-                self.report({'INFO'}, info)
-                scn.bmd_regions.remove(idx)
-
-
-        if self.action == 'ADD':
-            item = scn.bmd_regions.add()
-            item.id = len(scn.bmd_regions)
-            scn.bmd_rindex = (len(scn.bmd_regions)-1)
-            info = '%s added to list' % (item.name)
-            self.report({'INFO'}, info)
-
-        return {"FINISHED"}
-
-class RegionsItems(UIList):
-
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        split = layout.split(0.3)
-        split.label("Region : ")
-        split.prop(item, "name", text="", emboss=False, translate=False, icon='BORDER_RECT')
-
-    def invoke(self, context, event):
-        pass
-
-# Create custom property group
-class BMDRegionLabel(bpy.types.PropertyGroup):
-    '''name = StringProperty() '''
-    id = IntProperty()
-
-    region_type = EnumProperty(
-        name="Type:",
-        description="Patch/Region Type.",
-        items=[ ('empty', "empty", ""),
-                ('wall', "wall", ""),
-               ]
-        )
-
-    region_name = StringProperty(
-        name="Patch/Region Name",
-        description=":",
-        default="",
-        maxlen=1024,
-        )
-
-# ------------------------------------------------------------------------
-#    store properties in the active scene
-# ------------------------------------------------------------------------
-
-class BlockMeshDictSettings(PropertyGroup):
-    convert_to_meters = FloatProperty(
-        name = "Convert to meters",
-        description="Scaling factor by which all vertex coordinates are multiplied.",
-        default=0.001)
-
-    n_cells = IntVectorProperty(
-        name = "Cells",
-        description = "Number of cells in XYZ axis direction",
-        default=(1, 1, 1),
-        subtype="XYZ")
-
-    n_grading = IntVectorProperty(
-        name = "Cell expansion ratios",
-        description = "Cell expansion ratios",
-        default=(1, 1, 1),
-        subtype="XYZ")
-
-    region_name = StringProperty(
-        name="Patch/Region Name",
-        description=":",
-        default="",
-        maxlen=1024,
-        )
-
-    region_type = EnumProperty(
-        name="Type:",
-        description="Patch/Region Type.",
-        items=[ ('empty', "empty", ""),
-                ('wall', "wall", ""),
-               ]
-        )
 
 # ------------------------------------------------------------------------
 #    operators
@@ -275,7 +79,6 @@ class BMDVerticesOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        mytool = scene.bmd_tool
 
         obj = context.edit_object
         bm = bmesh.from_edit_mesh(obj.data)
@@ -302,7 +105,6 @@ class BMDBlocksOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        bmd_tool = scene.bmd_tool
         obj = context.active_object
 
         # print the values to the console
@@ -390,7 +192,6 @@ class BMDRegionsAssignOperator(bpy.types.Operator):
 
         scene = context.scene
         obj = context.active_object
-        bmd_tool = scene.bmd_tool
 
         bm = bmesh.from_edit_mesh(obj.data)
 
@@ -418,9 +219,9 @@ class BMDRegionsAssignOperator(bpy.types.Operator):
 
         print(r_faces)
         item = scene.bmd_regions[scene.bmd_rindex]
-        region_name = scene.bmd_tool.region_name
+        region_name = scene.region_name
         face_str = region_name + " : " + ' '.join(str(f) for f in r_faces)
-        r = (scene.bmd_tool.region_name, scene.bmd_tool.region_type, r_faces)
+        r = (scene.region_name, scene.region_type, r_faces)
         item.name = face_str
         scene.regions[region_name] = r
         print(scene.regions)
@@ -450,13 +251,11 @@ class BMDGenerateDictOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        bmd_tool = scene.bmd_tool
-        case_info_tool = scene.case_info_tool
         obj = context.active_object
 
         print("Select dir for generated blockmeshdict file")
 
-        abs_case_dir_path = bpy.path.abspath(case_info_tool.case_dir_path)
+        abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
 
         # generate bmd vertices
         bmd_vertices = []
@@ -470,12 +269,12 @@ class BMDGenerateDictOperator(bpy.types.Operator):
         # generate bmd blocks
         bmd_blocks_dict = {}
         bmd_blocks_dict['vertex_nums'] = scene.blocks
-        block_cells = bmd_tool.n_cells
+        block_cells = scene.n_cells
         bmd_blocks_dict['num_cells'] = [block_cells[0],
                                         block_cells[1],
                                         block_cells[2]]
         bmd_blocks_dict['grading'] = 'simpleGrading'
-        block_grading = bmd_tool.n_grading
+        block_grading = scene.n_grading
         bmd_blocks_dict['grading_x'] = [[1, 1, block_grading[0]]]
         bmd_blocks_dict['grading_y'] = [[1, 1, block_grading[1]]]
         bmd_blocks_dict['grading_z'] = [[1, 1, block_grading[2]]]
@@ -505,7 +304,7 @@ class BMDGenerateDictOperator(bpy.types.Operator):
         block_mesh_dict_json['object'] = 'blockMeshDict'
 
         # set convert to meters
-        block_mesh_dict_json['convertToMeters'] = bmd_tool.convert_to_meters
+        block_mesh_dict_json['convertToMeters'] = scene.convert_to_meters
 
         # set vertices
         print(bmd_vertices)
@@ -522,7 +321,7 @@ class BMDGenerateDictOperator(bpy.types.Operator):
                                           'blockMeshDict.foam')
         block_mesh_dict = foam_dict_gen.foam_dict
 
-        # bmd = MeshDict(bmd_tool.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
+        # bmd = MeshDict(scene.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
 
         print(block_mesh_dict)
 
@@ -539,12 +338,10 @@ class BMDBlockMeshRunnerOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        bmd_tool = scene.bmd_tool
-        case_info_tool = scene.case_info_tool
         obj = context.active_object
 
         print("Start openfoam")
-        case_dir = bpy.path.abspath(case_info_tool.case_dir_path)
+        case_dir = bpy.path.abspath(scene.case_dir_path)
         mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir)
 
         for info in mr.run():
@@ -576,126 +373,33 @@ class BlockMeshDictPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        bmd_tool = scene.bmd_tool
 
-        # --------------
-        # Vertices Panel
-        # --------------
+        # ---------------------------------------
+        # Render Block Panel using JSON GUI Spec
+        # ---------------------------------------
 
-        rbox = layout.box()
-        rbox.label(text="Vertices")
-        rbox.prop(bmd_tool, "convert_to_meters")
-        rbrow = rbox.row()
-        rbrow.template_list("VerticesItems", "", scene, "bmd_vertices", scene, "bmd_vindex", rows=2)
+        gui_renderer = ReynoldsGUIRenderer(scene, layout,
+                                           'block_mesh_panel.json')
+        gui_renderer.render()
 
-        col = rbrow.column(align=True)
-        col.operator("vertices.list_action", icon='ZOOMIN', text="").action = 'ADD'
-        col.operator("vertices.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
-        col.separator()
-
-        rbrow2 = rbox.row()
-        rbrow2.operator("reynolds.assign_vertex", icon="VERTEXSEL")
-        rbrow2.operator("reynolds.remove_vertex", icon="X")
-        rbrow2.separator()
-
-        # ------------
-        # Blocks Panel
-        # ------------
-
-        bbox = layout.box()
-        bbox.label(text="Blocks")
-        bbox.prop(bmd_tool, "n_cells")
-        bbox.prop(bmd_tool, "n_grading")
-        bbox.operator("reynolds.blocks", icon="MESH_CUBE")
-
-        # --------------
-        # Regions Panel
-        # --------------
-
-        rbox = layout.box()
-        rbox.label(text="Regions")
-        rbrow = rbox.row()
-        rbrow.template_list("RegionsItems", "", scene, "bmd_regions", scene, "bmd_rindex", rows=2)
-
-        col = rbrow.column(align=True)
-        col.operator("regions.list_action", icon='ZOOMIN', text="").action = 'ADD'
-        col.operator("regions.list_action", icon='ZOOMOUT', text="").action = 'REMOVE'
-        col.separator()
-
-        rbrow2 = rbox.row()
-        rbrow2.prop(bmd_tool, "region_name")
-        rbrow2.prop(bmd_tool, "region_type")
-        rbrow2.separator()
-        rbrow3 = rbox.row()
-        rbrow3.operator("reynolds.assign_region", icon="VERTEXSEL")
-        rbrow3.operator("reynolds.remove_region", icon="X")
-
-        # -----------------------------
-        # Generate blockmesh dict panel
-        # -----------------------------
-
-        rbox = layout.box()
-        rbox.label(text="BlockMesh")
-        rbrow3 = rbox.row()
-        rbrow3.operator("reynolds.generate_bmd", icon="FILE_TEXT")
-        rbrow3.operator("reynolds.block_mesh_runner", icon="FILE_TEXT")
 
 # ------------------------------------------------------------------------
 # register and unregister
 # ------------------------------------------------------------------------
 
 def register():
-    bpy.utils.register_class(VerticesListActions)
-    bpy.utils.register_class(VerticesItems)
-    bpy.utils.register_class(BMDVertexLabel)
-    bpy.utils.register_class(RegionsListActions)
-    bpy.utils.register_class(RegionsItems)
-    bpy.utils.register_class(BMDRegionLabel)
-    bpy.utils.register_class(BlockMeshDictSettings)
-    bpy.utils.register_class(BMDVerticesOperator)
-    bpy.utils.register_class(BMDBlocksOperator)
-    bpy.utils.register_class(BMDVertexAssignOperator)
-    bpy.utils.register_class(BMDVertexRemoveOperator)
-    bpy.utils.register_class(BMDRegionsAssignOperator)
-    bpy.utils.register_class(BMDRegionsRemoveOperator)
-    bpy.utils.register_class(BMDGenerateDictOperator)
-    bpy.utils.register_class(BMDBlockMeshRunnerOperator)
-    bpy.utils.register_class(BlockMeshDictPanel)
-    bpy.types.Scene.vertex_labels = {}
-    bpy.types.Scene.blocks = []
-    bpy.types.Scene.regions = {}
-    bpy.types.Scene.bmd_vertices = CollectionProperty(type=BMDVertexLabel)
-    bpy.types.Scene.bmd_vindex = IntProperty()
-    bpy.types.Scene.bmd_regions = CollectionProperty(type=BMDRegionLabel)
-    bpy.types.Scene.bmd_rindex = IntProperty()
-    bpy.types.Scene.bmd_tool = PointerProperty(type=BlockMeshDictSettings)
-
+    register_classes(__name__)
+    set_scene_attrs('block_mesh_attrs.json')
+    create_custom_list_operator('VerticesListActions', 
+                                'vertices.list_action', 'Vertices List',
+                                'bmd_vertices', 'bmd_vindex')
+    create_custom_list_operator('RegionsListActions',
+                                'regions.list_action', 'Regions List',
+                                'bmd_regions', 'bmd_rindex')
 
 def unregister():
-    bpy.utils.unregister_class(VerticesListActions)
-    bpy.utils.unregister_class(VerticesItems)
-    bpy.utils.unregister_class(BMDVertexLabel)
-    bpy.utils.unregister_class(RegionsListActions)
-    bpy.utils.unregister_class(RegionsItems)
-    bpy.utils.unregister_class(BMDRegionLabel)
-    bpy.utils.unregister_class(BlockMeshDictSettings)
-    bpy.utils.unregister_class(BMDVerticesOperator)
-    bpy.utils.unregister_class(BMDBlocksOperator)
-    bpy.utils.unregister_class(BMDVertexAssignOperator)
-    bpy.utils.unregister_class(BMDVertexRemoveOperator)
-    bpy.utils.unregister_class(BMDRegionsAssignOperator)
-    bpy.utils.unregister_class(BMDRegionsRemoveOperator)
-    bpy.utils.unregister_class(BMDGenerateDictOperator)
-    bpy.utils.unregister_class(BMDBlockMeshRunnerOperator)
-    bpy.utils.unregister_class(BlockMeshDictPanel)
-    del bpy.types.Scene.vertex_labels
-    del bpy.types.Scene.blocks
-    del bpy.types.Scene.regions
-    del bpy.types.Scene.bmd_vertices
-    del bpy.types.Scene.bmd_vindex
-    del bpy.types.Scene.bmd_regions
-    del bpy.types.Scene.bmd_rindex
-    del bpy.types.Scene.bmd_tool
+    unregister_classes(__name__)
+    del_scene_attrs('block_mesh_attrs.json')
 
 if __name__ == "__main__":
     register()
