@@ -65,8 +65,7 @@ from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 # ----------------
 # reynolds imports
 # ----------------
-from reynolds.json.schema_gen import FoamDictJSONGenerator
-from reynolds.dict.foam_dict_gen import FoamDictGenerator
+from reynolds.dict.parser import ReynoldsFoamDict
 from reynolds.foam.cmd_runner import FoamCmdRunner
 
 # ------------------------------------------------------------------------
@@ -257,77 +256,58 @@ class BMDGenerateDictOperator(bpy.types.Operator):
 
         abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
 
+        block_mesh_dict = ReynoldsFoamDict('blockMeshDict.foam')
+
         # generate bmd vertices
         bmd_vertices = []
-        sorted_labels = sorted(scene.vertex_labels.items(), key=operator.itemgetter(1))
+        sorted_labels = sorted(scene.vertex_labels.items(),
+                               key=operator.itemgetter(1))
         for v_index, _ in sorted_labels:
             v = obj.data.vertices[v_index].co
             print(v)
             bmd_v = [v.x, v.z, v.y] # Swap y, z
             bmd_vertices.append(bmd_v)
+        block_mesh_dict['vertices'] = bmd_vertices
 
         # generate bmd blocks
-        bmd_blocks_dict = {}
-        bmd_blocks_dict['vertex_nums'] = scene.blocks
-        block_cells = scene.n_cells
-        bmd_blocks_dict['num_cells'] = [block_cells[0],
-                                        block_cells[1],
-                                        block_cells[2]]
-        bmd_blocks_dict['grading'] = 'simpleGrading'
-        block_grading = scene.n_grading
-        bmd_blocks_dict['grading_x'] = [[1, 1, block_grading[0]]]
-        bmd_blocks_dict['grading_y'] = [[1, 1, block_grading[1]]]
-        bmd_blocks_dict['grading_z'] = [[1, 1, block_grading[2]]]
-        print(bmd_blocks_dict)
+        bmd_blocks = []
+        bmd_blocks.append('hex')
+        bmd_blocks.append(scene.blocks)
+        bmd_blocks.append([scene.n_cells[0], scene.n_cells[1],
+                           scene.n_cells[2]])
+        bmd_blocks.append('simpleGrading')
+        grading_x = [[1, 1, scene.n_grading[0]]]
+        grading_y = [[1, 1, scene.n_grading[1]]]
+        grading_z = [[1, 1, scene.n_grading[2]]]
+        grading = [grading_x, grading_y, grading_z]
+        bmd_blocks.append(grading)
+        print(bmd_blocks)
+        block_mesh_dict['blocks'] = bmd_blocks
 
         # generate bmd regions
-        bmd_regions = []
+        bmd_boundary = []
         for name, r in scene.regions.items():
+            name, patch_type, face_labels = r
+            bmd_boundary.append(name)
             br = {}
-            n, type, face_labels = r
-            br['name'] = n
-            br['type'] = type
+            br['type'] = patch_type
             faces = []
             for f in face_labels:
                 faces.append(f)
             br['faces'] = faces
-            bmd_regions.append(br)
-        print(bmd_regions)
-
-        block_mesh_dict_gen = FoamDictJSONGenerator('blockMeshDict.schema')
-        block_mesh_dict_json = block_mesh_dict_gen.json_obj
-
-         # set header info
-        block_mesh_dict_json['version'] = '2.0'
-        block_mesh_dict_json['format'] = 'ascii'
-        block_mesh_dict_json['class'] = 'dictionary'
-        block_mesh_dict_json['object'] = 'blockMeshDict'
+            bmd_boundary.append(br)
+        print(bmd_boundary)
+        block_mesh_dict['boundary'] = bmd_boundary
 
         # set convert to meters
-        block_mesh_dict_json['convertToMeters'] = scene.convert_to_meters
+        block_mesh_dict['convertToMeters'] = scene.convert_to_meters
 
-        # set vertices
-        print(bmd_vertices)
-        block_mesh_dict_json['vertices'] = bmd_vertices
-
-        # set blocks
-        block_mesh_dict_json['blocks'] = bmd_blocks_dict
-
-        # set boundary
-        block_mesh_dict_json['boundary'] = bmd_regions
-
-        # generate the blockMeshDict
-        foam_dict_gen = FoamDictGenerator(block_mesh_dict_json,
-                                          'blockMeshDict.foam')
-        block_mesh_dict = foam_dict_gen.foam_dict
-
-        # bmd = MeshDict(scene.convert_to_meters, bmd_vertices, bmd_block, bmd_regions)
-
+        print("BLOCK MESH DICT")
         print(block_mesh_dict)
 
         bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
         with open(bmd_file_path, "w") as f:
-            f.write(block_mesh_dict)
+            f.write(str(block_mesh_dict))
 
         return{'FINISHED'}
 
