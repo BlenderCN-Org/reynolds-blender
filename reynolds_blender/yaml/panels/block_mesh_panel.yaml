@@ -56,6 +56,65 @@ attrs:
   type: UIList
   coll_data_prop: bmd_regions
   coll_data_index: bmd_rindex
+
+operators:
+ vertices.list_action:
+   operator_type: ListOperator
+   class_name: VerticesListActions
+   description: Vertices List
+   label: Vertices List
+   data_prop: bmd_vertices
+   id_prop: bmd_vindex
+ regions.list_action:
+   operator_type: ListOperator
+   class_name: RegionsListActions
+   description: Regions List
+   label: Regions List
+   data_prop: bmd_regions
+   id_prop: bmd_rindex
+ reynolds.assign_vertex:
+  operator_type: Operator
+  class_name: BMDVertexAssignOperator
+  label: Assign Vertex
+  description: Assign vertex to the label
+  execute_func: assign_vertex
+ reynolds.remove_vertex:
+  operator_type: Operator
+  class_name: BMDVertexRemoveOperator
+  label: Remove Vertex
+  description: Remove vertex to the label
+  execute_func: remove_vertex
+ reynolds.blocks:
+  operator_type: Operator
+  class_name: BMDBlocksOperator
+  label: Assign Blocks
+  description: Assign Blocks
+  execute_func: assign_blocks
+ reynolds.assign_region:
+  operator_type: Operator
+  class_name: BMDRegionsAssignOperator
+  label: Assign Region
+  description: Assign region to the label
+  execute_func: assign_region
+ reynolds.remove_region:
+  operator_type: Operator
+  class_name: BMDRegionsRemoveOperator
+  label: Remove Region
+  description: Remove region to the label
+  execute_func: remove_region
+ reynolds.generate_bmd:
+  operator_type: Operator
+  class_name: BMDGenerateDictOperator
+  label: Generate blockMeshDict
+  description: Generate block mesh dict
+  execute_func: generate_blockmeshdict
+ reynolds.block_mesh_runner:
+  operator_type: Operator
+  class_name: BMDBlockMeshRunnerOperator
+  label: Run blockMesh 
+  description: Run blockMesh command
+  execute_func: run_blockmesh
+
 gui:
  - box: 
    - label: 
@@ -68,19 +127,19 @@ gui:
         coll_index_propname: bmd_vindex
      - col: 
        - operator: 
-          id: "vertices.list_action"
+          id: vertices.list_action
           icon: ZOOMIN
           action: ADD
        - operator: 
-          id: "vertices.list_action"
+          id: vertices.list_action
           icon: ZOOMOUT
           action: REMOVE
    - row: 
      - operator: 
-        id: "reynolds.assign_vertex"
+        id: reynolds.assign_vertex
         icon: VERTEXSEL
      - operator: 
-        id: "reynolds.remove_vertex"
+        id: reynolds.remove_vertex
         icon: X
      - separator: 
         nums: 1
@@ -92,7 +151,7 @@ gui:
    - prop: 
       scene_attr: n_grading
    - operator: 
-      id: "reynolds.blocks"
+      id: reynolds.blocks
       icon: MESH_CUBE
  - box: 
    - label: 
@@ -103,11 +162,11 @@ gui:
         coll_index_propname: bmd_rindex
      - col: 
        - operator: 
-          id: "regions.list_action"
+          id: regions.list_action
           icon: ZOOMIN
           action: ADD
        - operator: 
-          id: "regions.list_action"
+          id: regions.list_action
           icon: ZOOMOUT
           action: REMOVE
        - separator: 
@@ -121,20 +180,20 @@ gui:
         nums: 1
    - row: 
      - operator: 
-        id: "reynolds.assign_region"
+        id: reynolds.assign_region
         icon: VERTEXSEL
      - operator: 
-        id: "reynolds.remove_region"
+        id: reynolds.remove_region
         icon: X
      - separator: 
         nums: 1
  - box: 
    - label: 
-      text: "Block Mesh"
+      text: Block Mesh
    - row: 
      - operator: 
-        id: "reynolds.generate_bmd"
+        id: reynolds.generate_bmd
         icon: FILE_TEXT
      - operator: 
-        id: "reynolds.block_mesh_runner"
+        id: reynolds.block_mesh_runner
         icon: FILE_TEXT

@@ -1,3 +1,11 @@
+operators:
+  reynolds.start_of:
+   operator_type: Operator
+   class_name: BMDStartOpenFoamOperator
+   label: Start OpenFoam 
+   description: Start OpenFoam
+   execute_func: start_openfoam
+
 gui:
  - box: 
    - label: 

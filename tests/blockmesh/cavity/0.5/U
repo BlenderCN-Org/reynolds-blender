@@ -430,13 +430,13 @@ boundaryField
         type            fixedValue;
         value           uniform (1 0 0);
     }
-    fixedWalls
-    {
-        type            noSlip;
-    }
     frontAndBack
     {
         type            empty;
+    }
+    fixedWalls
+    {
+        type            noSlip;
     }
 }
 

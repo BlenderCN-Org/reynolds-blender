@@ -24,19 +24,19 @@ FoamFile
         nFaces          20;
         startFace       760;
     }
-    fixedWalls
-    {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          60;
-        startFace       780;
-    }
     frontAndBack
     {
         type            empty;
         inGroups        1(empty);
         nFaces          800;
-        startFace       840;
+        startFace       780;
+    }
+    fixedWalls
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          60;
+        startFace       1580;
     }
 )
 

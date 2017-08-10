@@ -429,13 +429,13 @@ boundaryField
     {
         type            zeroGradient;
     }
-    fixedWalls
-    {
-        type            zeroGradient;
-    }
     frontAndBack
     {
         type            empty;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
     }
 }
 

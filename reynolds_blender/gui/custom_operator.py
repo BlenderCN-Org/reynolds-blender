@@ -33,16 +33,42 @@ import bpy
 from bpy.props import IntProperty
 from bpy.types import PropertyGroup, UIList
 
+# --------------
+# python imports
+# --------------
+import inspect
+import os
+import sys
+import yaml
+
 # ------------------------
 # reynolds blender imports
 # ------------------------
 from .register import register_classes
 
+# ---------------
+# custom operator
+# ---------------
+
+def create_custom_operator(class_name, id_name, label, description,
+                           func_module_name, exec_func):
+    module = sys.modules[func_module_name]
+    all_functions = dict([f for f in inspect.getmembers(module,
+                                                        inspect.isfunction)
+                          if inspect.getmodule(f[1]) == module])
+    opclass = type(class_name, (bpy.types.Operator, ),
+                   {"bl_idname": id_name, "bl_label": label,
+                    "bl_description": description,
+                    "execute": all_functions[exec_func]})
+    print('Registering ', class_name, ' in module',
+          getattr(opclass, '__module__', None))
+    bpy.utils.register_class(opclass)
+
 #---------------
-# custom UI list 
+# custom UI list
 #---------------
 
-def create_custom_list_operator(class_name, id_name, label,
+def create_custom_list_operator(class_name, id_name, label, description,
                                 data_prop, id_prop):
     list_actions = bpy.props.EnumProperty(
             items=(
@@ -85,6 +111,7 @@ def create_custom_list_operator(class_name, id_name, label,
 
     opclass = type(class_name, (bpy.types.Operator, ),
                    {"bl_idname": id_name, "bl_label": label,
+                    "bl_description": description,
                     "execute": execute_func, "invoke": invoke_func,
                     "action": list_actions})
 
@@ -113,6 +140,35 @@ class ReynoldsListItems(UIList):
 
 class ReynoldsListLabel(bpy.types.PropertyGroup):
     id = IntProperty()
+
+# -----------------------
+# Create custom operators
+# -----------------------
+
+def create_custom_operators(operators_filename, func_module_name):
+    current_dir = os.path.realpath(os.path.dirname(__file__))
+    operators_file = os.path.join(current_dir, "../yaml", "panels",
+                                  operators_filename)
+    with open(operators_file) as f:
+        d = yaml.load(f)
+        for operator in d['operators'].items():
+            op_id, props = operator
+            op_type = props.get('operator_type', None)
+            class_name = props.get('class_name', None)
+            label = props.get('label', None)
+            description = props.get('description', None)
+                                    
+            if op_type == 'ListOperator':
+                data_prop = props.get('data_prop', None)
+                id_prop = props.get('id_prop', None)
+                create_custom_list_operator(class_name, op_id, label,
+                                            description,
+                                            data_prop, id_prop)
+            if op_type == 'Operator':
+                exec_func = props.get('execute_func', None)
+                create_custom_operator(class_name, op_id, label,
+                                       description, func_module_name,
+                                       exec_func)
 
 # ---------------------------------------------------------------------
 # Register the classes for loading UI scene attrs and rendering UI list

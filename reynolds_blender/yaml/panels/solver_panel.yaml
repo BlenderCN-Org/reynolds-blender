@@ -1,3 +1,11 @@
+operators:
+  reynolds.solve_case:
+   operator_type: Operator
+   class_name: BMDSolveCaseOperator
+   label: Solve Case
+   description: Solve OpenFoam Case
+   execute_func: solve_case
+
 gui:
  - box: 
    - label: 

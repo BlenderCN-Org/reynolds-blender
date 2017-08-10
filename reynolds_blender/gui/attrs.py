@@ -42,7 +42,7 @@ import os
 # ------------------------
 # reynolds blender imports
 # ------------------------
-from reynolds_blender.gui.custom_list import ReynoldsListLabel
+from reynolds_blender.gui.custom_operator import ReynoldsListLabel
 
 def load_py_dict_attr(name, props):
     setattr(bpy.types.Scene, name, {})
@@ -139,5 +139,5 @@ def del_scene_attrs(attrs_filename):
     attrs_file = os.path.join(current_dir, "../yaml", "panels", attrs_filename)
     with open(attrs_file) as f:
         d = yaml.load(f)
-        for attr in d.items():
+        for attr in d['attrs'].items():
             load_scene_attr(attr)

@@ -50,11 +50,11 @@ class ReynoldsGUIRenderer(object):
         gui_file = os.path.join(current_dir, "../yaml", "panels", gui_filename)
 
         self.gui_spec = []
-        with open(gui_file) as f['gui']:
+        with open(gui_file) as f:
             self.gui_spec = yaml.load(f)
 
     def render(self):
-        for gui_element in self.gui_spec:
+        for gui_element in self.gui_spec['gui']:
             self._render_gui_element(gui_element, self.layout)
 
     def _render_gui_element(self, gui_element, parent):
