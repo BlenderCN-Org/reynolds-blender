@@ -33,10 +33,10 @@ from bpy.props import (StringProperty, BoolProperty, FloatProperty,
                        IntVectorProperty, EnumProperty, CollectionProperty,
                        IntProperty)
 
-# ---------------
-# python imports 
-# ---------------
-import json
+# --------------
+# python imports
+# --------------
+import yaml
 import os
 
 # ------------------------
@@ -113,12 +113,12 @@ def load_scene_attr(attr):
     if props['type'] == 'UIList':
         load_ui_list_attrs(name, props)
 
-def set_scene_attrs(json_filename):
+def set_scene_attrs(attrs_filename):
     current_dir = os.path.realpath(os.path.dirname(__file__))
-    attrs_file = os.path.join(current_dir, "../json", "attrs", json_filename)
+    attrs_file = os.path.join(current_dir, "../yaml", "attrs", attrs_filename)
     with open(attrs_file) as f:
-        d = json.load(f)
-        for attr in d['attrs'].items():
+        d = yaml.load(f)
+        for attr in d.items():
             load_scene_attr(attr)
 
 def del_scene_attr(attr):
@@ -134,10 +134,10 @@ def del_scene_attr(attr):
         a = getattr(bpy.types.Scene, name)
         del a
 
-def del_scene_attrs(json_filename):
+def del_scene_attrs(attrs_filename):
     current_dir = os.path.realpath(os.path.dirname(__file__))
-    attrs_file = os.path.join(current_dir, "../json", "attrs", json_filename)
+    attrs_file = os.path.join(current_dir, "../yaml", "attrs", attrs_filename)
     with open(attrs_file) as f:
-        d = json.load(f)
-        for attr in d['attrs'].items():
+        d = yaml.load(f)
+        for attr in d.items():
             load_scene_attr(attr)

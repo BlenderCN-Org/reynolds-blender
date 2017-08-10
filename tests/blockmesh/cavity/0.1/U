@@ -425,10 +425,6 @@ internalField   nonuniform List<vector>
 
 boundaryField
 {
-    fixedWalls
-    {
-        type            noSlip;
-    }
     frontAndBack
     {
         type            empty;
@@ -437,6 +433,10 @@ boundaryField
     {
         type            fixedValue;
         value           uniform (1 0 0);
+    }
+    fixedWalls
+    {
+        type            noSlip;
     }
 }
 

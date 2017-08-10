@@ -62,36 +62,6 @@ edges
 
 boundary
   (
-    fixedWalls
-
-    {
-      faces
-        (
-
-          (
-            2
-            6
-            5
-            1
-          )
-
-          (
-            0
-            4
-            7
-            3
-          )
-
-          (
-            1
-            5
-            4
-            0
-          )
-        );
-      type wall;
-
-    }
     frontAndBack
 
     {
@@ -126,6 +96,36 @@ boundary
             7
             6
             2
+          )
+        );
+      type wall;
+
+    }
+    fixedWalls
+
+    {
+      faces
+        (
+
+          (
+            2
+            6
+            5
+            1
+          )
+
+          (
+            0
+            4
+            7
+            3
+          )
+
+          (
+            1
+            5
+            4
+            0
           )
         );
       type wall;

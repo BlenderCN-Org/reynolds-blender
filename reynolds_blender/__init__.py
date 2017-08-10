@@ -58,13 +58,13 @@ def register():
     foam.register()
     block_mesh.register()
     solver.register()
-    set_scene_attrs("common_attrs.json")
+    set_scene_attrs("common_attrs.yaml")
 
 def unregister():
     foam.unregister()
     block_mesh.unregister()
     solver.unregister()
-    del_scene_attrs("common_attrs.json")
+    del_scene_attrs("common_attrs.yaml")
 
 if __name__ == '__main__':
     register()

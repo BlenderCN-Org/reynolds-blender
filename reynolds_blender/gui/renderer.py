@@ -33,7 +33,7 @@ import bpy
 # --------------
 # python imports
 # --------------
-import json
+import yaml
 import os
 
 # ------------------------
@@ -47,14 +47,14 @@ class ReynoldsGUIRenderer(object):
         self.layout = layout
 
         current_dir = os.path.realpath(os.path.dirname(__file__))
-        gui_file = os.path.join(current_dir, "../json", "panels", gui_filename)
+        gui_file = os.path.join(current_dir, "../yaml", "panels", gui_filename)
 
-        self.gui_spec = {}
+        self.gui_spec = []
         with open(gui_file) as f:
-            self.gui_spec = json.load(f)
+            self.gui_spec = yaml.load(f)
 
     def render(self):
-        for gui_element in self.gui_spec['gui_elements']:
+        for gui_element in self.gui_spec:
             self._render_gui_element(gui_element, self.layout)
 
     def _render_gui_element(self, gui_element, parent):
