@@ -785,11 +785,6 @@ internalField   nonuniform List<scalar>
 
 boundaryField
 {
-    frontAndBack
-    {
-        type            empty;
-        value           nonuniform 0();
-    }
     movingWall
     {
         type            calculated;
@@ -799,6 +794,11 @@ boundaryField
     {
         type            calculated;
         value           uniform 0;
+    }
+    frontAndBack
+    {
+        type            empty;
+        value           nonuniform 0();
     }
 }
 

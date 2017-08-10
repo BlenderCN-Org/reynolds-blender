@@ -55,16 +55,16 @@ from bpy.props import (StringProperty,
                        PointerProperty)
 
 def register():
+    set_scene_attrs("common_attrs.yaml")
     foam.register()
     block_mesh.register()
     solver.register()
-    set_scene_attrs("common_attrs.yaml")
 
 def unregister():
+    del_scene_attrs("common_attrs.yaml")
     foam.unregister()
     block_mesh.unregister()
     solver.unregister()
-    del_scene_attrs("common_attrs.yaml")
 
 if __name__ == '__main__':
     register()

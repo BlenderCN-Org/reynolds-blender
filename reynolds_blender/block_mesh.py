@@ -369,7 +369,7 @@ class BlockMeshDictPanel(Panel):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('block_mesh_attrs.yaml')
+    set_scene_attrs('block_mesh_panel.yaml')
     create_custom_list_operator('VerticesListActions',
                                 'vertices.list_action', 'Vertices List',
                                 'bmd_vertices', 'bmd_vindex')
