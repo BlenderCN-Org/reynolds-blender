@@ -200,6 +200,7 @@ def generate_blockmeshdict(self, context):
     print("Select dir for generated blockmeshdict file")
 
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    print(" ABSOLUTE CASE DIR PATH: ", abs_case_dir_path)
 
     block_mesh_dict = ReynoldsFoamDict('blockMeshDict.foam')
 
