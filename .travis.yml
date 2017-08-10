@@ -13,7 +13,7 @@ dist: trusty
 language: python
 
 python:
-  - "3.6"
+  - "3.5"
 
 before_install:
   # update apt-gets repository sources
@@ -25,6 +25,7 @@ before_install:
   # install openfoam
   - sudo apt-get -qq update
   - sudo apt-get install -y software-properties-common python-software-properties
+  - sudo apt-get install -y python3-dev
   - sudo apt-get install -y wget curl bzip2
   - sudo add-apt-repository http://dl.openfoam.org/ubuntu
   - sudo sh -c "wget -O - http://dl.openfoam.org/gpg.key | apt-key add -"
@@ -39,6 +40,9 @@ before_install:
   - mkdir tmp && cd tmp
 
 install:
+  # install pyyaml
+  - pip install pyyaml
+
   # clone reynolds
   - travis_retry git clone --depth=1 https://github.com/dmsurti/reynolds.git
 
@@ -62,6 +66,7 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
   - ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/python/bin/python3.5m get-pip.py
   - ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/python/bin/pip install -r requirements.txt
+  - cp -R /home/travis/virtualenv/python3.5.3/lib/python3.5/site-packages/yaml ${TRAVIS_BUILD_DIR}/../tmp/blender/2.78/scripts/modules
 
   # install reynolds in blender python
   - cd ${TRAVIS_BUILD_DIR}/../tmp/reynolds
@@ -71,4 +76,4 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
 
 # start our test runner with the installed blender
-script: python tests/run_tests.py ../tmp/blender/blender 
+script: PYTHONPATH=. python tests/run_tests.py ../tmp/blender/blender 

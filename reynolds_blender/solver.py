@@ -39,6 +39,7 @@ from progress_report import ProgressReport
 
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.gui.custom_operator import create_custom_operators
 
 # ----------------
 # reynolds imports
@@ -46,32 +47,36 @@ from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 
 from reynolds.foam.cmd_runner import FoamCmdRunner
 
-class BMDSolveCaseOperator(bpy.types.Operator):
-    bl_idname = "reynolds.solve_case"
-    bl_label = "Solve OpenFoam Case"
+# ------------------------------------------------------------------------
+#    operators
+# ------------------------------------------------------------------------
 
-    def execute(self, context):
-        scene = context.scene
-        obj = context.active_object
+def solve_case(self, context):
+    scene = context.scene
+    obj = context.active_object
 
-        # ----------------------------------
-        # Reset the status of a previous run
-        # ----------------------------------
+    # ----------------------------------
+    # Reset the status of a previous run
+    # ----------------------------------
+    scene.case_solved = False
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+    sr = FoamCmdRunner(cmd_name=scene.solver_name,
+                        case_dir=case_dir)
+    for info in sr.run():
+        self.report({'WARNING'}, info)
+
+    if sr.run_status:
+        scene.case_solved = True
+        self.report({'INFO'}, 'Case solving: SUCCESS')
+    else:
         scene.case_solved = False
-        case_dir = bpy.path.abspath(scene.case_dir_path)
-        sr = FoamCmdRunner(cmd_name=scene.solver_name,
-                           case_dir=case_dir)
-        for info in sr.run():
-            self.report({'WARNING'}, info)
+        self.report({'INFO'}, 'Case solving: FAILED')
 
-        if sr.run_status:
-            scene.case_solved = True
-            self.report({'INFO'}, 'Case solving: SUCCESS')
-        else:
-            scene.case_solved = False
-            self.report({'INFO'}, 'Case solving: FAILED')
+    return{'FINISHED'}
 
-        return{'FINISHED'}
+# ------------------------------------------------------------------------
+#    Panel
+# ------------------------------------------------------------------------
 
 class SolverPanel(Panel):
     bl_idname = "of_solver_panel"
@@ -97,10 +102,15 @@ class SolverPanel(Panel):
         gui_renderer.render()
 
 def register():
+    create_custom_operators('solver_panel.yaml', __name__)
     register_classes(__name__)
 
 def unregister():
     unregister_classes(__name__)
+# ------------------------------------------------------------------------
+#    Panel
+# ------------------------------------------------------------------------
+
 
 if __name__ == '__main__':
     register()

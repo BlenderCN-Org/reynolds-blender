@@ -47,25 +47,30 @@ from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 # reynolds imports
 # ----------------
 from reynolds.foam.start import FoamRunner
+from reynolds_blender.gui.custom_operator import create_custom_operators
 
-class BMDStartOpenFoamOperator(bpy.types.Operator):
-    bl_idname = "reynolds.start_of"
-    bl_label = "Start OpenFoam"
+# ------------------------------------------------------------------------
+#    operators
+# ------------------------------------------------------------------------
 
-    def execute(self, context):
-        scene = context.scene
-        obj = context.active_object
+def start_openfoam(self, context):
+    scene = context.scene
+    obj = context.active_object
 
-        print("Start openfoam")
+    print("Start openfoam")
 
-        fr = FoamRunner()
+    fr = FoamRunner()
 
-        if fr.start():
-            self.report({'INFO'}, 'OpenFoam started: SUCCESS')
-        else:
-            self.report({'INFO'}, 'OpenFoam started: FAILED')
+    if fr.start():
+        self.report({'INFO'}, 'OpenFoam started: SUCCESS')
+    else:
+        self.report({'INFO'}, 'OpenFoam started: FAILED')
 
-        return{'FINISHED'}
+    return{'FINISHED'}
+
+# ------------------------------------------------------------------------
+#    Panel
+# ------------------------------------------------------------------------
 
 class FoamPanel(Panel):
     bl_idname = "of_foam_panel"
@@ -95,6 +100,7 @@ class FoamPanel(Panel):
 # ------------------------------------------------------------------------
 
 def register():
+    create_custom_operators('foam_panel.yaml', __name__)
     register_classes(__name__)
 
 def unregister():

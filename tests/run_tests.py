@@ -26,6 +26,7 @@ search_file_pattern = dir_path + '/**/*.blend'
 
 failures = 0
 errors = 0
+tests = 0
 for file in glob.glob(search_file_pattern):
     test_module = file.replace('.blend', '.py')
     print('--------------------------------------------------')
@@ -36,8 +37,9 @@ for file in glob.glob(search_file_pattern):
                           file, '--python', test_module],
                           stdout=PIPE, stderr=PIPE,
                           universal_newlines=True) as p:
+        tests += 1
         for info in p.stdout:
-            print(info)
+            print(info.rstrip('\n'))
         for info in p.stderr:
             print(info)
             # not fail ensures we don't double count failures/errors
@@ -51,10 +53,10 @@ for file in glob.glob(search_file_pattern):
         print('TEST FAILED')
         print('--------------------------------------------------')
 
+print('RESULT: TEST SUITE WITH {} TESTS'.format(tests))
 if failures > 0 or errors > 0:
-    print('TEST SUITE FAILED WITH {} failures {} errors'.format(failures,
-                                                                errors))
+    print('FAILED WITH {} failures {} errors'.format(failures, errors))
     sys.exit(1)
 else:
-    print('TEST SUITE PASSED')
+    print('PASSED')
     sys.exit(0)

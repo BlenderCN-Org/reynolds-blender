@@ -1,10 +1,19 @@
-- box: 
-  - label: 
-     text: "Case Dir"
-  - row: 
-    - prop: 
-       scene_attr: case_dir_path
-  - row: 
-    - operator: 
-       id: "reynolds.start_of"
-       icon: VERTEXSEL
+operators:
+  reynolds.start_of:
+   operator_type: Operator
+   class_name: BMDStartOpenFoamOperator
+   label: Start OpenFoam 
+   description: Start OpenFoam
+   execute_func: start_openfoam
+
+gui:
+ - box: 
+   - label: 
+      text: "Case Dir"
+   - row: 
+     - prop: 
+        scene_attr: case_dir_path
+   - row: 
+     - operator: 
+        id: "reynolds.start_of"
+        icon: VERTEXSEL

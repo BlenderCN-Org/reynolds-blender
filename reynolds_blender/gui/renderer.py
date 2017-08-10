@@ -54,7 +54,7 @@ class ReynoldsGUIRenderer(object):
             self.gui_spec = yaml.load(f)
 
     def render(self):
-        for gui_element in self.gui_spec:
+        for gui_element in self.gui_spec['gui']:
             self._render_gui_element(gui_element, self.layout)
 
     def _render_gui_element(self, gui_element, parent):
