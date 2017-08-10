@@ -1,4 +1,3 @@
-from distutils.dir_util import copy_tree, remove_tree
 import os
 import pathlib
 import unittest
@@ -7,25 +6,14 @@ import reynolds_blender
 
 import bpy, bmesh
 
-class TestCavityTutorial(unittest.TestCase):
+from tests.foam_test_case import TestFoamTutorial
+
+class TestCavityTutorial(TestFoamTutorial):
     def setUp(self):
+        super(TestCavityTutorial, self).setUp()
         self.tutorial_name = 'cavity'
-        self.current_dir = os.path.dirname(os.path.realpath(__name__))
         self.test_module_dir = 'cavity'
         self.copy_tutorial_case_dir(self.tutorial_name, self.test_module_dir)
-
-    def copy_tutorial_case_dir(self, tutorial_name, test_module_dir):
-        self.temp_tutorial_dir = os.path.join(self.current_dir,
-                                              'tests', self.test_module_dir,
-                                              self.tutorial_name)
-        if not os.path.exists(self.temp_tutorial_dir):
-            print('Creating temp tutorial dir: ', self.temp_tutorial_dir)
-            pathlib.Path(self.temp_tutorial_dir).mkdir(parents=True,
-                                                       exist_ok=True)
-        tests_parent_dir = os.path.dirname(os.path.realpath('tests'))
-        case_dir = os.path.join(tests_parent_dir, 'tests', 'tutorials',
-                                self.tutorial_name)
-        copy_tree(case_dir, self.temp_tutorial_dir)
 
     def test_blockmesh_with_cavity_tutorial(self):
         # test if addon got loaded correctly
@@ -152,9 +140,6 @@ class TestCavityTutorial(unittest.TestCase):
         bpy.ops.reynolds.solve_case()
 
         self.assertTrue(scene.case_solved)
-
-        print('Removing copied tutorial dir ', self.temp_tutorial_dir)
-        remove_tree(self.temp_tutorial_dir)
 
 suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestCavityTutorial)
 unittest.TextTestRunner().run(suite)
