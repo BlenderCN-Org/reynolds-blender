@@ -355,11 +355,11 @@ class BlockMeshDictPanel(Panel):
         scene = context.scene
 
         # ---------------------------------------
-        # Render Block Panel using JSON GUI Spec
+        # Render Block Panel using YAML GUI Spec
         # ---------------------------------------
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           'block_mesh_panel.json')
+                                           'block_mesh_panel.yaml')
         gui_renderer.render()
 
 
@@ -369,8 +369,8 @@ class BlockMeshDictPanel(Panel):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('block_mesh_attrs.json')
-    create_custom_list_operator('VerticesListActions', 
+    set_scene_attrs('block_mesh_attrs.yaml')
+    create_custom_list_operator('VerticesListActions',
                                 'vertices.list_action', 'Vertices List',
                                 'bmd_vertices', 'bmd_vindex')
     create_custom_list_operator('RegionsListActions',
@@ -379,7 +379,7 @@ def register():
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('block_mesh_attrs.json')
+    del_scene_attrs('block_mesh_attrs.yaml')
 
 if __name__ == "__main__":
     register()

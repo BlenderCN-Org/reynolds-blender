@@ -84,10 +84,10 @@ class FoamPanel(Panel):
         scene = context.scene
 
         # -------------------------------------
-        # Render Foam Panel using JSON GUI Spec
+        # Render Foam Panel using YAML GUI Spec
         # -------------------------------------
 
-        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.json')
+        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.yaml')
         gui_renderer.render()
 
 # ------------------------------------------------------------------------

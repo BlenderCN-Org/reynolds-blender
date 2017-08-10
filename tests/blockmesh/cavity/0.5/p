@@ -425,15 +425,15 @@ internalField   nonuniform List<scalar>
 
 boundaryField
 {
-    fixedWalls
-    {
-        type            zeroGradient;
-    }
     frontAndBack
     {
         type            empty;
     }
     movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
     {
         type            zeroGradient;
     }

@@ -90,10 +90,10 @@ class SolverPanel(Panel):
         scene = context.scene
 
         # ---------------------------------------
-        # Render Solver Panel using JSON GUI Spec
+        # Render Solver Panel using YAML GUI Spec
         # ---------------------------------------
 
-        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.json')
+        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 
 def register():
