@@ -7,11 +7,11 @@ import reynolds_blender
 
 import bpy, bmesh
 
-class TestBlockMesh(unittest.TestCase):
+class TestCavityTutorial(unittest.TestCase):
     def setUp(self):
         self.tutorial_name = 'cavity'
         self.current_dir = os.path.dirname(os.path.realpath(__name__))
-        self.test_module_dir = 'blockMesh'
+        self.test_module_dir = 'cavity'
         self.copy_tutorial_case_dir(self.tutorial_name, self.test_module_dir)
 
     def copy_tutorial_case_dir(self, tutorial_name, test_module_dir):
@@ -156,6 +156,5 @@ class TestBlockMesh(unittest.TestCase):
         print('Removing copied tutorial dir ', self.temp_tutorial_dir)
         remove_tree(self.temp_tutorial_dir)
 
-suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestBlockMesh)
+suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestCavityTutorial)
 unittest.TextTestRunner().run(suite)
-
