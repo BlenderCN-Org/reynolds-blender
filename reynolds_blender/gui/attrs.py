@@ -29,7 +29,7 @@
 # bpy imports
 # -----------
 import bpy
-from bpy.props import (StringProperty, BoolProperty, FloatProperty,
+from bpy.props import (StringProperty, BoolProperty, FloatProperty, IntProperty,
                        IntVectorProperty, EnumProperty, CollectionProperty,
                        IntProperty)
 
@@ -54,6 +54,12 @@ def load_float_attr(name, props):
     float_property = FloatProperty(name=props.get(name, ''),
                                    description=props.get('description', ''),
                                    default=props.get('default', 0.0))
+    setattr(bpy.types.Scene, name, float_property)
+
+def load_int_attr(name, props):
+    float_property = IntProperty(name=props.get(name, ''),
+                                 description=props.get('description', ''),
+                                 default=props.get('default', 0))
     setattr(bpy.types.Scene, name, float_property)
 
 def load_int_vector_attr(name, props):
@@ -106,6 +112,8 @@ def load_scene_attr(attr):
         load_py_list_attr(name, props)
     if props['type'] == 'Float':
         load_float_attr(name, props)
+    if props['type'] == 'Int':
+        load_int_attr(name, props)
     if props['type'] == 'IntVector':
         load_int_vector_attr(name, props)
     if props['type'] == 'Enum':

@@ -42,9 +42,18 @@ if "bpy" in locals():
     import importlib
     importlib.reload(foam)
     importlib.reload(block_mesh)
+    importlib.reload(geometry)
+    importlib.reload(feature_extraction)
+    importlib.reload(castellated_mesh)
+    importlib.reload(snapping)
+    importlib.reload(layers)
+    importlib.reload(mesh_quality)
+    importlib.reload(snappy_hexmesh)
     importlib.reload(solver)
 else:
-    from . import foam, block_mesh, solver
+    from . import (foam, block_mesh, solver, geometry, feature_extraction,
+                   castellated_mesh, snapping, layers, mesh_quality,
+                   snappy_hexmesh)
 
 
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
@@ -58,12 +67,26 @@ def register():
     set_scene_attrs("common_attrs.yaml")
     foam.register()
     block_mesh.register()
+    geometry.register()
+    feature_extraction.register()
+    castellated_mesh.register()
+    snapping.register()
+    layers.register()
+    mesh_quality.register()
+    snappy_hexmesh.register()
     solver.register()
 
 def unregister():
     del_scene_attrs("common_attrs.yaml")
     foam.unregister()
     block_mesh.unregister()
+    geometry.unregister()
+    feature_extraction.unregister()
+    castellated_mesh.unregister()
+    snapping.unregister()
+    layers.unregister()
+    mesh_quality.unregister()
+    snappy_hexmesh.unregister()
     solver.unregister()
 
 if __name__ == '__main__':

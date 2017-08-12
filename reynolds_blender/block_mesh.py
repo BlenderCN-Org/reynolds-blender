@@ -255,7 +255,7 @@ def generate_blockmeshdict(self, context):
     with open(bmd_file_path, "w") as f:
         f.write(str(block_mesh_dict))
 
-    return{'FINISHED'}
+    return {'FINISHED'}
 
 def run_blockmesh(self, context):
     scene = context.scene
