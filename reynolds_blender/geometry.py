@@ -72,28 +72,61 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-def assign_refinement_region(self, context):
-    print("assign_refinement_region: TBD")
-
-    return {'FINISHED'}
-
-def remove_refinement_region(self, context):
-    print("remove_refinement_region: TBD")
-
-    return {'FINISHED'}
-
 def import_stl(self, context):
-    print('import_stl_or_obj: TBD')
-
+    scene = context.scene
+    bpy.ops.import_mesh.stl(filepath=scene.stl_file_path,
+                            axis_forward='Z',
+                            axis_up='Y')
+    obj = scene.objects.active
+    print('active objects after import ', obj)
+    # -------------------------------------------------------------
+    # TBD : OBJ IS NONE, if multiple objects are added after import
+    # -------------------------------------------------------------
+    scene.geometries[obj.name] = {'file_path': scene.stl_file_path}
+    print('STL IMPORT: ', scene.geometries)
     return {'FINISHED'}
 
 def import_obj(self, context):
-    print('import_stl_or_obj: TBD')
+    scene = context.scene
+    bpy.ops.import_scene.obj(filepath=scene.obj_file_path)
+    obj = scene.objects.active
+    print('active objects after import ', obj)
+    # -------------------------------------------------------------
+    # TBD : OBJ IS NONE, if multiple objects are added after import
+    # -------------------------------------------------------------
+    scene.geometries[obj.name] = {'file_path': scene.obj_file_path}
+    print('OBJ IMPORT: ', scene.geometries)
+    return {'FINISHED'}
 
     return {'FINISHED'}
 
 def assign_shmd_geometry(self, context):
-    print('assign_shmd_geometry: TBD')
+    scene = context.scene
+    obj = scene.objects.active
+    item = scene.shmd_geometries[scene.shmd_gindex]
+    item.name = obj.name
+    scene.geometry_name = obj.name
+
+    # store refinement and features info
+    print(scene.geometries)
+    geometry_info = scene.geometries.get(obj.name, {})
+    print('obj ', obj.name, 'geometry_info :' , geometry_info)
+    geometry_info['type'] = scene.geometry_type
+    geometry_info['refinement_type'] = scene.refinement_type
+    if scene.refinement_type == 'Surface':
+        geometry_info['refinementSurface'] = {'min': scene.refinement_level_min,
+                                                'max': scene.refinement_level_max}
+    if scene.refinement_type == 'Region':
+        geometry_info['refinementRegion'] = {'mode': scene.refinement_mode,
+                                             'dist': scene.ref_reg_dist,
+                                             'level': scene.ref_reg_level}
+    # if has features, then generate emesh file name
+    geometry_info['has_features'] = scene.has_features
+    geometry_info['feature_level'] = scene.feature_extract_ref_level
+    geometry_info['included_angle'] = scene.feature_extract_included_angle
+    scene.geometries[obj.name] = geometry_info
+
+    print(scene.geometries)
 
     return {'FINISHED'}
 
@@ -111,11 +144,7 @@ class GeometryPanel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
-
-    @classmethod
-    def poll(self,context):
-        return context.object is not None
+    bl_context = "objectmode"
 
     def draw(self, context):
         layout = self.layout

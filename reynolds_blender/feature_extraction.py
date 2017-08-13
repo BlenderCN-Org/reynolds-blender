@@ -73,12 +73,43 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 # ------------------------------------------------------------------------
 
 def mark_location_in_mesh(self, context):
-    print('mark location in mesh: TBD')
-
+    scene = context.scene
+    print(scene.cursor_location)
+    scene.location_in_mesh = scene.cursor_location
+    print(' set loc in mesh ', scene.location_in_mesh)
     return {'FINISHED'}
 
 def show_location_in_mesh(self, context):
-    print('show location in mesh: TBD')
+    scene = context.scene
+    print(' move cursor to loc in mesh ', scene.location_in_mesh)
+    scene.cursor_location = scene.location_in_mesh
+    return {'FINISHED'}
+
+def generate_surface_dict(self, context):
+    scene = context.scene
+    surface_feature_dict = ReynoldsFoamDict('surfaceFeatureExtractDict.foam')
+
+    for name, geometry_info in scene.geometries.items():
+        if geometry_info['has_features']:
+            print('generate feature extract dict for ', name)
+            file_path = geometry_info.get('file_path', None)
+            if file_path:
+                key = os.path.basename(file_path)
+            else:
+                key = name
+            surface_feature_dict[key] = {}
+            surface_feature_dict[key]['extractionMethod'] = 'extractFromSurface'
+            surface_feature_dict[key]['writeObj'] = 'no'
+            coeffs = {'includedAngle': geometry_info['included_angle']}
+            surface_feature_dict[key]['extractFromSurfaceCoeffs'] = coeffs
+            print(surface_feature_dict[key])
+
+    print(surface_feature_dict)
+    abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    sfed_file_path = os.path.join(abs_case_dir_path, "system",
+                                  "surfaceFeatureExtractDict")
+    with open(sfed_file_path, "w") as f:
+        f.write(str(surface_feature_dict))
 
     return {'FINISHED'}
 
@@ -97,7 +128,7 @@ class FeatureExtractionPanel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
+    bl_context = "objectmode"
 
     @classmethod
     def poll(self,context):
@@ -122,6 +153,7 @@ class FeatureExtractionPanel(Panel):
 
 def register():
     register_classes(__name__)
+    set_scene_attrs('feature_extraction.yaml')
     create_custom_operators('feature_extraction.yaml', __name__)
 
 def unregister():

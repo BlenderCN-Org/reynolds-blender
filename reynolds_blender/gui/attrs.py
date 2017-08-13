@@ -31,7 +31,7 @@
 import bpy
 from bpy.props import (StringProperty, BoolProperty, FloatProperty, IntProperty,
                        IntVectorProperty, EnumProperty, CollectionProperty,
-                       IntProperty)
+                       FloatVectorProperty, IntProperty)
 
 # --------------
 # python imports
@@ -70,6 +70,15 @@ def load_int_vector_attr(name, props):
                                                                 [0, 0, 0])),
                                          subtype=props.get('subtype', 'NONE'))
     setattr(bpy.types.Scene, name, int_vec_property)
+
+def load_float_vector_attr(name, props):
+    float_vec_property = FloatVectorProperty(name=props.get('name', ''),
+                                             description=props.get('description',
+                                                                   ''),
+                                             default=tuple(props.get('default',
+                                                                     [0, 0, 0])),
+                                             subtype=props.get('subtype', 'NONE'))
+    setattr(bpy.types.Scene, name, float_vec_property)
 
 def load_enum_attr(name, props):
     items = [tuple(e) for e in props.get('items', [])]
@@ -116,6 +125,8 @@ def load_scene_attr(attr):
         load_int_attr(name, props)
     if props['type'] == 'IntVector':
         load_int_vector_attr(name, props)
+    if props['type'] == 'FloatVector':
+        load_float_vector_attr(name, props)
     if props['type'] == 'Enum':
         load_enum_attr(name, props)
     if props['type'] == 'UIList':

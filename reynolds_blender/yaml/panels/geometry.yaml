@@ -62,10 +62,6 @@ attrs:
   name: "Max"
   description: "Refinement level max"
   default: 0
- regions_list: 
-  type: UIList
-  coll_data_prop: shmd_ref_regions
-  coll_data_index: shmd_ref_rindex
  ref_reg_dist:
   type: Float
   name: "Distance"
@@ -76,23 +72,20 @@ attrs:
   name: "Level"
   description: "Refinement region level"
   default: 0
+ has_features:
+  type: Bool
+  name: ""
+  description: "Has Features"
  feature_extract_included_angle:
   type: Float
   name: "Included Angle"
   description: "Included Angle"
   default: 0
- feature_extract_filename:
-  type: String
-  name: "Emesh Filename"
-  description: "Emesh filename"
-  default: ""
  feature_extract_ref_level:
   type: Int
   name: "Refinement Level"
   description: "Refinement Level"
   default: 0
- imported_geometries: 
-  type: PyDict
  stl_file_path:
   type: String
   name: ""
@@ -113,25 +106,6 @@ attrs:
   coll_data_index: shmd_gindex
 
 operators:
- ref_regions.list_action:
-   operator_type: ListOperator
-   class_name: RefRegionsListAction
-   description: Refinement Regions List
-   label: Refinement Regions List
-   data_prop: shmd_ref_regions
-   id_prop: shmd_rindex
- reynolds.assign_ref_region:
-  operator_type: Operator
-  class_name: SHMDRefRegionAssignOperator
-  label: Assign Refinement Region
-  description: Assign refinement region for geometry
-  execute_func: assign_refinement_region
- reynolds.remove_ref_region:
-  operator_type: Operator
-  class_name: SHMDRefRegionRemoveOperator
-  label: Remove Refinement Region
-  description: Remove Refinement Region from geometry
-  execute_func: remove_refinement_region
  reynolds.import_stl:
   operator_type: Operator
   class_name: SHMDImportSTL
@@ -198,13 +172,6 @@ gui:
            enabled: false
      - prop:
         scene_attr: geometry_type
-   - row: 
-     - operator: 
-        id: reynolds.assign_shmd_geometry
-        icon: VERTEXSEL
-     - operator: 
-        id: reynolds.remove_shmd_geometry
-        icon: X
    - separator:
       nums: 1
    - box:
@@ -226,19 +193,6 @@ gui:
           scene_attr: refinement_level_max
      - separator:
         nums: 1
-     - row: 
-       - template_list: 
-          coll_data_propname: shmd_ref_regions
-          coll_index_propname: shmd_ref_rindex
-       - col: 
-         - operator: 
-            id: ref_regions.list_action
-            icon: ZOOMIN
-            action: ADD
-         - operator: 
-            id: ref_regions.list_action
-            icon: ZOOMOUT
-            action: REMOVE
      - row:
        - prop:
           scene_attr: refinement_mode
@@ -246,27 +200,23 @@ gui:
           scene_attr: ref_reg_dist
        - prop:
           scene_attr: ref_reg_level
-     - row: 
-       - operator: 
-          id: reynolds.assign_ref_region
-          icon: VERTEXSEL
-       - operator: 
-          id: reynolds.remove_ref_region
-          icon: X
-       - separator: 
-          nums: 1
    - box:
      - label:
         text: Feature Extraction
-     - row:
-       - label:
-          text: Included Angle
-       - prop:
-          scene_attr: feature_extract_included_angle
-     - row:
-       - prop:
-          scene_attr: feature_extract_filename
-       - label:
-          text: Refinement Level
-       - prop:
-          scene_attr: feature_extract_ref_level
+     - prop:
+        scene_attr: has_features
+     - label:
+        text: Included Angle
+     - prop:
+        scene_attr: feature_extract_included_angle
+     - label:
+        text: Refinement Level
+     - prop:
+        scene_attr: feature_extract_ref_level
+   - row: 
+     - operator: 
+        id: reynolds.assign_shmd_geometry
+        icon: VERTEXSEL
+     - operator: 
+        id: reynolds.remove_shmd_geometry
+        icon: X
