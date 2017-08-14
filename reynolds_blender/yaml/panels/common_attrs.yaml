@@ -17,3 +17,7 @@ attrs:
   name: ""
   description: Case solved status
   default: false
+ geometries: 
+  type: PyDict
+ add_layers: 
+  type: PyDict

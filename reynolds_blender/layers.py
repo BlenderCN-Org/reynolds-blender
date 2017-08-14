@@ -28,59 +28,73 @@
 # -----------
 # bpy imports
 # -----------
-import bpy
-from bpy.types import Panel
+import bpy, bmesh
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       IntVectorProperty,
+                       FloatVectorProperty,
+                       CollectionProperty
+                       )
+from bpy.types import (Panel,
+                       Operator,
+                       PropertyGroup,
+                       UIList
+                       )
+from bpy.path import abspath
+from mathutils import Matrix, Vector
 
-from progress_report import ProgressReport
+# --------------
+# python imports
+# --------------
+import operator
+import os
 
 # ------------------------
 # reynolds blender imports
 # ------------------------
 
 from reynolds_blender.gui.register import register_classes, unregister_classes
-from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.custom_operator import create_custom_operators
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 
 # ----------------
 # reynolds imports
 # ----------------
-
+from reynolds.dict.parser import ReynoldsFoamDict
 from reynolds.foam.cmd_runner import FoamCmdRunner
 
 # ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
 
-def solve_case(self, context):
+def assign_layer(self, context):
     scene = context.scene
-    obj = context.active_object
+    obj = scene.objects.active
+    item = scene.shmd_layers[scene.shmd_lindex]
+    item.name = scene.layer_name + ':' + str(scene.n_surface_layers)
+    scene.geometry_name = obj.name
 
-    # ----------------------------------
-    # Reset the status of a previous run
-    # ----------------------------------
-    scene.case_solved = False
-    case_dir = bpy.path.abspath(scene.case_dir_path)
-    sr = FoamCmdRunner(cmd_name=scene.solver_name,
-                        case_dir=case_dir)
-    for info in sr.run():
-        self.report({'WARNING'}, info)
+    scene.add_layers[scene.layer_name] = scene.n_surface_layers
 
-    if sr.run_status:
-        scene.case_solved = True
-        self.report({'INFO'}, 'Case solving: SUCCESS')
-    else:
-        scene.case_solved = False
-        self.report({'INFO'}, 'Case solving: FAILED')
+    return {'FINISHED'}
 
-    return{'FINISHED'}
+def remove_layer(self, context):
+    print('remove layer: TBD')
+
+    return {'FINISHED'}
 
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
 
-class SolverPanel(Panel):
-    bl_idname = "of_solver_panel"
-    bl_label = "Solver"
+class LayersPanel(Panel):
+    bl_idname = "of_layers__panel"
+    bl_label = "Layers Controls"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
@@ -95,22 +109,26 @@ class SolverPanel(Panel):
         scene = context.scene
 
         # ---------------------------------------
-        # Render Solver Panel using YAML GUI Spec
+        # Render Block Panel using YAML GUI Spec
         # ---------------------------------------
 
-        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
+        gui_renderer = ReynoldsGUIRenderer(scene, layout,
+                                           'layers.yaml')
         gui_renderer.render()
 
+
+# ------------------------------------------------------------------------
+# register and unregister
+# ------------------------------------------------------------------------
+
 def register():
-    create_custom_operators('solver_panel.yaml', __name__)
     register_classes(__name__)
+    set_scene_attrs('layers.yaml')
+    create_custom_operators('layers.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-# ------------------------------------------------------------------------
-#    Panel
-# ------------------------------------------------------------------------
+    del_scene_attrs('layers.yaml')
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     register()

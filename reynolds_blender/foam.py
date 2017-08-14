@@ -78,11 +78,7 @@ class FoamPanel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
-
-    @classmethod
-    def poll(self,context):
-        return context.object is not None
+    bl_context = "objectmode"
 
     def draw(self, context):
         layout = self.layout

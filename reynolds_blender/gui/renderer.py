@@ -60,6 +60,7 @@ class ReynoldsGUIRenderer(object):
     def _render_gui_element(self, gui_element, parent):
         name = list(gui_element.keys())[0]
         metadata = gui_element[name]
+        # print('Rendering gui elt ', name, ' with metadata ', metadata)
 
         if name == 'box':
             box = parent.box()
@@ -80,6 +81,8 @@ class ReynoldsGUIRenderer(object):
                 self._render_gui_element(child, col)
 
         if name == 'prop':
+            enabled = metadata.get('enabled', True)
+            parent.enabled = enabled
             parent.prop(self.scene, metadata['scene_attr'])
 
         if name == 'operator':
