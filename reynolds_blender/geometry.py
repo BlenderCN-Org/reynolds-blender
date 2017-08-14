@@ -98,8 +98,6 @@ def import_obj(self, context):
     print('OBJ IMPORT: ', scene.geometries)
     return {'FINISHED'}
 
-    return {'FINISHED'}
-
 def assign_shmd_geometry(self, context):
     scene = context.scene
     obj = scene.objects.active
@@ -127,6 +125,20 @@ def assign_shmd_geometry(self, context):
     scene.geometries[obj.name] = geometry_info
 
     print(scene.geometries)
+
+    return {'FINISHED'}
+
+def add_geometry_block(self, context):
+    scene = context.scene
+    bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
+    obj = scene.objects.active
+    bpy.ops.mesh.primitive_cube_add()
+    bound_box = bpy.context.active_object
+
+    dims = obj.dimensions
+    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.2, dims.z * 1.2))
+    bound_box.location = obj.location
+    bound_box.rotation_euler = obj.rotation_euler
 
     return {'FINISHED'}
 

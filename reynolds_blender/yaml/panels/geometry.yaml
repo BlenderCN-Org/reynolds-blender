@@ -137,6 +137,12 @@ operators:
   label: Remove geometry
   description: Remove geometry
   execute_func: remove_shmd_geometry
+ reynolds.add_geometry_block:
+  operator_type: Operator
+  class_name: SHMDGeometryBlockOperator
+  label: Add block mesh
+  description: Add bounding box to geoemtry for blockMesh
+  execute_func: add_geometry_block
 gui:
  - box:
    - label:
@@ -219,4 +225,7 @@ gui:
         icon: VERTEXSEL
      - operator: 
         id: reynolds.remove_shmd_geometry
+        icon: X
+     - operator: 
+        id: reynolds.add_geometry_block
         icon: X
