@@ -28,6 +28,11 @@ attrs:
   name: Final Layer Thickness
   description: Thickness of final added cell layer
   default: 0.0
+ min_layer_thickness:
+  type: Float
+  name: Min Thickness
+  description: Min Thickness of cell layer
+  default: 0.0
  n_grow_layers:
   type: Int
   name: Grow Layers
@@ -44,15 +49,30 @@ attrs:
   name: Relax Iterations
   description: Maximum number of snapping relaxation iterations
   default: 0
+ layer_n_smooth_normal_iter:
+  type: Int
+  name: Smoothing Iterations of surface normals
+  description: Number of smoothing iterations of surface normals
+  default: 0
  layer_n_smooth_iter:
   type: Int
   name: Smoothing Iterations
   description: Number of smoothing iterations of interior mesh movement direction
   default: 0
+ smooth_layer_thickness:
+  type: Float
+  name: Smooth layer thickness
+  description: Smooth layer thickness over surface patches
+  default: 0.0
  max_face_thickness_ratio:
   type: Float
   name: Max Face Thickness Ratio
   description: Stop layer growth on highly warped cells
+  default: 0.0
+ max_thickness_to_medial_ratio:
+  type: Float
+  name: Thickness to Medial Ratio
+  description: Reduce layer growth
   default: 0.0
  min_median_axis_angle:
   type: Float
@@ -77,13 +97,13 @@ attrs:
   default: 0
 
 operators:
- layers.list_action:
+ shmd_layers.list_action:
   operator_type: ListOperator
   class_name: LayersListActions
   description: Layers List
   label: Layers List
   data_prop: shmd_layers
-  index_prop: shmd_lindex
+  id_prop: shmd_lindex
  reynolds.assign_layer:
   operator_type: Operator
   class_name: SHMDLayerAssignOperator
@@ -107,11 +127,11 @@ gui:
         coll_index_propname: shmd_lindex
      - col: 
        - operator: 
-          id: layers.list_action
+          id: shmd_layers.list_action
           icon: ZOOMIN
           action: ADD
        - operator: 
-          id: layers.list_action
+          id: shmd_layers.list_action
           icon: ZOOMOUT
           action: REMOVE
    - row:
@@ -140,6 +160,11 @@ gui:
          scene_attr: final_layer_thickness
    - row:
       - label:
+         text: Min Layer Thickness
+      - prop:
+         scene_attr: min_layer_thickness
+   - row:
+      - label:
          text: Grow Layers
       - prop:
          scene_attr: n_grow_layers
@@ -153,6 +178,11 @@ gui:
           text: Feature Angle
        - prop:
           scene_attr: layer_feature_angle
+     - row:
+       - label:
+          text: Smooth layer thickness
+       - prop:
+          scene_attr: smooth_layer_thickness
      - row:
        - label:
           text: Max Face Thickness Ratio 
@@ -179,6 +209,11 @@ gui:
        - row:
          - label:
             text: Smoothing Surface Normal 
+         - prop:
+            scene_attr: layer_n_smooth_normal_iter
+       - row:
+         - label:
+            text: Smoothing
          - prop:
             scene_attr: layer_n_smooth_iter
        - row:

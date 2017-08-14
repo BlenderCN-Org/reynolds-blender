@@ -64,6 +64,7 @@ from bpy.props import (StringProperty,
                        PointerProperty)
 
 def register():
+    bpy.app.debug = True # will show indices
     set_scene_attrs("common_attrs.yaml")
     foam.register()
     block_mesh.register()

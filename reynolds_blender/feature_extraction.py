@@ -114,7 +114,17 @@ def generate_surface_dict(self, context):
     return {'FINISHED'}
 
 def extract_surface_features(self, context):
-    print('extract surface features: TBD')
+    scene = context.scene
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+    cr = FoamCmdRunner(cmd_name='surfaceFeatureExtract', case_dir=case_dir)
+
+    for info in cr.run():
+        self.report({'WARNING'}, info)
+
+    if cr.run_status:
+        self.report({'INFO'}, 'SurfaceFeatureExtract : SUCCESS')
+    else:
+        self.report({'INFO'}, 'SurfaceFeatureExtract : FAILED')
 
     return {'FINISHED'}
 

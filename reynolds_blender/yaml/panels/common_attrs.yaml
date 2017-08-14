@@ -19,3 +19,5 @@ attrs:
   default: false
  geometries: 
   type: PyDict
+ add_layers: 
+  type: PyDict

@@ -73,7 +73,13 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 # ------------------------------------------------------------------------
 
 def assign_layer(self, context):
-    print('assign layer: TBD')
+    scene = context.scene
+    obj = scene.objects.active
+    item = scene.shmd_layers[scene.shmd_lindex]
+    item.name = scene.layer_name + ':' + str(scene.n_surface_layers)
+    scene.geometry_name = obj.name
+
+    scene.add_layers[scene.layer_name] = scene.n_surface_layers
 
     return {'FINISHED'}
 
@@ -92,7 +98,7 @@ class LayersPanel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
+    bl_context = "objectmode"
 
     @classmethod
     def poll(self,context):

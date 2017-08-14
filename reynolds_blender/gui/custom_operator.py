@@ -85,7 +85,9 @@ def create_custom_list_operator(class_name, id_name, label, description,
     def invoke_func(self, context, event):
         scn = context.scene
 
+        print('data prop ', data_prop)
         item_coll = getattr(scn, data_prop)
+        print('id prop ', id_prop)
         item_idx = getattr(scn, id_prop)
 
         try:
@@ -157,7 +159,7 @@ def create_custom_operators(operators_filename, func_module_name):
             class_name = props.get('class_name', None)
             label = props.get('label', None)
             description = props.get('description', None)
-                                    
+
             if op_type == 'ListOperator':
                 data_prop = props.get('data_prop', None)
                 id_prop = props.get('id_prop', None)

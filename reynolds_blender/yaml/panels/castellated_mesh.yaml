@@ -9,6 +9,16 @@ attrs:
   name: "Max Global Cells"
   description: Overall cell limit during refinement before removal
   default: 0
+ min_refinement_cells:
+  type: Int
+  name: "Min Refinement Cells"
+  description: Cause refinement to stop
+  default: 0
+ max_load_unbalance:
+  type: Float
+  name: "Max Load Unbalance"
+  description: Level of imbalance during refining
+  default: 0.0
  n_cells_between_levels:
   type: Int
   name: Cells Between Levels
@@ -37,6 +47,16 @@ gui:
          text: Max Global Cells
       - prop:
          scene_attr: max_global_cells
+    - row:
+      - label:
+         text: Min Refinement Cells
+      - prop:
+         scene_attr: min_refinement_cells
+    - row:
+      - label:
+         text: Max Load Unbalance
+      - prop:
+         scene_attr: max_load_unbalance
     - row:
       - label:
          text: Cells Between Levels

@@ -82,7 +82,7 @@ class SnappingPanel(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
+    bl_context = "objectmode"
 
     @classmethod
     def poll(self,context):

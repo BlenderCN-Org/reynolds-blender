@@ -75,7 +75,7 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 def import_stl(self, context):
     scene = context.scene
     bpy.ops.import_mesh.stl(filepath=scene.stl_file_path,
-                            axis_forward='Z',
+                            axis_forward='-Z',
                             axis_up='Y')
     obj = scene.objects.active
     print('active objects after import ', obj)
@@ -110,6 +110,16 @@ def assign_shmd_geometry(self, context):
     geometry_info = scene.geometries.get(obj.name, {})
     print('obj ', obj.name, 'geometry_info :' , geometry_info)
     geometry_info['type'] = scene.geometry_type
+    if geometry_info['type'] == 'searchableSphere':
+        local_bbox_center = 0.125 * sum((Vector(b) for b in obj.bound_box), Vector())
+        geometry_info['centre'] = obj.matrix_world * local_bbox_center
+        geometry_info['radius'] = obj.dimensions.x
+    if geometry_info['type'] == 'searchableBox':
+        x = [v[0] for v in obj.bound_box].sort()
+        y = [v[1] for v in obj.bound_box].sort()
+        z = [v[1] for v in obj.bound_box].sort()
+        geometry_info['min'] = [x[0], y[0], z[0]]
+        geometry_info['max'] = [x[7], y[7], z[7]]
     geometry_info['refinement_type'] = scene.refinement_type
     if scene.refinement_type == 'Surface':
         geometry_info['refinementSurface'] = {'min': scene.refinement_level_min,
@@ -124,6 +134,7 @@ def assign_shmd_geometry(self, context):
     geometry_info['included_angle'] = scene.feature_extract_included_angle
     scene.geometries[obj.name] = geometry_info
 
+    print('Assigned scene geometry...')
     print(scene.geometries)
 
     return {'FINISHED'}
@@ -136,7 +147,7 @@ def add_geometry_block(self, context):
     bound_box = bpy.context.active_object
 
     dims = obj.dimensions
-    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.2, dims.z * 1.2))
+    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.5, dims.z * 1.2))
     bound_box.location = obj.location
     bound_box.rotation_euler = obj.rotation_euler
 
