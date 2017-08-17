@@ -190,6 +190,11 @@ gui:
           scene_attr: max_face_thickness_ratio
      - row:
        - label:
+          text: Max Thickness to Medial Ratio
+       - prop:
+          scene_attr: max_thickness_to_medial_ratio
+     - row:
+       - label:
           text: Min Median Axis Angle
        - prop:
           scene_attr: min_median_axis_angle
