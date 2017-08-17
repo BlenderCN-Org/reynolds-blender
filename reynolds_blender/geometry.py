@@ -75,7 +75,7 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 def import_stl(self, context):
     scene = context.scene
     bpy.ops.import_mesh.stl(filepath=scene.stl_file_path,
-                            axis_forward='-Z',
+                            axis_forward='Z',
                             axis_up='Y')
     obj = scene.objects.active
     print('active objects after import ', obj)
@@ -91,6 +91,9 @@ def import_obj(self, context):
     bpy.ops.import_scene.obj(filepath=scene.obj_file_path)
     obj = scene.objects.active
     print('active objects after import ', obj)
+    bpy.ops.object.transform_apply(location=False,
+                                   rotation=True,
+                                   scale=False)
     # -------------------------------------------------------------
     # TBD : OBJ IS NONE, if multiple objects are added after import
     # -------------------------------------------------------------
@@ -113,11 +116,16 @@ def assign_shmd_geometry(self, context):
     if geometry_info['type'] == 'searchableSphere':
         local_bbox_center = 0.125 * sum((Vector(b) for b in obj.bound_box), Vector())
         geometry_info['centre'] = obj.matrix_world * local_bbox_center
-        geometry_info['radius'] = obj.dimensions.x
+        x = [v[0] for v in obj.bound_box]
+        x.sort()
+        geometry_info['radius'] = (abs(x[0]) + abs(x[7])) / 2.0
     if geometry_info['type'] == 'searchableBox':
-        x = [v[0] for v in obj.bound_box].sort()
-        y = [v[1] for v in obj.bound_box].sort()
-        z = [v[1] for v in obj.bound_box].sort()
+        x = [v[0] for v in obj.bound_box]
+        x.sort()
+        y = [v[1] for v in obj.bound_box]
+        y.sort()
+        z = [v[1] for v in obj.bound_box]
+        z.sort()
         geometry_info['min'] = [x[0], y[0], z[0]]
         geometry_info['max'] = [x[7], y[7], z[7]]
     geometry_info['refinement_type'] = scene.refinement_type
@@ -149,7 +157,9 @@ def add_geometry_block(self, context):
     dims = obj.dimensions
     bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.5, dims.z * 1.2))
     bound_box.location = obj.location
-    bound_box.rotation_euler = obj.rotation_euler
+    bpy.ops.object.transform_apply(location=True,
+                                   rotation=True,
+                                   scale=True)
 
     return {'FINISHED'}
 

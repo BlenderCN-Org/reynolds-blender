@@ -70,7 +70,8 @@ class TestFoamTutorial(unittest.TestCase):
     def run_blockmesh(self):
         bpy.ops.reynolds.block_mesh_runner()
 
-    def solve_case(self):
+    def solve_case(self, solver_name):
+        self.scene.solver_name = solver_name
         bpy.ops.reynolds.solve_case()
 
     def set_number_of_cells(self, x, y, z):
@@ -112,17 +113,8 @@ class TestFoamTutorial(unittest.TestCase):
         bpy.ops.reynolds.blocks()
         bpy.ops.mesh.select_all(action='DESELECT')
 
-    # -----------------------------------------------------------------
-    # set boundary
-    # 1. select face with index 4 as movingWall, set name, type
-    # 2. select face with index 3, 5, 2 as fixedWalls, set name, type
-    # 3. select faces with indices 0, 1 as frontAndBack, set name, type
-    # -----------------------------------------------------------------
-    def select_boundary(self, obj):
+    def select_boundary(self, obj, patches):
         bpy.ops.mesh.select_mode(type='FACE')
-        patches = {'movingWall': ([4], 'wall'),
-                    'fixedWalls': ([3, 5, 2], 'wall'),
-                    'frontAndBack': ([0, 1], 'empty')}
         for name, (faces, type) in patches.items():
             self.scene.region_name = name
             self.scene.region_type = type
@@ -153,5 +145,11 @@ class TestFoamTutorial(unittest.TestCase):
 
     def tearDown(self):
         if self.temp_tutorial_dir:
+            if not 'TRAVIS' in os.environ:
+                post_test_run_dir = os.environ['REYNOLDS_POST_TEST_RUN_DIR']
+                tutorial_dirname = os.path.basename(self.temp_tutorial_dir)
+                post_run_tutorial_dir = os.path.join(post_test_run_dir,
+                                                          tutorial_dirname)
+                copy_tree(self.temp_tutorial_dir, post_run_tutorial_dir)
             print('Removing copied tutorial dir ', self.temp_tutorial_dir)
             remove_tree(self.temp_tutorial_dir)

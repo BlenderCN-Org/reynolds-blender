@@ -68,12 +68,21 @@ class TestCavityTutorial(TestFoamTutorial):
         self.set_number_of_cells(20, 20, 1)
         self.set_grading(1, 1, 1)
         self.assign_blocks()
-        self.select_boundary(obj)
+        # -----------------------------------------------------------------
+        # set boundary
+        # 1. select face with index 4 as movingWall, set name, type
+        # 2. select face with index 3, 5, 2 as fixedWalls, set name, type
+        # 3. select faces with indices 0, 1 as frontAndBack, set name, type
+        # -----------------------------------------------------------------
+        patches = {'movingWall': ([4], 'wall'),
+                   'fixedWalls': ([3, 5, 2], 'wall'),
+                   'frontAndBack': ([0, 1], 'empty')}
+        self.select_boundary(obj, patches)
         self.generate_blockmeshdict()
         self.run_blockmesh()
-        self.scene.solver_name = 'icoFoam'
-        self.solve_case();
+        self.solve_case('icoFoam');
         self.assertTrue(self.scene.case_solved)
+        bpy.ops.wm.save_mainfile()
 
 suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestCavityTutorial)
 unittest.TextTestRunner().run(suite)
