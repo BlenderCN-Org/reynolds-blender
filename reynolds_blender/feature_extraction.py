@@ -50,6 +50,7 @@ from mathutils import Matrix, Vector
 # --------------
 # python imports
 # --------------
+import glob
 import operator
 import os
 
@@ -99,7 +100,7 @@ def generate_surface_dict(self, context):
                 key = name
             surface_feature_dict[key] = {}
             surface_feature_dict[key]['extractionMethod'] = 'extractFromSurface'
-            surface_feature_dict[key]['writeObj'] = 'no'
+            surface_feature_dict[key]['writeObj'] = 'yes'
             coeffs = {'includedAngle': geometry_info['included_angle']}
             surface_feature_dict[key]['extractFromSurfaceCoeffs'] = coeffs
             print(surface_feature_dict[key])
@@ -123,6 +124,21 @@ def extract_surface_features(self, context):
 
     if cr.run_status:
         self.report({'INFO'}, 'SurfaceFeatureExtract : SUCCESS')
+        # switch to layer 1
+        context.scene.layers[0] = False
+        context.scene.layers[1] = True
+        glob_obj = os.path.join(case_dir, 'constant',
+                                'extendedFeatureEdgeMesh', '*.obj')
+        for block_obj_filepath in glob.glob(glob_obj):
+            bpy.ops.import_scene.obj(filepath=block_obj_filepath)
+            block_obj_filename = os.path.basename(block_obj_filepath)
+            block_obj_name = os.path.splitext(block_obj_filename)[0]
+            block_obj = context.scene.objects[block_obj_name]
+            for i in range(20):
+                block_obj.layers[i] = (i == 1)
+        # switch back to layer 0
+        context.scene.layers[1] = False
+        context.scene.layers[0] = True
     else:
         self.report({'INFO'}, 'SurfaceFeatureExtract : FAILED')
 
