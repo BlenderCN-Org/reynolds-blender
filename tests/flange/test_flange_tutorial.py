@@ -75,7 +75,7 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.select_case_dir('//flange')
         self.scene.convert_to_meters = 1
         self.select_vertices(blockmesh_obj, [0, 4, 5, 1, 2, 6, 7, 3])
-        self.set_number_of_cells(20, 20, 1)
+        self.set_number_of_cells(20, 20, 20)
         self.set_grading(1, 1, 1)
         self.assign_blocks()
         patches = {'patch1': ([5], 'patch'),
@@ -119,7 +119,7 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.geometry_type = 'searchableSphere'
         self.scene.refinement_type = 'Region'
         self.scene.refinement_mode = 'inside'
-        self.scene.ref_reg_dist = 1e-15
+        self.scene.ref_reg_dist = 1e15
         self.scene.ref_reg_level = 3
         self.scene.has_features = False
         bpy.ops.shmd_geometries.list_action('INVOKE_DEFAULT', action='ADD')
@@ -135,7 +135,7 @@ class TestFlangeTutorial(TestFoamTutorial):
                          'inside')
         self.assertEqual(self.scene.geometries['refineHole']['refinementRegion']['level'], 3)
         self.assertAlmostEqual(self.scene.geometries['refineHole']['refinementRegion']['dist'],
-                               1e-15)
+                               999999986991104.0)
 
     def _mark_location_in_space(self):
         self.scene.location_in_mesh = [-9.23149e-05, -0.0025, -0.0025]
