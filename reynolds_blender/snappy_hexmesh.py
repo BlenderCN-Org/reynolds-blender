@@ -129,9 +129,10 @@ def generate_snappyhexmeshdict(self, context):
         snappy_dict['castellatedMeshControls']['maxLoadUnbalance'] = scene.max_load_unbalance
         snappy_dict['castellatedMeshControls']['resolveFeatureAngle'] = scene.resolve_feature_angle
         location_in_mesh = scene.location_in_mesh
-        snappy_dict['castellatedMeshControls']['locationInMesh'] = [location_in_mesh[0],
-                                                                    location_in_mesh[2],
-                                                                    location_in_mesh[1]]
+        if location_in_mesh[0] != 0 and location_in_mesh[1] != 0 and location_in_mesh[2] != 0:
+            snappy_dict['castellatedMeshControls']['locationInMesh'] = [location_in_mesh[0],
+                                                                        location_in_mesh[2],
+                                                                        location_in_mesh[1]]
         snappy_dict['castellatedMeshControls']['allowFreeStandingZoneFaces'] = scene.allow_free_standing_zones
 
         # snapControls
@@ -144,7 +145,7 @@ def generate_snappyhexmeshdict(self, context):
         snappy_dict['snapControls']['explicitFeatureSnap'] = scene.explicit_feature_snap
         snappy_dict['snapControls']['multiRegionFeatureSnap'] = scene.multi_region_feature_snap
 
-        # addLayersControls 
+        # addLayersControls
         for name, layers in scene.add_layers.items():
             snappy_dict['addLayersControls']['layers'][name] = {'nSurfaceLayers': layers}
         snappy_dict['addLayersControls']['relativeSizes'] = scene.relative_sizes
@@ -155,7 +156,7 @@ def generate_snappyhexmeshdict(self, context):
         snappy_dict['addLayersControls']['featureAngle'] = scene.layer_feature_angle
         snappy_dict['addLayersControls']['nRelaxIter'] = scene.layer_n_relax_iter
         snappy_dict['addLayersControls']['nSmoothSurfaceNormals'] = scene.layer_n_smooth_normal_iter
-        snappy_dict['addLayersControls']['nSmoothNormals'] = scene.layer_n_smooth_iter 
+        snappy_dict['addLayersControls']['nSmoothNormals'] = scene.layer_n_smooth_iter
         snappy_dict['addLayersControls']['nSmoothThickness'] = scene.smooth_layer_thickness
         snappy_dict['addLayersControls']['maxFaceThicknessRatio'] = scene.max_face_thickness_ratio
         snappy_dict['addLayersControls']['maxThicknessToMedialRatio'] = scene.max_thickness_to_medial_ratio
@@ -169,8 +170,10 @@ def generate_snappyhexmeshdict(self, context):
         snappy_dict['meshQualityControls']['maxBoundarySkewness'] = scene.max_boundary_skewness
         snappy_dict['meshQualityControls']['maxInternalFaceSkewness'] = scene.max_internal_face_skewness
         snappy_dict['meshQualityControls']['maxConcave'] = scene.max_concaveness
-        snappy_dict['meshQualityControls']['minVol'] = scene.min_pyramid_vol
-        snappy_dict['meshQualityControls']['minTetQuality'] = scene.min_tetrahedral_quality
+        if scene.min_pyramid_vol != 0:
+            snappy_dict['meshQualityControls']['minVol'] = scene.min_pyramid_vol
+        if scene.min_tetrahedral_quality != 0:
+            snappy_dict['meshQualityControls']['minTetQuality'] = scene.min_tetrahedral_quality
         snappy_dict['meshQualityControls']['minArea'] = scene.min_face_area
         snappy_dict['meshQualityControls']['minTwist'] = scene.min_face_twist
         snappy_dict['meshQualityControls']['minDeterminant'] = scene.min_cell_det

@@ -3,6 +3,7 @@ attrs:
   type: Bool
   name: Relative Sizes
   description: Relative or Absoulte Sizes of  undistored size of a refined cell?
+  default: true 
  layers_list:
   type: UIList
   coll_data_prop: shmd_layers
@@ -17,22 +18,22 @@ attrs:
   type: Int
   name: Surface layers
   description: Surface layers per patch
-  default: 0
+  default: 1
  expansion_ratio:
   type: Float
   name: Expansion Ratio
   description: Expansion factor for layer mesh
-  default: 0.0
+  default: 1.0
  final_layer_thickness:
   type: Float
   name: Final Layer Thickness
   description: Thickness of final added cell layer
-  default: 0.0
+  default: 0.3
  min_layer_thickness:
   type: Float
   name: Min Thickness
   description: Min Thickness of cell layer
-  default: 0.0
+  default: 0.25
  n_grow_layers:
   type: Int
   name: Grow Layers
@@ -42,43 +43,43 @@ attrs:
   type: Float
   name: Feature Angle
   description: When not to extrude surface
-  default: 0.0
+  default: 30.0
   subtype: ANGLE
  layer_n_relax_iter:
   type: Int
   name: Relax Iterations
   description: Maximum number of snapping relaxation iterations
-  default: 0
+  default: 3
  layer_n_smooth_normal_iter:
   type: Int
   name: Smoothing Iterations of surface normals
   description: Number of smoothing iterations of surface normals
-  default: 0
+  default: 1
  layer_n_smooth_iter:
   type: Int
   name: Smoothing Iterations
   description: Number of smoothing iterations of interior mesh movement direction
-  default: 0
+  default: 3
  smooth_layer_thickness:
   type: Float
   name: Smooth layer thickness
   description: Smooth layer thickness over surface patches
-  default: 0.0
+  default: 10.0
  max_face_thickness_ratio:
   type: Float
   name: Max Face Thickness Ratio
   description: Stop layer growth on highly warped cells
-  default: 0.0
+  default: 0.5
  max_thickness_to_medial_ratio:
   type: Float
   name: Thickness to Medial Ratio
   description: Reduce layer growth
-  default: 0.0
+  default: 0.3
  min_median_axis_angle:
   type: Float
   name: Min Median Axis Angle
   description: Angle used to pick up media axis points
-  default: 0.0
+  default: 90.0
   subtype: ANGLE
  n_buffer_cells_no_extrude:
   type: Int
@@ -89,12 +90,12 @@ attrs:
   type: Int
   name: Addition Iterations
   description: Max number of layer addition iterations
-  default: 0
+  default: 50
  layer_n_mesh_quality_iter:
   type: Int
   name: Smoothing Iterations
   description: nRelaxedIter, itearations after which mesh quality controls get used
-  default: 0
+  default: 20
 
 operators:
  shmd_layers.list_action:

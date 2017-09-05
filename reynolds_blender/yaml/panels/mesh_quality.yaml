@@ -14,7 +14,7 @@ attrs:
   type: Int
   name: Max Internal skewness
   description: Max internal face skewness allowed
-  default: 20
+  default: 4
  max_concaveness:
   type: Int
   name: Max concaveness
@@ -29,12 +29,12 @@ attrs:
   type: Float
   name: Min tetrahedral quality
   description: Minimum quality of tetrahedral cells from cell decomposition
-  default: 0.0
+  default: 0
  min_pyramid_vol:
   type: Float
   name: Min pyramid volume
   description: Minimum cell pyramid volume
-  default: 0.00000000000001
+  default: 0
  min_face_area:
   type: Float
   name: Min face area
@@ -44,7 +44,7 @@ attrs:
   type: Float
   name: Min face twist
   description: Minimum face twist
-  default: 0.05
+  default: 0.02
  min_cell_det:
   type: Float
   name: Min normalized cell determinant
