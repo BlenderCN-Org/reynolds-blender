@@ -61,6 +61,12 @@ from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.geometry import GeometryOperator
+from reynolds_blender.feature_extraction import FeatureExtractionOperator
+from reynolds_blender.castellated_mesh import CastellatedMeshOperator
+from reynolds_blender.snapping import SnappingOperator
+from reynolds_blender.layers import LayersOperator
+from reynolds_blender.mesh_quality import MeshQualityOperator
 
 # ----------------
 # reynolds imports
@@ -229,6 +235,13 @@ class SnappyHexMeshPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+        row = layout.row()
+        row.operator(GeometryOperator.bl_idname, text='', icon='GROUP')
+        row.operator(FeatureExtractionOperator.bl_idname, text='', icon='SNAP_VERTEX')
+        row.operator(CastellatedMeshOperator.bl_idname, text='', icon='MOD_REMESH')
+        row.operator(SnappingOperator.bl_idname, text='', icon='SNAP_SURFACE')
+        row.operator(LayersOperator.bl_idname, text='', icon='RENDERLAYERS')
+        row.operator(MeshQualityOperator.bl_idname, text='', icon='SETTINGS')
 
         # ---------------------------------------
         # Render Block Panel using YAML GUI Spec

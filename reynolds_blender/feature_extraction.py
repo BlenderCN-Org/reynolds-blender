@@ -148,30 +148,30 @@ def extract_surface_features(self, context):
 #    Panel
 # ------------------------------------------------------------------------
 
-class FeatureExtractionPanel(Panel):
-    bl_idname = "of_feature_extract_panel"
-    bl_label = "Surface Feature Extraction"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "Tools"
-    bl_context = "objectmode"
+class FeatureExtractionOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_fe_op"
+    bl_label = "Feature Extraction"
 
     @classmethod
-    def poll(self,context):
-        return context.object is not None
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    # Return True to force redraw
+    def check(self, context):
+        return True
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=750)
 
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-
-        # ---------------------------------------
-        # Render Block Panel using YAML GUI Spec
-        # ---------------------------------------
-
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
                                            'feature_extraction.yaml')
         gui_renderer.render()
-
 
 # ------------------------------------------------------------------------
 # register and unregister

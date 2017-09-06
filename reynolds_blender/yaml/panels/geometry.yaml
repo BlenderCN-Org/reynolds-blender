@@ -86,38 +86,12 @@ attrs:
   name: "Refinement Level"
   description: "Refinement Level"
   default: 0
- stl_file_path:
-  type: String
-  name: ""
-  description: Choose a STL file
-  default: "*.stl"
-  maxlen: 1024
-  subtype: FILE_PATH
- obj_file_path:
-  type: String
-  name: ""
-  description: Choose a OBJ file
-  default: "*.obj"
-  maxlen: 1024
-  subtype: FILE_PATH
  geometry_list: 
   type: UIList
   coll_data_prop: shmd_geometries
   coll_data_index: shmd_gindex
 
 operators:
- reynolds.import_stl:
-  operator_type: Operator
-  class_name: SHMDImportSTL
-  label: Import STL
-  description: Import STL
-  execute_func: import_stl
- reynolds.import_obj:
-  operator_type: Operator
-  class_name: SHMDImportOBJ
-  label: Import OBJ
-  description: Import Wavefront OBJ file
-  execute_func: import_obj
  shmd_geometries.list_action:
    operator_type: ListOperator
    class_name: SHMDGeometriesListAction
@@ -147,17 +121,6 @@ gui:
  - box:
    - label:
       text: Geometry
-   - row:
-      - prop:
-         scene_attr: stl_file_path
-      - operator:
-         id: reynolds.import_stl
-         icon: FILESEL
-      - prop:
-         scene_attr: obj_file_path
-      - operator:
-         id: reynolds.import_obj
-         icon: FILESEL
    - row: 
      - template_list: 
         coll_data_propname: shmd_geometries

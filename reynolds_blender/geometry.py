@@ -171,26 +171,30 @@ def remove_shmd_geometry(self, context):
 #    Panel
 # ------------------------------------------------------------------------
 
-class GeometryPanel(Panel):
-    bl_idname = "of_geo_panel"
+class GeometryOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_geo_op"
     bl_label = "Geometry"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "Tools"
-    bl_context = "objectmode"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    # Return True to force redraw
+    def check(self, context):
+        return True
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=750)
 
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-
-        # ---------------------------------------
-        # Render Block Panel using YAML GUI Spec
-        # ---------------------------------------
-
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
                                            'geometry.yaml')
         gui_renderer.render()
-
 
 # ------------------------------------------------------------------------
 # register and unregister

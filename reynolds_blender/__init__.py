@@ -41,6 +41,7 @@ bl_info = {
 if "bpy" in locals():
     import importlib
     importlib.reload(foam)
+    importlib.reload(models)
     importlib.reload(block_mesh)
     importlib.reload(geometry)
     importlib.reload(feature_extraction)
@@ -51,7 +52,7 @@ if "bpy" in locals():
     importlib.reload(snappy_hexmesh)
     importlib.reload(solver)
 else:
-    from . import (foam, block_mesh, solver, geometry, feature_extraction,
+    from . import (foam, models, block_mesh, solver, geometry, feature_extraction,
                    castellated_mesh, snapping, layers, mesh_quality,
                    snappy_hexmesh)
 
@@ -67,6 +68,7 @@ def register():
     bpy.app.debug = True # will show indices
     set_scene_attrs("common_attrs.yaml")
     foam.register()
+    models.register()
     block_mesh.register()
     geometry.register()
     feature_extraction.register()
@@ -80,6 +82,7 @@ def register():
 def unregister():
     del_scene_attrs("common_attrs.yaml")
     foam.unregister()
+    models.unregister()
     block_mesh.unregister()
     geometry.unregister()
     feature_extraction.unregister()

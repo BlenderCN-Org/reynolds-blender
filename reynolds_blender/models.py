@@ -72,33 +72,53 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------
-#    Panel
-# ------------------------------------------------------------------------
+def import_stl(self, context):
+    scene = context.scene
+    bpy.ops.import_mesh.stl(filepath=scene.stl_file_path,
+                            axis_forward='Z',
+                            axis_up='Y')
+    obj = scene.objects.active
+    print('active objects after import ', obj)
+    # -------------------------------------------------------------
+    # TBD : OBJ IS NONE, if multiple objects are added after import
+    # -------------------------------------------------------------
+    scene.geometries[obj.name] = {'file_path': scene.stl_file_path}
+    print('STL IMPORT: ', scene.geometries)
+    return {'FINISHED'}
 
-class SnappingOperator(bpy.types.Operator):
-    bl_idname = "reynolds.of_snap_op"
-    bl_label = "Snapping Controls"
+def import_obj(self, context):
+    scene = context.scene
+    bpy.ops.import_scene.obj(filepath=scene.obj_file_path)
+    obj = scene.objects.active
+    print('active objects after import ', obj)
+    bpy.ops.object.transform_apply(location=False,
+                                   rotation=True,
+                                   scale=False)
+    # -------------------------------------------------------------
+    # TBD : OBJ IS NONE, if multiple objects are added after import
+    # -------------------------------------------------------------
+    scene.geometries[obj.name] = {'file_path': scene.obj_file_path}
+    print('OBJ IMPORT: ', scene.geometries)
+    return {'FINISHED'}
 
-    @classmethod
-    def poll(cls, context):
-        return True
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-    # Return True to force redraw
-    def check(self, context):
-        return True
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=750)
+class ModelsPanel(Panel):
+    bl_idname = "of_models_panel"
+    bl_label = "Import STL/OBJ Models"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "Tools"
+    bl_context = "objectmode"
 
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+
+        # ----------------------------------------
+        # Render Models Panel using YAML GUI Spec
+        # ----------------------------------------
+
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           'snapping.yaml')
+                                           'models.yaml')
         gui_renderer.render()
 
 # ------------------------------------------------------------------------
@@ -107,11 +127,12 @@ class SnappingOperator(bpy.types.Operator):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('snapping.yaml')
+    set_scene_attrs('models.yaml')
+    create_custom_operators('models.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('snapping.yaml')
+    del_scene_attrs('models.yaml')
 
 if __name__ == "__main__":
     register()
