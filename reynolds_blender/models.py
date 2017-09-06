@@ -101,105 +101,9 @@ def import_obj(self, context):
     print('OBJ IMPORT: ', scene.geometries)
     return {'FINISHED'}
 
-def assign_shmd_geometry(self, context):
-    scene = context.scene
-    obj = scene.objects.active
-    item = scene.shmd_geometries[scene.shmd_gindex]
-    item.name = obj.name
-    scene.geometry_name = obj.name
-
-    # store refinement and features info
-    print(scene.geometries)
-    geometry_info = scene.geometries.get(obj.name, {})
-    print('obj ', obj.name, 'geometry_info :' , geometry_info)
-    geometry_info['type'] = scene.geometry_type
-    if geometry_info['type'] == 'searchableSphere':
-        local_bbox_center = 0.125 * sum((Vector(b) for b in obj.bound_box), Vector())
-        geometry_info['centre'] = obj.matrix_world * local_bbox_center
-        x = [v[0] for v in obj.bound_box]
-        x.sort()
-        geometry_info['radius'] = (abs(x[0]) + abs(x[7])) / 2.0
-    if geometry_info['type'] == 'searchableBox':
-        x = [v[0] for v in obj.bound_box]
-        x.sort()
-        y = [v[1] for v in obj.bound_box]
-        y.sort()
-        z = [v[1] for v in obj.bound_box]
-        z.sort()
-        geometry_info['min'] = [x[0], y[0], z[0]]
-        geometry_info['max'] = [x[7], y[7], z[7]]
-    geometry_info['refinement_type'] = scene.refinement_type
-    if scene.refinement_type == 'Surface':
-        geometry_info['refinementSurface'] = {'min': scene.refinement_level_min,
-                                                'max': scene.refinement_level_max}
-    if scene.refinement_type == 'Region':
-        geometry_info['refinementRegion'] = {'mode': scene.refinement_mode,
-                                             'dist': scene.ref_reg_dist,
-                                             'level': scene.ref_reg_level}
-    # if has features, then generate emesh file name
-    geometry_info['has_features'] = scene.has_features
-    geometry_info['feature_level'] = scene.feature_extract_ref_level
-    geometry_info['included_angle'] = scene.feature_extract_included_angle
-    scene.geometries[obj.name] = geometry_info
-
-    print('Assigned scene geometry...')
-    print(scene.geometries)
-
-    return {'FINISHED'}
-
-def add_geometry_block(self, context):
-    scene = context.scene
-    bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
-    obj = scene.objects.active
-    bpy.ops.mesh.primitive_cube_add()
-    bound_box = bpy.context.active_object
-
-    dims = obj.dimensions
-    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.5, dims.z * 1.2))
-    bound_box.location = obj.location
-    bpy.ops.object.transform_apply(location=True,
-                                   rotation=True,
-                                   scale=True)
-
-    return {'FINISHED'}
-
-def remove_shmd_geometry(self, context):
-    print('remove_shmd_geometry: TBD')
-
-    return {'FINISHED'}
-
-# ------------------------------------------------------------------------
-#    Panel
-# ------------------------------------------------------------------------
-
-class GeometryOperator(bpy.types.Operator):
-    bl_idname = "reynolds.of_geo_op"
-    bl_label = "Geometry"
-
-    @classmethod
-    def poll(cls, context):
-        return True
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-    # Return True to force redraw
-    def check(self, context):
-        return True
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=750)
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           'geometry.yaml')
-        gui_renderer.render()
-
-class GeometryPanel(Panel):
-    bl_idname = "of_geo_panel"
-    bl_label = "Geometry"
+class ModelsPanel(Panel):
+    bl_idname = "of_models_panel"
+    bl_label = "Import STL/OBJ Models"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
@@ -208,7 +112,14 @@ class GeometryPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        layout.operator(GeometryOperator.bl_idname)
+
+        # ----------------------------------------
+        # Render Models Panel using YAML GUI Spec
+        # ----------------------------------------
+
+        gui_renderer = ReynoldsGUIRenderer(scene, layout,
+                                           'models.yaml')
+        gui_renderer.render()
 
 # ------------------------------------------------------------------------
 # register and unregister
@@ -216,12 +127,12 @@ class GeometryPanel(Panel):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('geometry.yaml')
-    create_custom_operators('geometry.yaml', __name__)
+    set_scene_attrs('models.yaml')
+    create_custom_operators('models.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('geometry.yaml')
+    del_scene_attrs('models.yaml')
 
 if __name__ == "__main__":
     register()
