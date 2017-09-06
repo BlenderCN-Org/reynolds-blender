@@ -167,7 +167,6 @@ def remove_shmd_geometry(self, context):
     print('remove_shmd_geometry: TBD')
 
     return {'FINISHED'}
-
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
@@ -196,19 +195,6 @@ class GeometryOperator(bpy.types.Operator):
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
                                            'geometry.yaml')
         gui_renderer.render()
-
-class GeometryPanel(Panel):
-    bl_idname = "of_geo_panel"
-    bl_label = "Geometry"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "Tools"
-    bl_context = "objectmode"
-
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
-        layout.operator(GeometryOperator.bl_idname)
 
 # ------------------------------------------------------------------------
 # register and unregister

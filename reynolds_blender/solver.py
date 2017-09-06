@@ -86,10 +86,6 @@ class SolverPanel(Panel):
     bl_category = "Tools"
     bl_context = "objectmode"
 
-    @classmethod
-    def poll(self,context):
-        return context.object is not None
-
     def draw(self, context):
         layout = self.layout
         scene = context.scene

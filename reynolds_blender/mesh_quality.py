@@ -76,30 +76,30 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    Panel
 # ------------------------------------------------------------------------
 
-class MeshQualityPanel(Panel):
-    bl_idname = "of_mesh_quality__panel"
-    bl_label = "Mesh Quality Controls"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "Tools"
-    bl_context = "objectmode"
+class MeshQualityOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_mq_op"
+    bl_label = "Mesh Quality"
 
     @classmethod
-    def poll(self,context):
-        return context.object is not None
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    # Return True to force redraw
+    def check(self, context):
+        return True
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=750)
 
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-
-        # ---------------------------------------
-        # Render Block Panel using YAML GUI Spec
-        # ---------------------------------------
-
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
                                            'mesh_quality.yaml')
         gui_renderer.render()
-
 
 # ------------------------------------------------------------------------
 # register and unregister
