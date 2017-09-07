@@ -61,6 +61,9 @@ from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.block_cells import BlockMeshCellsOperator
+from reynolds_blender.block_regions import BlockMeshRegionsOperator
+from reynolds_blender.add_block import BlockMeshAddOperator
 
 # ----------------
 # reynolds imports
@@ -72,127 +75,6 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-def assign_blocks(self, context):
-    scene = context.scene
-    obj = context.active_object
-
-    # print the values to the console
-    print("Assigning blocks ", scene.vertex_labels)
-
-    mode = bpy.context.active_object.mode
-    # switch from Edit mode to Object mode so the selection gets updated
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    hex = []
-    for v in obj.data.vertices:
-        if v.select:
-            print('selected v for blocks: ', v.index)
-            print(scene.vertex_labels[v.index])
-            hex.append(scene.vertex_labels[v.index])
-            print(hex)
-
-    hex.sort()
-    print("blocks hex: ", hex)
-    scene.blocks.clear()
-    scene.blocks.extend(hex)
-    print("scene hex: ", hex    )
-    # reset mode
-    bpy.ops.object.mode_set(mode=mode)
-    return {'FINISHED'}
-
-def assign_vertex(self, context):
-    scene = context.scene
-    obj = context.active_object
-
-    print("Assigning vertex ", scene.vertex_labels)
-
-    mode = bpy.context.active_object.mode
-    # switch from Edit mode to Object mode so the selection gets updated
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    print(scene.bmd_vertices, scene.bmd_vindex)
-    for v in obj.data.vertices:
-        if v.select:
-            print("Selected vertex: ", v.index)
-            if not v.index in scene.vertex_labels:
-                item = scene.bmd_vertices[scene.bmd_vindex]
-                item.name = "Vertex " + str(v.index)
-                scene.vertex_labels[v.index] = scene.bmd_vindex
-
-    print(scene.vertex_labels)
-    # reset mode
-    bpy.ops.object.mode_set(mode=mode)
-    return{'FINISHED'}
-
-def remove_vertex(self, context):
-    print("Removing assigned vertex")
-
-    scene = context.scene
-    obj = context.active_object
-
-    print(scene.bmd_vindex, scene.bmd_vertices[scene.bmd_vindex])
-    item = scene.bmd_vertices[scene.bmd_vindex]
-    _, v_index = item.name.split("Vertex ", 1)
-    v_index = int(v_index)
-    item.name = ""
-    print(scene.vertex_labels)
-    scene.vertex_labels.pop(v_index, None)
-    print(scene.vertex_labels)
-    return{'FINISHED'}
-
-def assign_region(self, context):
-    print("Assigning region")
-
-    scene = context.scene
-    obj = context.active_object
-
-    bm = bmesh.from_edit_mesh(obj.data)
-
-    r_faces = []
-
-    for f in bm.faces:
-        if f.select:
-            print("Selected face: ", f.index, f)
-            print("normal ", f.normal, f.normal.magnitude)
-
-            print (obj.data.polygons[f.index].vertices)
-            f_vertex_labels = []
-            p = obj.data.polygons[f.index]
-            r_vertices = []
-            for v_index in p.vertices:
-                r_vertices.append(v_index)
-            print(r_vertices)
-            r_vertices.reverse()
-            print(r_vertices)
-            f_vertex_labels = []
-            for v in r_vertices:
-                f_vertex_labels.append(scene.vertex_labels[v])
-            print(f_vertex_labels)
-            r_faces.append(f_vertex_labels)
-
-    print(r_faces)
-    item = scene.bmd_regions[scene.bmd_rindex]
-    region_name = scene.region_name
-    face_str = region_name + " : " + ' '.join(str(f) for f in r_faces)
-    r = (scene.region_name, scene.region_type, r_faces)
-    item.name = face_str
-    scene.regions[region_name] = r
-    print(scene.regions)
-    return{'FINISHED'}
-
-def remove_region(self, context):
-    print("Removing region")
-
-    scene = context.scene
-    obj = context.active_object
-
-    print(scene.bmd_rindex, scene.bmd_regions[scene.bmd_rindex])
-    item = scene.bmd_regions[scene.bmd_rindex]
-    r_name, _ = item.name.split(" : ", 1)
-    scene.regions.pop(r_name, None)
-    item.name = ""
-    return{'FINISHED'}
-
 def generate_blockmeshdict(self, context):
     scene = context.scene
     obj = context.active_object
@@ -202,23 +84,32 @@ def generate_blockmeshdict(self, context):
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
     print(" ABSOLUTE CASE DIR PATH: ", abs_case_dir_path)
 
+    bbox = obj.bound_box
+    x = [v[0] for v in obj.bound_box]
+    x.sort()
+    y = [v[2] for v in obj.bound_box]
+    y.sort()
+    z = [v[1] for v in obj.bound_box]
+    z.sort()
+
     block_mesh_dict = ReynoldsFoamDict('blockMeshDict.foam')
 
     # generate bmd vertices
     bmd_vertices = []
-    sorted_labels = sorted(scene.vertex_labels.items(),
-                            key=operator.itemgetter(1))
-    for v_index, _ in sorted_labels:
-        v = obj.data.vertices[v_index].co
-        print(v)
-        bmd_v = [v.x, v.z, v.y] # Swap y, z
-        bmd_vertices.append(bmd_v)
+    bmd_vertices.append([x[0], y[0], z[0]])
+    bmd_vertices.append([x[7], y[0], z[0]])
+    bmd_vertices.append([x[7], y[7], z[0]])
+    bmd_vertices.append([x[0], y[7], z[0]])
+    bmd_vertices.append([x[0], y[0], z[7]])
+    bmd_vertices.append([x[7], y[0], z[7]])
+    bmd_vertices.append([x[7], y[7], z[7]])
+    bmd_vertices.append([x[0], y[7], z[7]])
     block_mesh_dict['vertices'] = bmd_vertices
 
     # generate bmd blocks
     bmd_blocks = []
     bmd_blocks.append('hex')
-    bmd_blocks.append(scene.blocks)
+    bmd_blocks.append([0, 1, 2, 3, 4, 5, 6, 7])
     bmd_blocks.append([scene.n_cells[0], scene.n_cells[1],
                         scene.n_cells[2]])
     bmd_blocks.append('simpleGrading')
@@ -239,7 +130,18 @@ def generate_blockmeshdict(self, context):
         br['type'] = patch_type
         faces = []
         for f in face_labels:
-            faces.append(f)
+            if f == 'Front':
+                faces.append([1, 5, 4, 0])
+            if f == 'Back':
+                faces.append([3, 7, 6, 2])
+            if f == 'Top':
+                faces.append([4, 5, 6, 7])
+            if f == 'Bottom':
+                faces.append([0, 3, 2, 1])
+            if f == 'Left':
+                faces.append([3, 7, 4, 0])
+            if f == 'Right':
+                faces.append([2, 6, 5, 1])
         br['faces'] = faces
         bmd_boundary.append(br)
     print(bmd_boundary)
@@ -301,19 +203,20 @@ def run_blockmesh(self, context):
 
 class BlockMeshDictPanel(Panel):
     bl_idname = "of_bmd_panel"
-    bl_label = "Block Mesh Dict"
+    bl_label = "BlockMesh"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
-    bl_context = "mesh_edit"
-
-    @classmethod
-    def poll(self,context):
-        return context.object is not None
+    bl_context = "objectmode"
 
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+
+        row = layout.row()
+        row.operator(BlockMeshAddOperator.bl_idname, text='', icon='PLUS')
+        row.operator(BlockMeshCellsOperator.bl_idname, text='', icon='LATTICE_DATA')
+        row.operator(BlockMeshRegionsOperator.bl_idname, text='', icon='MESH_PLANE')
 
         # ---------------------------------------
         # Render Block Panel using YAML GUI Spec
@@ -323,19 +226,16 @@ class BlockMeshDictPanel(Panel):
                                            'block_mesh_panel.yaml')
         gui_renderer.render()
 
-
 # ------------------------------------------------------------------------
 # register and unregister
 # ------------------------------------------------------------------------
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('block_mesh_panel.yaml')
     create_custom_operators('block_mesh_panel.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('block_mesh_panel.yaml')
 
 if __name__ == "__main__":
     register()
