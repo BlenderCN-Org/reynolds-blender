@@ -122,7 +122,7 @@ def assign_shmd_geometry(self, context):
     if geometry_info['type'] == 'searchableBox':
         x = [v[0] for v in obj.bound_box]
         x.sort()
-        y = [v[1] for v in obj.bound_box]
+        y = [v[2] for v in obj.bound_box]
         y.sort()
         z = [v[1] for v in obj.bound_box]
         z.sort()
