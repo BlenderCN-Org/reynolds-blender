@@ -84,50 +84,31 @@ class TestFoamTutorial(unittest.TestCase):
         self.scene.n_grading[1] = y
         self.scene.n_grading[2] = z
 
-    # ----------------------------
-    # assign vertices with indices
-    # -----------------------------
-    def select_vertices(self, obj, indices):
-        bpy.ops.mesh.select_all(action='DESELECT')
-
-        # ------------------------------------------------
-        # Why is ensure_lookup_table() needed?
-        # See https://developer.blender.org/rB785b90d7efd0
-        # ------------------------------------------------
-
-        bpy.ops.mesh.select_mode(type='VERT')
-        for idx in  indices:
-            mesh = bmesh.from_edit_mesh(obj.data)
-            mesh.verts.ensure_lookup_table()
-            vertices = mesh.verts
-            vertices[idx].select = True
-            bpy.ops.vertices.list_action('EXEC_DEFAULT', action='ADD')
-            bpy.ops.reynolds.assign_vertex()
-            mesh = bmesh.from_edit_mesh(obj.data)
-            mesh.verts.ensure_lookup_table()
-            vertices = mesh.verts
-            vertices[idx].select = False
-
-    def assign_blocks(self):
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.reynolds.blocks()
-        bpy.ops.mesh.select_all(action='DESELECT')
-
     def select_boundary(self, obj, patches):
-        bpy.ops.mesh.select_mode(type='FACE')
-        for name, (faces, type) in patches.items():
-            self.scene.region_name = name
-            self.scene.region_type = type
-            mesh = bmesh.from_edit_mesh(obj.data)
-            mesh.faces.ensure_lookup_table()
-            for f in faces:
-                mesh.faces[f].select = True
+        for name, (faces, patch_type) in patches.items():
             bpy.ops.regions.list_action('INVOKE_DEFAULT', action='ADD')
-            bpy.ops.reynolds.assign_region()
-            mesh = bmesh.from_edit_mesh(obj.data)
-            mesh.faces.ensure_lookup_table()
+            self.scene.region_name = name
+            self.scene.region_type = patch_type
+            self.scene.select_front_face = False
+            self.scene.select_back_face = False
+            self.scene.select_top_face = False
+            self.scene.select_bottom_face = False
+            self.scene.select_left_face = False
+            self.scene.select_right_face = False
             for f in faces:
-                mesh.faces[f].select = False
+                if f == 'Front':
+                    self.scene.select_front_face = True
+                if f == 'Back':
+                    self.scene.select_back_face = True
+                if f == 'Top':
+                    self.scene.select_top_face = True
+                if f == 'Bottom':
+                    self.scene.select_bottom_face = True
+                if f == 'Left':
+                    self.scene.select_left_face = True
+                if f == 'Right':
+                    self.scene.select_right_face = True
+            bpy.ops.reynolds.assign_region()
 
     def switch_to_edit_mode(self, obj):
         self.scene.objects.active = obj

@@ -64,19 +64,17 @@ class TestCavityTutorial(TestFoamTutorial):
         # Steps to solve case
         # -------------------
         self.scene.convert_to_meters = 0.1
-        self.select_vertices(obj, [0, 1, 3, 2, 4, 5, 7, 6])
         self.set_number_of_cells(20, 20, 1)
         self.set_grading(1, 1, 1)
-        self.assign_blocks()
         # -----------------------------------------------------------------
         # set boundary
         # 1. select face with index 4 as movingWall, set name, type
         # 2. select face with index 3, 5, 2 as fixedWalls, set name, type
         # 3. select faces with indices 0, 1 as frontAndBack, set name, type
         # -----------------------------------------------------------------
-        patches = {'movingWall': ([4], 'wall'),
-                   'fixedWalls': ([3, 5, 2], 'wall'),
-                   'frontAndBack': ([0, 1], 'empty')}
+        patches = {'movingWall': (['Top'], 'wall'),
+                   'fixedWalls': (['Bottom', 'Left', 'Right'], 'wall'),
+                   'frontAndBack': (['Front', 'Back'], 'empty')}
         self.select_boundary(obj, patches)
         self.generate_blockmeshdict()
         self.run_blockmesh()
