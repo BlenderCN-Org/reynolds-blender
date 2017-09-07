@@ -71,17 +71,14 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.assertIsNotNone(self.scene.objects['Cube'])
         blockmesh_obj = self.scene.objects['Cube']
         bpy.ops.object.select_all(False)
-        self.switch_to_edit_mode(blockmesh_obj)
         self.select_case_dir('//flange')
         self.scene.convert_to_meters = 1
-        self.select_vertices(blockmesh_obj, [0, 4, 5, 1, 2, 6, 7, 3])
         self.set_number_of_cells(20, 20, 20)
         self.set_grading(1, 1, 1)
-        self.assign_blocks()
-        patches = {'patch1': ([5], 'patch'),
-                   'patch2': ([4], 'patch'),
-                   'patch4': ([0, 2], 'patch'),
-                   'patch3': ([3, 1], 'patch')}
+        patches = {'patch1': (['Back'], 'patch'),
+                   'patch2': (['Front'], 'patch'),
+                   'patch3': (['Top', 'Bottom'], 'patch'),
+                   'patch4': (['Left', 'Right'], 'patch')}
         self.select_boundary(blockmesh_obj, patches)
         self.generate_blockmeshdict()
         self.run_blockmesh()
