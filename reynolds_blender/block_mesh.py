@@ -131,17 +131,17 @@ def generate_blockmeshdict(self, context):
         faces = []
         for f in face_labels:
             if f == 'Front':
-                faces.append([1, 5, 4, 0])
-            if f == 'Back':
-                faces.append([3, 7, 6, 2])
-            if f == 'Top':
-                faces.append([4, 5, 6, 7])
-            if f == 'Bottom':
                 faces.append([0, 3, 2, 1])
+            if f == 'Back':
+                faces.append([4, 5, 6, 7])
+            if f == 'Top':
+                faces.append([3, 7, 6, 2])
+            if f == 'Bottom':
+                faces.append([0, 1, 5, 4])
             if f == 'Left':
-                faces.append([3, 7, 4, 0])
+                faces.append([0, 4, 7, 3])
             if f == 'Right':
-                faces.append([2, 6, 5, 1])
+                faces.append([1, 2, 6, 5])
         br['faces'] = faces
         bmd_boundary.append(br)
     print(bmd_boundary)
