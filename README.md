@@ -14,9 +14,15 @@ constraint:
 1. Write Blender add-ons with standalone operators that invoke the Reynolds
    API.
 
+Demos
+---
+
+[![Cavity Demo](docs/img/cavity-video.png)](https://vimeo.com/233011778)
+[![Flange Demo](docs/img/flange-video.png)](https://vimeo.com/233012814)
+
 BlockMeshDict Addon Interface
 ---
 
-![](docs/img/add-on.png?raw=true)
-
 ![](docs/img/open-foam-gui.png?raw=true)
+
+![](docs/img/add-on.png?raw=true)
