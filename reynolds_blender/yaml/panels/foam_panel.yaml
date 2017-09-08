@@ -1,3 +1,10 @@
+attrs:
+  foam_started:
+   type: Bool
+   name: ""
+   description: "Foam Started"
+   default: false
+
 operators:
   reynolds.start_of:
    operator_type: Operator

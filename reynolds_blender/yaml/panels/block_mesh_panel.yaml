@@ -1,3 +1,10 @@
+attrs:
+ blockmesh_executed:
+  type: Bool
+  name: "blockMesh executed"
+  description: "blockMesh executed"
+  default: false
+
 operators:
  reynolds.generate_bmd:
   operator_type: Operator

@@ -117,16 +117,18 @@ def generate_surface_dict(self, context):
 def extract_surface_features(self, context):
     scene = context.scene
     case_dir = bpy.path.abspath(scene.case_dir_path)
+    scene.features_extracted = False
     cr = FoamCmdRunner(cmd_name='surfaceFeatureExtract', case_dir=case_dir)
 
     for info in cr.run():
         self.report({'WARNING'}, info)
 
     if cr.run_status:
+        scene.features_extracted = True
         self.report({'INFO'}, 'SurfaceFeatureExtract : SUCCESS')
         # switch to layer 1
         context.scene.layers[0] = False
-        context.scene.layers[1] = True
+        context.scene.layers[2] = True
         glob_obj = os.path.join(case_dir, 'constant',
                                 'extendedFeatureEdgeMesh', '*.obj')
         for block_obj_filepath in glob.glob(glob_obj):
@@ -135,12 +137,12 @@ def extract_surface_features(self, context):
             block_obj_name = os.path.splitext(block_obj_filename)[0]
             block_obj = context.scene.objects[block_obj_name]
             for i in range(20):
-                block_obj.layers[i] = (i == 1)
+                block_obj.layers[i] = (i == 2)
         # switch back to layer 0
-        context.scene.layers[1] = False
+        context.scene.layers[2] = False
         context.scene.layers[0] = True
     else:
-        self.report({'INFO'}, 'SurfaceFeatureExtract : FAILED')
+        self.report({'ERROR'}, 'SurfaceFeatureExtract : FAILED')
 
     return {'FINISHED'}
 

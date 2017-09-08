@@ -82,7 +82,19 @@ def generate_blockmeshdict(self, context):
     print("Select dir for generated blockmeshdict file")
 
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    if abs_case_dir_path is None or abs_case_dir_path == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
     print(" ABSOLUTE CASE DIR PATH: ", abs_case_dir_path)
+
+    if obj is None:
+        self.report({'ERROR'}, 'Please select a block object')
+        return {'FINISHED'}
 
     bbox = obj.bound_box
     x = [v[0] for v in obj.bound_box]
@@ -145,6 +157,11 @@ def generate_blockmeshdict(self, context):
         br['faces'] = faces
         bmd_boundary.append(br)
     print(bmd_boundary)
+
+    if len(bmd_boundary) == 0:
+        self.report({'ERROR'}, 'Please select regions/boundary conditions')
+        return {'FINISHED'}
+
     block_mesh_dict['boundary'] = bmd_boundary
 
     # set convert to meters
@@ -165,6 +182,21 @@ def run_blockmesh(self, context):
 
     print("Start openfoam")
     case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    if case_dir is None or case_dir == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
+    block_file = os.path.join(case_dir, 'system', 'blockMeshDict')
+    if not os.path.exists(block_file):
+        self.report({'ERROR'}, 'Please generate blockMeshDict')
+        return {'FINISHED'}
+
+    scene.blockmesh_executed = False
     mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir,
                         cmd_flags=['-blockTopology'])
 
@@ -189,11 +221,12 @@ def run_blockmesh(self, context):
         for info in mr.run():
             self.report({'WARNING'}, info)
         if mr.run_status:
+            scene.blockmesh_executed = True
             self.report({'INFO'}, 'Blockmesh : SUCCESS')
         else:
-            self.report({'INFO'}, 'Blockmesh : FAILED')
+            self.report({'ERROR'}, 'Blockmesh : FAILED')
     else:
-        self.report({'INFO'}, 'Blockmesh -blockTopology: FAILED')
+        self.report({'ERROR'}, 'Blockmesh -blockTopology: FAILED')
 
     return{'FINISHED'}
 
@@ -232,9 +265,11 @@ class BlockMeshDictPanel(Panel):
 
 def register():
     register_classes(__name__)
+    set_scene_attrs('block_mesh_panel.yaml')
     create_custom_operators('block_mesh_panel.yaml', __name__)
 
 def unregister():
+    del_scene_attrs('block_mesh_panel.yaml')
     unregister_classes(__name__)
 
 if __name__ == "__main__":
