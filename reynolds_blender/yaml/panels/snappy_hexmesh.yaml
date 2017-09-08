@@ -1,3 +1,10 @@
+attrs:
+ snappyhexmesh_executed:
+  type: Bool
+  name: SnappyHexMesh executed
+  description: SnappyHexMesh executed
+  default: false
+  
 operators:
  reynolds.generate_shmd:
   operator_type: Operator

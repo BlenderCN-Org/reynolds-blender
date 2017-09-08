@@ -250,6 +250,21 @@ def generate_snappyhexmeshdict(self, context):
 def run_snappyhexmesh(self, context):
     scene = context.scene
     case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    if case_dir is None or case_dir == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
+    shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
+    if not os.path.exists(shmd_file_path):
+        self.report({'ERROR'}, 'Please generate snappyHexMeshDict')
+        return {'FINISHED'}
+
+    scene.snappyhexmesh_executed = False
     cr = FoamCmdRunner(cmd_name='snappyHexMesh', case_dir=case_dir,
                        cmd_flags=['-overwrite'])
 
@@ -257,9 +272,10 @@ def run_snappyhexmesh(self, context):
         self.report({'WARNING'}, info)
 
     if cr.run_status:
+        scene.snappyhexmesh_executed = True
         self.report({'INFO'}, 'SnappyHexMesh : SUCCESS')
     else:
-        self.report({'INFO'}, 'SnappyHexMesh : FAILED')
+        self.report({'ERROR'}, 'SnappyHexMesh : FAILED')
 
     return {'FINISHED'}
 
@@ -302,10 +318,12 @@ class SnappyHexMeshPanel(Panel):
 
 def register():
     register_classes(__name__)
+    set_scene_attrs('snappy_hexmesh.yaml')
     create_custom_operators('snappy_hexmesh.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
+    del_scene_attrs('snappy_hexmesh.yaml')
 
 if __name__ == "__main__":
     register()
