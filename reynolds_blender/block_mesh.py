@@ -182,6 +182,20 @@ def run_blockmesh(self, context):
 
     print("Start openfoam")
     case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    if case_dir is None or case_dir == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
+    block_file = os.path.join(case_dir, 'system', 'blockMeshDict')
+    if not os.path.exists(block_file):
+        self.report({'ERROR'}, 'Please generate blockMeshDict')
+        return {'FINISHED'}
+
     mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir,
                         cmd_flags=['-blockTopology'])
 
@@ -208,9 +222,9 @@ def run_blockmesh(self, context):
         if mr.run_status:
             self.report({'INFO'}, 'Blockmesh : SUCCESS')
         else:
-            self.report({'INFO'}, 'Blockmesh : FAILED')
+            self.report({'ERROR'}, 'Blockmesh : FAILED')
     else:
-        self.report({'INFO'}, 'Blockmesh -blockTopology: FAILED')
+        self.report({'ERROR'}, 'Blockmesh -blockTopology: FAILED')
 
     return{'FINISHED'}
 
