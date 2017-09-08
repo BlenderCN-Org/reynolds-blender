@@ -27,6 +27,12 @@ operators:
   label: Import OBJ
   description: Import Wavefront OBJ file
   execute_func: import_obj
+ reynolds.add_geometry_block:
+  operator_type: Operator
+  class_name: SHMDGeometryBlockOperator
+  label: Add block mesh
+  description: Add bounding box to geoemtry for blockMesh
+  execute_func: add_geometry_block
 
 gui:
  - box:
@@ -44,3 +50,7 @@ gui:
       - operator:
          id: reynolds.import_obj
          icon: FILESEL
+   - row:
+      - operator:
+         id: reynolds.add_geometry_block
+         icon: META_CUBE
