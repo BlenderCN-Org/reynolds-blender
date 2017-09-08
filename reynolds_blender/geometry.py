@@ -147,22 +147,6 @@ def assign_shmd_geometry(self, context):
 
     return {'FINISHED'}
 
-def add_geometry_block(self, context):
-    scene = context.scene
-    bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
-    obj = scene.objects.active
-    bpy.ops.mesh.primitive_cube_add()
-    bound_box = bpy.context.active_object
-
-    dims = obj.dimensions
-    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.5, dims.z * 1.2))
-    bound_box.location = obj.location
-    bpy.ops.object.transform_apply(location=True,
-                                   rotation=True,
-                                   scale=True)
-
-    return {'FINISHED'}
-
 def remove_shmd_geometry(self, context):
     print('remove_shmd_geometry: TBD')
 
@@ -187,7 +171,7 @@ class GeometryOperator(bpy.types.Operator):
         return True
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=750)
+        return context.window_manager.invoke_props_dialog(self, width=500)
 
     def draw(self, context):
         layout = self.layout

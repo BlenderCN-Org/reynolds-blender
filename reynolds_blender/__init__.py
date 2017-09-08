@@ -42,6 +42,7 @@ if "bpy" in locals():
     import importlib
     importlib.reload(foam)
     importlib.reload(models)
+    importlib.reload(sphere)
     importlib.reload(add_block)
     importlib.reload(block_cells)
     importlib.reload(block_regions)
@@ -56,7 +57,7 @@ if "bpy" in locals():
     importlib.reload(snappy_hexmesh)
     importlib.reload(solver)
 else:
-    from . import (foam, models, add_block, block_cells, block_regions,
+    from . import (foam, models, sphere, add_block, block_cells, block_regions,
                    block_mesh, solver, geometry, snappy_steps,
                    feature_extraction, castellated_mesh, snapping, layers,
                    mesh_quality, snappy_hexmesh)
@@ -74,6 +75,7 @@ def register():
     set_scene_attrs("common_attrs.yaml")
     foam.register()
     models.register()
+    sphere.register()
     add_block.register()
     block_cells.register()
     block_regions.register()
@@ -92,6 +94,7 @@ def unregister():
     del_scene_attrs("common_attrs.yaml")
     foam.unregister()
     models.unregister()
+    sphere.unregister()
     add_block.unregister()
     block_cells.unregister()
     block_regions.unregister()

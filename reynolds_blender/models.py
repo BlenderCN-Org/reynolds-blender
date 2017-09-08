@@ -61,6 +61,8 @@ from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.sphere import SearchableSphereAddOperator
+from reynolds_blender.add_block import BlockMeshAddOperator
 
 # ----------------
 # reynolds imports
@@ -101,6 +103,25 @@ def import_obj(self, context):
     print('OBJ IMPORT: ', scene.geometries)
     return {'FINISHED'}
 
+def add_geometry_block(self, context):
+    scene = context.scene
+    bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
+    obj = scene.objects.active
+    if obj is None:
+        self.report({'ERROR'}, 'Please select a geometry')
+        return {'FINISHED'}
+    bpy.ops.mesh.primitive_cube_add()
+    bound_box = bpy.context.active_object
+
+    dims = obj.dimensions
+    bound_box.dimensions = Vector((dims.x * 1.5, dims.y * 1.5, dims.z * 1.2))
+    bound_box.location = obj.location
+    bpy.ops.object.transform_apply(location=True,
+                                   rotation=True,
+                                   scale=True)
+
+    return {'FINISHED'}
+
 class ModelsPanel(Panel):
     bl_idname = "of_models_panel"
     bl_label = "Import STL/OBJ Models"
@@ -112,6 +133,12 @@ class ModelsPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
+
+        row = layout.row()
+        row.operator(SearchableSphereAddOperator.bl_idname, text='Sphere',
+                        icon='MESH_UVSPHERE')
+        row.operator(BlockMeshAddOperator.bl_idname, text='Box',
+                     icon='META_CUBE')
 
         # ----------------------------------------
         # Render Models Panel using YAML GUI Spec

@@ -72,27 +72,22 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-def add_block(self, context):
-    print(' Add block ')
+def add_searchable_sphere(self, context):
     scene = context.scene
-
-    w = scene.block_width
-    h = scene.block_height
-    t = scene.block_thickness
-
-    bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
-    bpy.ops.transform.resize(value=(w / 2, t / 2, h / 2))
-    bpy.ops.transform.translate(value=(w / 2, t / 2, h / 2))
-    bpy.ops.object.transform_apply(location=True, rotation=False, scale=True)
+    r = scene.sphere_radius
+    l = scene.sphere_location
+    bpy.ops.mesh.primitive_uv_sphere_add(size=r, location=(l[0], l[2], l[1]))
+    sphere = bpy.context.object
+    sphere.name = scene.sphere_name
     return {'FINISHED'}
 
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
 
-class BlockMeshAddOperator(bpy.types.Operator):
-    bl_idname = "reynolds.of_bmd_add_panel"
-    bl_label = "Add block of given widht, height, thickness"
+class SearchableSphereAddOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_searchable_sphere_panel"
+    bl_label = "Add Searchable Sphere"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
@@ -110,7 +105,7 @@ class BlockMeshAddOperator(bpy.types.Operator):
         return True
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=700)
+        return context.window_manager.invoke_props_dialog(self, width=500)
 
     def draw(self, context):
         layout = self.layout
@@ -121,9 +116,8 @@ class BlockMeshAddOperator(bpy.types.Operator):
         # ---------------------------------------
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           'add_block.yaml')
+                                           'sphere.yaml')
         gui_renderer.render()
-
 
 # ------------------------------------------------------------------------
 # register and unregister
@@ -131,12 +125,12 @@ class BlockMeshAddOperator(bpy.types.Operator):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('add_block.yaml')
-    create_custom_operators('add_block.yaml', __name__)
+    set_scene_attrs('sphere.yaml')
+    create_custom_operators('sphere.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('add_block.yaml')
+    del_scene_attrs('sphere.yaml')
 
 if __name__ == "__main__":
     register()

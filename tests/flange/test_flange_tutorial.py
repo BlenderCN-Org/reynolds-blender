@@ -59,9 +59,12 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.assertIsNotNone(self.scene.geometries['Flange'])
 
     def _add_refine_hole(self):
-        bpy.ops.object.select_all(False)
-        bpy.ops.mesh.primitive_uv_sphere_add(size=0.0030,
-                                             location=(0, -0.012, 0))
+        self.scene.sphere_name = 'refineHole'
+        self.scene.sphere_radius = 0.0030
+        self.scene.sphere_location[0] = 0
+        self.scene.sphere_location[1] = -0.012
+        self.scene.sphere_location[2] = 0
+        bpy.ops.reynolds.add_searchable_sphere()
 
     def _add_blockmesh_to_flange_trisurface(self):
         bpy.ops.object.select_all(False)
@@ -110,9 +113,8 @@ class TestFlangeTutorial(TestFoamTutorial):
 
     def _add_refine_hole_geometry(self):
         self.scene.objects.active = None
-        sphere = self.scene.objects['Sphere']
-        self.scene.objects.active = sphere
-        bpy.context.object.name = 'refineHole'
+        sphere = self.scene.objects['refineHole']
+        bpy.context.scene.objects.active = sphere
         self.scene.geometry_type = 'searchableSphere'
         self.scene.refinement_type = 'Region'
         self.scene.refinement_mode = 'inside'
