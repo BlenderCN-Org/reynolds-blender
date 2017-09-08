@@ -196,6 +196,7 @@ def run_blockmesh(self, context):
         self.report({'ERROR'}, 'Please generate blockMeshDict')
         return {'FINISHED'}
 
+    scene.blockmesh_executed = False
     mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir,
                         cmd_flags=['-blockTopology'])
 
@@ -220,6 +221,7 @@ def run_blockmesh(self, context):
         for info in mr.run():
             self.report({'WARNING'}, info)
         if mr.run_status:
+            scene.blockmesh_executed = True
             self.report({'INFO'}, 'Blockmesh : SUCCESS')
         else:
             self.report({'ERROR'}, 'Blockmesh : FAILED')
@@ -263,9 +265,11 @@ class BlockMeshDictPanel(Panel):
 
 def register():
     register_classes(__name__)
+    set_scene_attrs('block_mesh_panel.yaml')
     create_custom_operators('block_mesh_panel.yaml', __name__)
 
 def unregister():
+    del_scene_attrs('block_mesh_panel.yaml')
     unregister_classes(__name__)
 
 if __name__ == "__main__":

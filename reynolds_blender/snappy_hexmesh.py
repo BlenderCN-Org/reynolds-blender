@@ -83,13 +83,51 @@ def generate_snappyhexmeshdict(self, context):
     scene = context.scene
     snappy_dict = ReynoldsFoamDict('snappyHexMeshDict.foam')
 
+    abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    if abs_case_dir_path is None or abs_case_dir_path == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
+    if (not scene.castellated_mesh_step and
+        not scene.snap_step and
+        not scene.add_layers_step):
+        self.report({'ERROR'}, 'Please select the snappyhexmesh steps')
+        return {'FINISHED'}
+
+    if len(scene.geometries) == 0:
+        self.report({'ERROR'}, 'Please add geometries')
+        return {'FINISHED'}
+
+    bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
+    if not os.path.exists(bmd_file_path):
+        self.report({'ERROR'}, 'Please generate block mesh dict')
+        return {'FINISHED'}
+
+    if not scene.blockmesh_executed:
+        self.report({'ERROR'}, 'Please run blockMesh')
+        return {'FINISHED'}
+
+    sfed_file_path = os.path.join(abs_case_dir_path, "system",
+                                  "surfaceFeatureExtractDict")
+    if not os.path.exists(sfed_file_path):
+        self.report({'ERROR'}, 'Please generate surface feature dict')
+        return {'FINISHED'}
+
+    if not scene.features_extracted:
+        self.report({'ERROR'}, 'Please run extract surface features')
+        return {'FINISHED'}
+
+    # steps to run
+    snappy_dict['castellatedMesh'] = scene.castellated_mesh_step
+    snappy_dict['snap'] = scene.snap_step
+    snappy_dict['addLayers'] = scene.add_layers_step
+
     for name, geometry_info in scene.geometries.items():
         print('generate feature extract dict for ', name)
-
-        # steps to run
-        snappy_dict['castellatedMesh'] = scene.castellated_mesh_step
-        snappy_dict['snap'] = scene.snap_step
-        snappy_dict['addLayers'] = scene.add_layers_step
 
         # geometry
         file_path = geometry_info.get('file_path', None)
@@ -201,7 +239,6 @@ def generate_snappyhexmeshdict(self, context):
     print(snappy_dict)
     print('--------------------')
 
-    abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
     shmd_file_path = os.path.join(abs_case_dir_path, "system",
                                   "snappyHexMeshDict")
     with open(shmd_file_path, "w") as f:
