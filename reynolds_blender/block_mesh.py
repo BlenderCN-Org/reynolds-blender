@@ -82,7 +82,19 @@ def generate_blockmeshdict(self, context):
     print("Select dir for generated blockmeshdict file")
 
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    if abs_case_dir_path is None or abs_case_dir_path == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
     print(" ABSOLUTE CASE DIR PATH: ", abs_case_dir_path)
+
+    if obj is None:
+        self.report({'ERROR'}, 'Please select a block object')
+        return {'FINISHED'}
 
     bbox = obj.bound_box
     x = [v[0] for v in obj.bound_box]
@@ -145,6 +157,11 @@ def generate_blockmeshdict(self, context):
         br['faces'] = faces
         bmd_boundary.append(br)
     print(bmd_boundary)
+
+    if len(bmd_boundary) == 0:
+        self.report({'ERROR'}, 'Please select regions/boundary conditions')
+        return {'FINISHED'}
+
     block_mesh_dict['boundary'] = bmd_boundary
 
     # set convert to meters

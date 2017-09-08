@@ -40,6 +40,7 @@ from progress_report import ProgressReport
 # reynolds blender imports
 # ------------------------
 
+from reynolds_blender.gui.attrs import set_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 
@@ -57,13 +58,17 @@ def start_openfoam(self, context):
     scene = context.scene
     obj = context.active_object
 
+    scene.foam_started = False
+
     print("Start openfoam")
 
     fr = FoamRunner()
 
     if fr.start():
+        scene.foam_started = True
         self.report({'INFO'}, 'OpenFoam started: SUCCESS')
     else:
+        scene.foam_started = False
         self.report({'INFO'}, 'OpenFoam started: FAILED')
 
     return{'FINISHED'}
@@ -96,6 +101,7 @@ class FoamPanel(Panel):
 # ------------------------------------------------------------------------
 
 def register():
+    set_scene_attrs('foam_panel.yaml')
     create_custom_operators('foam_panel.yaml', __name__)
     register_classes(__name__)
 
