@@ -67,6 +67,7 @@ from reynolds_blender.castellated_mesh import CastellatedMeshOperator
 from reynolds_blender.snapping import SnappingOperator
 from reynolds_blender.layers import LayersOperator
 from reynolds_blender.mesh_quality import MeshQualityOperator
+from reynolds_blender.snappy_steps import SnappyStepsOperator
 
 # ----------------
 # reynolds imports
@@ -84,6 +85,11 @@ def generate_snappyhexmeshdict(self, context):
 
     for name, geometry_info in scene.geometries.items():
         print('generate feature extract dict for ', name)
+
+        # steps to run
+        snappy_dict['castellatedMesh'] = scene.castellated_mesh_step
+        snappy_dict['snap'] = scene.snap_step
+        snappy_dict['addLayers'] = scene.add_layers_step
 
         # geometry
         file_path = geometry_info.get('file_path', None)
@@ -236,6 +242,7 @@ class SnappyHexMeshPanel(Panel):
         layout = self.layout
         scene = context.scene
         row = layout.row()
+        row.operator(SnappyStepsOperator.bl_idname, text='', icon='POSE_HLT')
         row.operator(GeometryOperator.bl_idname, text='', icon='GROUP')
         row.operator(FeatureExtractionOperator.bl_idname, text='', icon='SNAP_VERTEX')
         row.operator(CastellatedMeshOperator.bl_idname, text='', icon='MOD_REMESH')
