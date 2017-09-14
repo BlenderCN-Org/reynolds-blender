@@ -117,7 +117,14 @@ def generate_surface_dict(self, context):
 def extract_surface_features(self, context):
     scene = context.scene
     case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
     scene.features_extracted = False
+
     cr = FoamCmdRunner(cmd_name='surfaceFeatureExtract', case_dir=case_dir)
 
     for info in cr.run():

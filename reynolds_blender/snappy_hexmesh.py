@@ -83,6 +83,11 @@ def generate_snappyhexmeshdict(self, context):
     scene = context.scene
     snappy_dict = ReynoldsFoamDict('snappyHexMeshDict.foam')
 
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
     if abs_case_dir_path is None or abs_case_dir_path == '':
         self.report({'ERROR'}, 'Please select a case directory')
@@ -250,6 +255,11 @@ def generate_snappyhexmeshdict(self, context):
 def run_snappyhexmesh(self, context):
     scene = context.scene
     case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
 
     if case_dir is None or case_dir == '':
         self.report({'ERROR'}, 'Please select a case directory')

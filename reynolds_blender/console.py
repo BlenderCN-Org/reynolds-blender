@@ -28,90 +28,97 @@
 # -----------
 # bpy imports
 # -----------
-import bpy
+import bpy, bmesh
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       IntVectorProperty,
+                       FloatVectorProperty,
+                       CollectionProperty
+                       )
 from bpy.types import (Panel,
-                       PropertyGroup)
-from bpy.props import StringProperty, BoolProperty
+                       Operator,
+                       PropertyGroup,
+                       UIList
+                       )
+from bpy.path import abspath
+from mathutils import Matrix, Vector
 
-
-from progress_report import ProgressReport
+# --------------
+# python imports
+# --------------
+import operator
+import os
 
 # ------------------------
 # reynolds blender imports
 # ------------------------
 
-from reynolds_blender.gui.attrs import set_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
+from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
+from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.block_cells import BlockMeshCellsOperator
+from reynolds_blender.block_regions import BlockMeshRegionsOperator
+from reynolds_blender.add_block import BlockMeshAddOperator
 
-# ---------------
+# ----------------
 # reynolds imports
 # ----------------
-from reynolds.foam.start import FoamRunner
-from reynolds_blender.gui.custom_operator import create_custom_operators
+from reynolds.dict.parser import ReynoldsFoamDict
+from reynolds.foam.cmd_runner import FoamCmdRunner
 
 # ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
 
-def start_openfoam(self, context):
-    scene = context.scene
-    obj = context.active_object
-
-    scene.foam_started = False
-
-    # -------------------------
-    # Start the console operatorr
-    # --------------------------
-    bpy.ops.reynolds.of_console_op()
-
-    print("Start openfoam")
-
-    fr = FoamRunner()
-
-    if fr.start():
-        scene.foam_started = True
-        self.report({'INFO'}, 'OpenFoam started: SUCCESS')
-    else:
-        scene.foam_started = False
-        self.report({'INFO'}, 'OpenFoam started: FAILED')
-
-    return{'FINISHED'}
-
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
 
-class FoamPanel(Panel):
-    bl_idname = "of_foam_panel"
-    bl_label = "Open Foam"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "Tools"
-    bl_context = "objectmode"
+class ConsoleOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_console_op"
+    bl_label = "Console"
 
-    def draw(self, context):
-        layout = self.layout
+    _timer = None
+
+    def modal(self, context, event):
         scene = context.scene
 
-        # -------------------------------------
-        # Render Foam Panel using YAML GUI Spec
-        # -------------------------------------
+        if event.type in {'RIGHTMOUSE', 'ESC'}:
+            self.cancel(context)
+            return {'CANCELLED'}
 
-        gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.yaml')
-        gui_renderer.render()
+        if event.type == 'TIMER':
+            for area in context.screen.areas:
+                if area.type == 'INFO':
+                    area.tag_redraw()
+
+        return {'PASS_THROUGH'}
+
+    def execute(self, context):
+        wm = context.window_manager
+        self._timer = wm.event_timer_add(0.000001, context.window)
+        wm.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+    def cancel(self, context):
+        wm = context.window_manager
+        wm.event_timer_remove(self._timer)
+
 
 # ------------------------------------------------------------------------
 # register and unregister
 # ------------------------------------------------------------------------
 
 def register():
-    set_scene_attrs('foam_panel.yaml')
-    create_custom_operators('foam_panel.yaml', __name__)
     register_classes(__name__)
 
 def unregister():
     unregister_classes(__name__)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     register()

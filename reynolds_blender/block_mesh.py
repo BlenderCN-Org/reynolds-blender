@@ -79,6 +79,11 @@ def generate_blockmeshdict(self, context):
     scene = context.scene
     obj = context.active_object
 
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
     print("Select dir for generated blockmeshdict file")
 
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
@@ -179,6 +184,11 @@ def generate_blockmeshdict(self, context):
 def run_blockmesh(self, context):
     scene = context.scene
     obj = context.active_object
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
 
     print("Start openfoam")
     case_dir = bpy.path.abspath(scene.case_dir_path)
