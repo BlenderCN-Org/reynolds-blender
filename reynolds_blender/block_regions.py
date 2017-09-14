@@ -101,6 +101,15 @@ def assign_region(self, context):
     item.name = face_str
     scene.regions[region_name] = r
     print(scene.regions)
+
+    # reset selections
+    scene.select_front_face = False
+    scene.select_back_face = False
+    scene.select_top_face = False
+    scene.select_bottom_face = False
+    scene.select_right_face = False
+    scene.select_left_face = False
+
     return{'FINISHED'}
 
 def remove_region(self, context):
