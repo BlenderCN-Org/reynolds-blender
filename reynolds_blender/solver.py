@@ -60,6 +60,11 @@ def solve_case(self, context):
     scene = context.scene
     obj = context.active_object
 
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
     # ----------------------------------
     # Reset the status of a previous run
     # ----------------------------------

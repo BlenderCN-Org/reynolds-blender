@@ -107,6 +107,12 @@ def add_geometry_block(self, context):
     scene = context.scene
     bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
     obj = scene.objects.active
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
     if obj is None:
         self.report({'ERROR'}, 'Please select a geometry')
         return {'FINISHED'}
