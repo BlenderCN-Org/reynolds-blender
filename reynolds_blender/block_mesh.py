@@ -64,6 +64,7 @@ from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 from reynolds_blender.block_cells import BlockMeshCellsOperator
 from reynolds_blender.block_regions import BlockMeshRegionsOperator
 from reynolds_blender.add_block import BlockMeshAddOperator
+from reynolds_blender.mesh_objs import ShowMeshObjOperator
 
 # ----------------
 # reynolds imports
@@ -260,6 +261,7 @@ class BlockMeshDictPanel(Panel):
         row.operator(BlockMeshAddOperator.bl_idname, text='', icon='PLUS')
         row.operator(BlockMeshCellsOperator.bl_idname, text='', icon='LATTICE_DATA')
         row.operator(BlockMeshRegionsOperator.bl_idname, text='', icon='MESH_PLANE')
+        row.operator(ShowMeshObjOperator.bl_idname, text='', icon='FACESEL_HLT')
 
         # ---------------------------------------
         # Render Block Panel using YAML GUI Spec

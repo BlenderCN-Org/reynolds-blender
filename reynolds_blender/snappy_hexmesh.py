@@ -68,6 +68,7 @@ from reynolds_blender.snapping import SnappingOperator
 from reynolds_blender.layers import LayersOperator
 from reynolds_blender.mesh_quality import MeshQualityOperator
 from reynolds_blender.snappy_steps import SnappyStepsOperator
+from reynolds_blender.mesh_objs import ShowMeshObjOperator
 
 # ----------------
 # reynolds imports
@@ -312,6 +313,7 @@ class SnappyHexMeshPanel(Panel):
         row.operator(SnappingOperator.bl_idname, text='', icon='SNAP_SURFACE')
         row.operator(LayersOperator.bl_idname, text='', icon='RENDERLAYERS')
         row.operator(MeshQualityOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(ShowMeshObjOperator.bl_idname, text='', icon='FACESEL_HLT')
 
         # ---------------------------------------
         # Render Block Panel using YAML GUI Spec
