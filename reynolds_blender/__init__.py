@@ -58,9 +58,9 @@ if "bpy" in locals():
     importlib.reload(solver)
 else:
     from . import (console, foam, models, sphere, add_block, block_cells,
-                   block_regions, block_mesh, solver, geometry, snappy_steps,
-                   feature_extraction, castellated_mesh, snapping, layers,
-                   mesh_quality, snappy_hexmesh)
+                   block_regions, block_mesh, mesh_objs, solver, geometry,
+                   snappy_steps, feature_extraction, castellated_mesh,
+                   snapping, layers, mesh_quality, snappy_hexmesh)
 
 
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
@@ -81,6 +81,7 @@ def register():
     block_cells.register()
     block_regions.register()
     block_mesh.register()
+    mesh_objs.register()
     geometry.register()
     snappy_steps.register()
     feature_extraction.register()
@@ -101,6 +102,7 @@ def unregister():
     block_cells.unregister()
     block_regions.unregister()
     block_mesh.unregister()
+    mesh_objs.unregister()
     geometry.unregister()
     snappy_steps.unregister()
     feature_extraction.unregister()
