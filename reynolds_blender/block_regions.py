@@ -125,6 +125,27 @@ def remove_region(self, context):
     item.name = ""
     return{'FINISHED'}
 
+def load_regions(self, context):
+    print("Initial loading of regions")
+    scene = context.scene
+    if not scene.regions_loaded:
+        item_coll = scene.bmd_regions
+        item_coll .clear()
+        faces = ["Front", "Back", "Top", "Bottom", "Left", "Right"]
+        index = 0
+        for f in faces:
+            r_faces = [f]
+            item = item_coll.add()
+            scene.bmd_rindex = index
+            region_name = f
+            face_str = region_name + " : " + region_name
+            region_type = 'patch'
+            r = (region_name, region_type, r_faces)
+            item.name = face_str
+            scene.regions[region_name] = r
+            index += 1
+        scene.regions_loaded = True
+
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
@@ -149,6 +170,7 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
         return True
 
     def invoke(self, context, event):
+        load_regions(self, context)
         return context.window_manager.invoke_props_dialog(self, width=500)
 
     def draw(self, context):
