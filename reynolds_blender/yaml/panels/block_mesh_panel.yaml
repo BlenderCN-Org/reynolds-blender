@@ -23,8 +23,5 @@ gui:
  - box: 
    - row: 
      - operator: 
-        id: reynolds.generate_bmd
-        icon: FILE_TEXT
-     - operator: 
         id: reynolds.block_mesh_runner
         icon: FILE_TEXT

@@ -190,6 +190,7 @@ def run_blockmesh(self, context):
     # Start the console operatorr
     # --------------------------
     bpy.ops.reynolds.of_console_op()
+    generate_blockmeshdict(self, context)
 
     print("Start openfoam")
     case_dir = bpy.path.abspath(scene.case_dir_path)
