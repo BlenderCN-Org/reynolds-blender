@@ -261,6 +261,7 @@ def run_snappyhexmesh(self, context):
     # Start the console operatorr
     # --------------------------
     bpy.ops.reynolds.of_console_op()
+    generate_snappyhexmeshdict(self, context)
 
     if case_dir is None or case_dir == '':
         self.report({'ERROR'}, 'Please select a case directory')
