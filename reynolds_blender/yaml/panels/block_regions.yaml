@@ -28,6 +28,10 @@ attrs:
      - cyclic
      - cyclic
      - ""
+ regions_loaded:
+  type: Bool
+  name: ""
+  description: "Regions loaded"
  select_front_face:
   type: Bool
   name: ""
@@ -65,6 +69,12 @@ operators:
    label: Regions List
    data_prop: bmd_regions
    id_prop: bmd_rindex
+ reynolds.load_regions:
+  operator_type: Operator
+  class_name: BMDLoadRegionsOperator
+  label: Load Regions
+  description: Inital load of regions
+  execute_func: load_regions
  reynolds.assign_region:
   operator_type: Operator
   class_name: BMDRegionsAssignOperator
