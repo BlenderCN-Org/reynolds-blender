@@ -56,11 +56,12 @@ if "bpy" in locals():
     importlib.reload(mesh_quality)
     importlib.reload(snappy_hexmesh)
     importlib.reload(solver)
+    importlib.reload(fvschemes)
 else:
     from . import (console, foam, models, sphere, add_block, block_cells,
                    block_regions, block_mesh, mesh_objs, solver, geometry,
                    snappy_steps, feature_extraction, castellated_mesh,
-                   snapping, layers, mesh_quality, snappy_hexmesh)
+                   snapping, layers, mesh_quality, snappy_hexmesh, fvschemes)
 
 
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
@@ -73,6 +74,7 @@ from bpy.props import (StringProperty,
 def register():
     bpy.app.debug = True # will show indices
     set_scene_attrs("common_attrs.yaml")
+    set_scene_attrs("fvSchemes.yaml")
     console.register()
     foam.register()
     models.register()
@@ -91,9 +93,11 @@ def register():
     mesh_quality.register()
     snappy_hexmesh.register()
     solver.register()
+    fvschemes.register()
 
 def unregister():
     del_scene_attrs("common_attrs.yaml")
+    del_scene_attrs("fvSchemes.yaml")
     console.unregister()
     foam.unregister()
     models.unregister()
@@ -112,6 +116,7 @@ def unregister():
     mesh_quality.unregister()
     snappy_hexmesh.unregister()
     solver.unregister()
+    fvschemes.unregister()
 
 if __name__ == '__main__':
     register()

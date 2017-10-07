@@ -82,9 +82,11 @@ def load_float_vector_attr(name, props):
 
 def load_enum_attr(name, props):
     items = [tuple(e) for e in props.get('items', [])]
+    print('enum items: ')
+    print(items)
     enum_property =  EnumProperty(name=props.get('name', ''),
                                   description=props.get('description', ''),
-                                  items=items)
+                                  items=items, default=props.get('default', None))
     setattr(bpy.types.Scene, name, enum_property)
 
 def load_ui_list_attrs(name, props):
@@ -134,7 +136,8 @@ def load_scene_attr(attr):
 
 def set_scene_attrs(attrs_filename):
     current_dir = os.path.realpath(os.path.dirname(__file__))
-    attrs_file = os.path.join(current_dir, "../yaml", "panels", attrs_filename)
+    attrs_file = os.path.join(current_dir, "../yaml", "panels",
+                                attrs_filename)
     with open(attrs_file) as f:
         d = yaml.load(f)
         for attr in d['attrs'].items():
@@ -155,8 +158,9 @@ def del_scene_attr(attr):
 
 def del_scene_attrs(attrs_filename):
     current_dir = os.path.realpath(os.path.dirname(__file__))
-    attrs_file = os.path.join(current_dir, "../yaml", "panels", attrs_filename)
+    attrs_file = os.path.join(current_dir, "../yaml", "panels",
+                                attrs_filename)
     with open(attrs_file) as f:
         d = yaml.load(f)
         for attr in d['attrs'].items():
-            load_scene_attr(attr)
+            del_scene_attr(attr)
