@@ -46,7 +46,25 @@ attrs:
  grad_schemes_grad_T:
   type: Enum
   name: "Grad Schemes Grad(T):"
-  description: "Grad Schemes Default"
+  description: "Grad Schemes Grad(P)"
+  default: 'Gauss linear'
+  items: 
+    -
+     - Gauss linear
+     - Gauss linear
+     - ""
+    -
+     - Gauss cubic
+     - Gauss cubic
+     - ""
+    -
+     - leastSquares
+     - leastSquares
+     - ""
+ grad_schemes_grad_p:
+  type: Enum
+  name: "Grad Schemes Grad(p):"
+  description: "Grad Schemes Grad(p)"
   default: 'Gauss linear'
   items: 
     -
@@ -70,6 +88,20 @@ attrs:
     -
      - Gauss cubic
      - Gauss cubic
+     - ""
+    -
+     - none
+     - none
+     - ""
+ div_schemes_phi_U:
+  type: Enum
+  name: "Div Schemes Div(Phi, U):"
+  description: "Div Schemes Div(Phi, U)"
+  default: Gauss linear
+  items: 
+    -
+     - Gauss linear
+     - Gauss linear
      - ""
     -
      - none
@@ -207,6 +239,7 @@ attrs:
      - ""
      - ""
      - ""
+
 
 operators:
  reynolds.generate_fvschemes:

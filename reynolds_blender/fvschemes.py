@@ -89,6 +89,16 @@ def generate_laplacianFoam_fvSchemes(fvschemes, scene):
     fvschemes['fluxRequired']['default'] = scene.flux_required_default
     fvschemes['fluxRequired']['T'] = scene.flux_required_t
 
+def generate_icoFoam_fvSchemes(fvschemes, scene):
+    fvschemes['ddtSchemes']['default'] = scene.ddt_schemes_default
+    fvschemes['gradSchemes']['default'] = scene.grad_schemes_default
+    fvschemes['gradSchemes']['grad(p)'] = scene.grad_schemes_grad_p
+    fvschemes['divSchemes']['default'] = scene.div_schemes_default
+    fvschemes['divSchemes']['div(phi,U)'] = scene.div_schemes_phi_U
+    fvschemes['laplacianSchemes']['default'] = scene.lap_schemes_default
+    fvschemes['interpolationSchemes']['default'] = scene.interp_schemes_default
+    fvschemes['snGradSchemes']['default'] = scene.sngrad_schemes_default
+
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
@@ -108,6 +118,8 @@ class FVSchemesOperator(bpy.types.Operator):
         fvschemes = ReynoldsFoamDict('fvSchemes.foam', solver_name=scene.solver_name)
         if scene.solver_name == 'laplacianFoam':
             generate_laplacianFoam_fvSchemes(fvschemes, scene)
+        elif scene.solver_name == 'icoFoam':
+            generate_icoFoam_fvSchemes(fvschemes, scene)
 
         fvschemes_file_path = os.path.join(abs_case_dir_path, "system", "fvSchemes")
         with open(fvschemes_file_path, "w+") as f:
