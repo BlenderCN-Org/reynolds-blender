@@ -1,3 +1,19 @@
+attrs:
+ solver_name: 
+  type: Enum
+  name: "Solver Type:"
+  description: "Solver Name"
+  default: laplacianFoam
+  items: 
+    -
+     - icoFoam
+     - icoFoam
+     - ""
+    -
+     - laplacianFoam
+     - laplacianFoam
+     - ""
+
 operators:
   reynolds.solve_case:
    operator_type: Operator

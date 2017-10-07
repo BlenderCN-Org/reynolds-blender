@@ -150,7 +150,7 @@ class ReynoldsListLabel(bpy.types.PropertyGroup):
 def create_custom_operators(operators_filename, func_module_name):
     current_dir = os.path.realpath(os.path.dirname(__file__))
     operators_file = os.path.join(current_dir, "../yaml", "panels",
-                                  operators_filename)
+                                    operators_filename)
     with open(operators_file) as f:
         d = yaml.load(f)
         for operator in d['operators'].items():

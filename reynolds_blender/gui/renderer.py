@@ -47,7 +47,8 @@ class ReynoldsGUIRenderer(object):
         self.layout = layout
 
         current_dir = os.path.realpath(os.path.dirname(__file__))
-        gui_file = os.path.join(current_dir, "../yaml", "panels", gui_filename)
+        gui_file = os.path.join(current_dir, "../yaml", "panels",
+                                gui_filename)
 
         self.gui_spec = []
         with open(gui_file) as f:

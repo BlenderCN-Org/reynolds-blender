@@ -42,9 +42,11 @@ import os
 # reynolds blender imports
 # ------------------------
 
+from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
-from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 from reynolds_blender.gui.custom_operator import create_custom_operators
+from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.fvschemes import FVSchemesOperator
 
 # ----------------
 # reynolds imports
@@ -88,7 +90,7 @@ def solve_case(self, context):
         return {'FINISHED'}
 
     if scene.solver_name is None or scene.solver_name == '':
-        self.report({'ERROR'}, 'Please enter a solver name')
+        self.report({'ERROR'}, 'Please select a solver')
         return {'FINISHED'}
 
     scene.case_solved = False
@@ -125,13 +127,15 @@ class SolverPanel(Panel):
         # ---------------------------------------
         # Render Solver Panel using YAML GUI Spec
         # ---------------------------------------
-
+        row = layout.row()
+        row.operator(FVSchemesOperator.bl_idname, text='', icon='SETTINGS')
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 
 def register():
-    create_custom_operators('solver_panel.yaml', __name__)
     register_classes(__name__)
+    set_scene_attrs('solver_panel.yaml')
+    create_custom_operators('solver_panel.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
