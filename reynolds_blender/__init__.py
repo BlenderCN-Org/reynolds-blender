@@ -63,7 +63,7 @@ else:
                    block_regions, block_mesh, mesh_objs, solver, geometry,
                    snappy_steps, feature_extraction, castellated_mesh,
                    snapping, layers, mesh_quality, snappy_hexmesh, fvschemes,
-                   fvsolution)
+                   fvsolution, controldict)
 
 
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
@@ -98,6 +98,7 @@ def register():
     solver.register()
     fvschemes.register()
     fvsolution.register()
+    controldict.register()
 
 def unregister():
     del_scene_attrs("common_attrs.yaml")
@@ -123,6 +124,7 @@ def unregister():
     solver.unregister()
     fvschemes.unregister()
     fvsolution.unregister()
+    controldict.unregister()
 
 if __name__ == '__main__':
     register()
