@@ -1,9 +1,5 @@
-sudo: required
+sudo: false
 
-#-------------------------------------------
-# Why: os linux and dist trusty?
-# See: https://github.com/atom/ci/issues/69
-#-------------------------------------------
 os:
   - linux
 
