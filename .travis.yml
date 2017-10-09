@@ -16,9 +16,6 @@ python:
   - "3.5"
 
 before_install:
-  # update apt-gets repository sources
-  - sudo apt-get update -qq
-
   # install blender from official sources.
   - sudo apt-get install blender
 
