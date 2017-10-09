@@ -47,6 +47,7 @@ from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 from reynolds_blender.fvschemes import FVSchemesOperator
+from reynolds_blender.fvsolution import FVSolutionOperator
 
 # ----------------
 # reynolds imports
@@ -129,6 +130,7 @@ class SolverPanel(Panel):
         # ---------------------------------------
         row = layout.row()
         row.operator(FVSchemesOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(FVSolutionOperator.bl_idname, text='', icon='SETTINGS')
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 

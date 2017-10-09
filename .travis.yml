@@ -1,9 +1,5 @@
-sudo: required
+sudo: false
 
-#-------------------------------------------
-# Why: os linux and dist trusty?
-# See: https://github.com/atom/ci/issues/69
-#-------------------------------------------
 os:
   - linux
 
@@ -16,8 +12,8 @@ python:
   - "3.5"
 
 before_install:
-  # update apt-gets repository sources
-  - sudo apt-get update -qq
+  # temp mongodb fix
+  - sudo rm /etc/apt/sources.list.d/mongodb-3.2.list
 
   # install blender from official sources.
   - sudo apt-get install blender

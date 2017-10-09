@@ -72,35 +72,36 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-def generate_laplacianFoam_fvschemes(fvschemes, scene):
-    fvschemes['ddtSchemes']['default'] = scene.ddt_schemes_default
-    fvschemes['gradSchemes']['default'] = scene.grad_schemes_default
-    fvschemes['gradSchemes']['grad(T)'] = scene.grad_schemes_grad_T
-    fvschemes['divSchemes']['default'] = scene.div_schemes_default
-    fvschemes['laplacianSchemes']['default'] = scene.lap_schemes_default
-    fvschemes['laplacianSchemes']['laplacian(DT,T)'] = scene.lap_schemes_dt_t
-    fvschemes['interpolationSchemes']['default'] = scene.interp_schemes_default
-    fvschemes['snGradSchemes']['default'] = scene.sngrad_schemes_default
-    fvschemes['fluxRequired']['default'] = scene.flux_required_default
-    fvschemes['fluxRequired']['T'] = scene.flux_required_t
+def generate_laplacianFoam_fvsolution(fvsolution, scene):
+    fvsolution['solvers']['T']['solver'] = scene.solvers_T_solver
+    fvsolution['solvers']['T']['preconditioner'] = scene.solvers_T_preconditioner
+    fvsolution['solvers']['T']['tolerance'] = scene.solvers_T_tolerance
+    fvsolution['solvers']['T']['relTol'] = scene.solvers_T_relTol
+    fvsolution['SIMPLE']['nNonOrthogonalCorrectors'] = scene.simple_nNonOrthogonalCorrectors
 
-def generate_icoFoam_fvschemes(fvschemes, scene):
-    fvschemes['ddtSchemes']['default'] = scene.ddt_schemes_default
-    fvschemes['gradSchemes']['default'] = scene.grad_schemes_default
-    fvschemes['gradSchemes']['grad(p)'] = scene.grad_schemes_grad_p
-    fvschemes['divSchemes']['default'] = scene.div_schemes_default
-    fvschemes['divSchemes']['div(phi,U)'] = scene.div_schemes_phi_U
-    fvschemes['laplacianSchemes']['default'] = scene.lap_schemes_default
-    fvschemes['interpolationSchemes']['default'] = scene.interp_schemes_default
-    fvschemes['snGradSchemes']['default'] = scene.sngrad_schemes_default
+def generate_icoFoam_fvsolution(fvsolution, scene):
+    fvsolution['solvers']['p']['solver'] = scene.solvers_p_solver
+    fvsolution['solvers']['p']['preconditioner'] = scene.solvers_p_preconditioner
+    fvsolution['solvers']['p']['tolerance'] = scene.solvers_p_tolerance
+    fvsolution['solvers']['p']['relTol'] = scene.solvers_p_relTol
+    fvsolution['solvers']['pFinal']['$p'] = scene.solvers_pfinal_p
+    fvsolution['solvers']['pFinal']['relTol'] = scene.solvers_pfinal_relTol
+    fvsolution['solvers']['U']['solver'] = scene.solvers_U_solver
+    fvsolution['solvers']['U']['smoother'] = scene.solvers_U_smoother
+    fvsolution['solvers']['U']['tolerance'] = scene.solvers_U_tolerance
+    fvsolution['solvers']['U']['relTol'] = scene.solvers_U_relTol
+    fvsolution['PISO']['nNonOrthogonalCorrectors'] = scene.piso_nCorrectors
+    fvsolution['PISO']['nNonOrthogonalCorrectors'] = scene.piso_nNonOrthogonalCorrectors
+    fvsolution['PISO']['pRefCell'] = scene.piso_pRefCell
+    fvsolution['PISO']['pRefValue'] = scene.piso_pRefValue
 
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
 
-class FVSchemesOperator(bpy.types.Operator):
-    bl_idname = "reynolds.of_fvschemes"
-    bl_label = "FVSchemes"
+class FVSolutionOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_fvsolutionop"
+    bl_label = "FVSolution"
 
     @classmethod
     def poll(cls, context):
@@ -108,17 +109,17 @@ class FVSchemesOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        print('Generate fvschemes for solver: ' + scene.solver_name)
+        print('Generate fvsolution for solver: ' + scene.solver_name)
         abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
-        fvschemes = ReynoldsFoamDict('fvSchemes.foam', solver_name=scene.solver_name)
+        fvsolution = ReynoldsFoamDict('fvSolution.foam', solver_name=scene.solver_name)
         if scene.solver_name == 'laplacianFoam':
-            generate_laplacianFoam_fvschemes(fvschemes, scene)
+            generate_laplacianFoam_fvsolution(fvsolution, scene)
         elif scene.solver_name == 'icoFoam':
-            generate_icoFoam_fvschemes(fvschemes, scene)
+            generate_icoFoam_fvsolution(fvsolution, scene)
 
-        fvschemes_file_path = os.path.join(abs_case_dir_path, "system", "fvSchemes")
-        with open(fvschemes_file_path, "w+") as f:
-            f.write(str(fvschemes))
+        fvsolution_file_path = os.path.join(abs_case_dir_path, "system", "fvSolution")
+        with open(fvsolution_file_path, "w+") as f:
+            f.write(str(fvsolution))
         return {'FINISHED'}
 
     # Return True to force redraw
@@ -133,7 +134,7 @@ class FVSchemesOperator(bpy.types.Operator):
         layout = self.layout
         scene = context.scene
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           scene.solver_name + 'Schemes.yaml')
+                                           scene.solver_name + 'Solution.yaml')
         gui_renderer.render()
 
 # ------------------------------------------------------------------------
