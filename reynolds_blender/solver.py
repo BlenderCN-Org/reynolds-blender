@@ -49,6 +49,7 @@ from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
 from reynolds_blender.fvschemes import FVSchemesOperator
 from reynolds_blender.fvsolution import FVSolutionOperator
 from reynolds_blender.controldict import ControlDictOperator
+from reynolds_blender.transportproperties import TransportPropertiesOperator
 
 # ----------------
 # reynolds imports
@@ -133,6 +134,7 @@ class SolverPanel(Panel):
         row.operator(FVSchemesOperator.bl_idname, text='', icon='SETTINGS')
         row.operator(FVSolutionOperator.bl_idname, text='', icon='SETTINGS')
         row.operator(ControlDictOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(TransportPropertiesOperator.bl_idname, text='', icon='SETTINGS')
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 

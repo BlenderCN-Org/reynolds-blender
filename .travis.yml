@@ -12,9 +12,6 @@ python:
   - "3.5"
 
 before_install:
-  # temp mongodb fix
-  - sudo rm /etc/apt/sources.list.d/mongodb-3.2.list
-
   # install blender from official sources.
   - sudo apt-get install blender
 
