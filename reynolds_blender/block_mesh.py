@@ -142,7 +142,7 @@ def generate_blockmeshdict(self, context):
     # generate bmd regions
     bmd_boundary = []
     for name, r in scene.regions.items():
-        name, patch_type, face_labels = r
+        name, patch_type, face_labels, _ = r
         bmd_boundary.append(name)
         br = {}
         br['type'] = patch_type
@@ -179,6 +179,39 @@ def generate_blockmeshdict(self, context):
     bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
     with open(bmd_file_path, "w") as f:
         f.write(str(block_mesh_dict))
+
+    return {'FINISHED'}
+
+def generate_time_props(self, context):
+    scene = context.scene
+    print(' Generate time properties')
+    print(scene.time_props)
+    print(scene.time_props_dimensions)
+    print(scene.time_props_internal_field)
+
+    abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+    # Now loop through regions and generate distinct time properties in 0 dir
+    for prop in scene.time_props:
+        time_prop_dict = ReynoldsFoamDict('timeProperty.foam')
+        time_prop_dict['dimensions'] = scene.time_props_dimensions[prop]
+        time_prop_dict['internalField'] = scene.time_props_dimensions[prop]
+        patches = {}
+        for _, r in scene.regions.items():
+            name, patch_type, face_labels, time_prop_info = r
+            print(' name: ' + name + ' time prop info: ')
+            print(time_prop_info)
+            patches[name] = {}
+            if prop in time_prop_info:
+                patches[name]['type'] = time_prop_info[prop]['type']
+                v = time_prop_info[prop]['value']
+                if v != "":
+                    patches[name]['value'] = v
+        print('Patches for time props : ')
+        print(patches)
+        time_prop_dict['boundaryField'] = patches 
+        prop_file_path = os.path.join(abs_case_dir_path, "0", prop)
+        with open(prop_file_path, "w") as f:
+            f.write(str(time_prop_dict))
 
     return {'FINISHED'}
 

@@ -97,7 +97,8 @@ def assign_region(self, context):
     item = scene.bmd_regions[scene.bmd_rindex]
     region_name = scene.region_name
     face_str = region_name + " : " + ' '.join(str(f) for f in r_faces)
-    r = (scene.region_name, scene.region_type, r_faces)
+    # empty {} for time properties p, U, T etc
+    r = (scene.region_name, scene.region_type, r_faces, {}) 
     item.name = face_str
     scene.regions[region_name] = r
     print(scene.regions)
@@ -140,11 +141,53 @@ def load_regions(self, context):
             region_name = f
             face_str = region_name + " : " + region_name
             region_type = 'patch'
-            r = (region_name, region_type, r_faces)
+            r = (region_name, region_type, r_faces, {})
             item.name = face_str
             scene.regions[region_name] = r
             index += 1
         scene.regions_loaded = True
+
+def assign_time_prop(self, context):
+    print("Assigning time property")
+
+    scene = context.scene
+    obj = context.active_object
+
+    # Store the distint time properties
+    if scene.time_props is None:
+        scene.time_props = []
+    time_prop_type = scene.time_prop_type
+    if not scene.time_prop_type in scene.time_props:
+        scene.time_props.append(time_prop_type)
+
+    # Store the dimensions for a time property
+    if scene.time_props_dimensions is None:
+        scene.time_props_dimensions = {}
+    scene.time_props_dimensions[time_prop_type] = scene.time_prop_dimensions
+
+    # Store the internal field for a time property
+    if scene.time_props_internal_field is None:
+        scene.time_props_internal_field = {}
+    scene.time_props_internal_field[time_prop_type] = scene.time_prop_internal_field
+
+    # Store the time property type and value for the patch
+    item = scene.bmd_regions[scene.bmd_rindex]
+    print ('Select region: ' + item.name)
+    region_name = item.name.split(':')[0].strip()
+    print(' Region data: ')
+    _, _, _, time_prop_info = scene.regions[region_name]
+    if not time_prop_type in time_prop_info:
+        time_prop_info[time_prop_type] = {}
+    time_prop_info[time_prop_type]['type'] = scene.time_prop_patch_type
+    time_prop_info[time_prop_type]['value'] = scene.time_prop_value
+
+    print(scene.time_props)
+    print(scene.time_props_dimensions)
+    print(scene.time_props_internal_field)
+    for _, r in scene.regions.items():
+        print(r)
+
+    return {'FINISHED'}
 
 # ------------------------------------------------------------------------
 #    Panel
@@ -171,7 +214,7 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
 
     def invoke(self, context, event):
         load_regions(self, context)
-        return context.window_manager.invoke_props_dialog(self, width=500)
+        return context.window_manager.invoke_props_dialog(self, width=750)
 
     def draw(self, context):
         layout = self.layout
