@@ -1,4 +1,10 @@
 attrs:
+ time_props:
+  type: PyList
+ time_props_dimesions:
+  type: PyDict
+ time_props_internal_field:
+  type: PyDict
  regions: 
   type: PyDict
  region_name: 
@@ -60,6 +66,69 @@ attrs:
   type: UIList
   coll_data_prop: bmd_regions
   coll_data_index: bmd_rindex
+ time_prop_dimensions:
+  type: String
+  name: "Time Property dimensions"
+  description: "Time Property dimensions:"
+  default: "[ 0 0 0 0 0 0 0 ]"
+  maxlen: 1024
+ time_prop_internal_field:
+  type: String
+  name: "Time Property internal field"
+  description: "Time Property internal field:"
+  default: "uniform 0"
+  maxlen: 1024
+ time_prop_type: 
+  type: Enum
+  name: "Time Property Type:"
+  description: "Time Property Type:"
+  items: 
+    -
+     - p
+     - p
+     - ""
+    -
+     - U
+     - U
+     - ""
+    -
+     - T
+     - T
+     - ""
+ time_prop_patch_type: 
+  type: Enum
+  name: "Time Property Type:"
+  description: "Time Property Type:"
+  default: zeroGradient
+  items: 
+    -
+     - zeroGradient
+     - zeroGradient
+     - ""
+    -
+     - fixedValue
+     - fixedValue
+     - ""
+    -
+     - noSlip
+     - noSlip
+     - ""
+    -
+     - empty
+     - empty
+     - ""
+ time_prop_value:
+  type: String
+  name: "Time Property value"
+  description: "Time Property value"
+  default: ""
+  maxlen: 1024
+ time_props:
+  type: PyList
+ time_props_dimensions:
+  type: PyDict
+ time_props_internal_field:
+  type: PyDict
 
 operators:
  regions.list_action:
@@ -87,6 +156,12 @@ operators:
   label: Remove Region
   description: Remove region to the label
   execute_func: remove_region
+ reynolds.assign_time_prop:
+  operator_type: Operator
+  class_name: BMDAssignTimePropOperator
+  label: Assign Time Property (p, U, T etc)
+  description: Assign time property to the region
+  execute_func: assign_time_prop
 
 gui:
  - box: 
@@ -144,6 +219,31 @@ gui:
               scene_attr: select_right_face
          - separator: 
             nums: 1
+     - row:
+       - box:
+         - label:
+            text: Assign time properties
+         - row:
+           - label:
+              text: Dimensions
+           - prop:
+              scene_attr: time_prop_dimensions
+         - row:
+           - label:
+              text: Internal field
+           - prop:
+              scene_attr: time_prop_internal_field
+         - row:
+           - prop:
+              scene_attr: time_prop_type
+         - row:
+           - prop:
+              scene_attr: time_prop_patch_type
+         - row:
+           - prop:
+              scene_attr: time_prop_value
+         - separator: 
+            nums: 1
    - row: 
      - operator: 
         id: reynolds.assign_region
@@ -153,3 +253,6 @@ gui:
         icon: X
      - separator: 
         nums: 1
+     - operator: 
+        id: reynolds.assign_time_prop
+        icon: X

@@ -18,10 +18,19 @@ operators:
   label: Run
   description: Run blockMesh command
   execute_func: run_blockmesh
+ reynolds.generate_time_props:
+  operator_type: Operator
+  class_name: BMDTimePropsOperator
+  label: Generate Time Props
+  description: Generate time props 
+  execute_func: generate_time_props
 
 gui:
  - box: 
    - row: 
      - operator: 
         id: reynolds.block_mesh_runner
+        icon: FILE_TEXT
+     - operator: 
+        id: reynolds.generate_time_props
         icon: FILE_TEXT
