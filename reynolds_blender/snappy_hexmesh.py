@@ -69,6 +69,7 @@ from reynolds_blender.layers import LayersOperator
 from reynolds_blender.mesh_quality import MeshQualityOperator
 from reynolds_blender.snappy_steps import SnappyStepsOperator
 from reynolds_blender.mesh_objs import ShowMeshObjOperator
+from reynolds_blender.geo_patch_time_props import GeometryPatchTimePropsOperator
 
 # ----------------
 # reynolds imports
@@ -315,6 +316,7 @@ class SnappyHexMeshPanel(Panel):
         row.operator(LayersOperator.bl_idname, text='', icon='RENDERLAYERS')
         row.operator(MeshQualityOperator.bl_idname, text='', icon='SETTINGS')
         row.operator(ShowMeshObjOperator.bl_idname, text='', icon='FACESEL_HLT')
+        row.operator(GeometryPatchTimePropsOperator.bl_idname, text='', icon='SETTINGS')
 
         # ---------------------------------------
         # Render Block Panel using YAML GUI Spec

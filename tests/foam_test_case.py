@@ -124,8 +124,8 @@ class TestFoamTutorial(unittest.TestCase):
                         self.scene.time_prop_patch_type = val
                     if k == 'value':
                         self.scene.time_prop_value = val
-                    else:
-                        self.scene.time_prop_value = ""
+                if 'value' not in props:
+                    self.scene.time_prop_value = ""
                 bpy.ops.reynolds.assign_time_prop()
 
     def switch_to_edit_mode(self, obj):

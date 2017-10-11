@@ -196,8 +196,21 @@ def generate_time_props(self, context):
         time_prop_dict['dimensions'] = scene.time_props_dimensions[prop]
         time_prop_dict['internalField'] = scene.time_props_internal_field[prop]
         patches = {}
+        # these are block mesh patches
+        print('------- Block mesh patches -------')
         for _, r in scene.regions.items():
             name, patch_type, face_labels, time_prop_info = r
+            print(' name: ' + name + ' time prop info: ')
+            print(time_prop_info)
+            patches[name] = {}
+            if prop in time_prop_info:
+                patches[name]['type'] = time_prop_info[prop]['type']
+                v = time_prop_info[prop]['value']
+                if v != "":
+                    patches[name]['value'] = v
+        # these are geometry patches
+        print('------- geometry patches -------')
+        for name, time_prop_info in scene.geo_patches.items():
             print(' name: ' + name + ' time prop info: ')
             print(time_prop_info)
             patches[name] = {}

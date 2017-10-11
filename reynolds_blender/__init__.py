@@ -59,12 +59,13 @@ if "bpy" in locals():
     importlib.reload(fvschemes)
     importlib.reload(fvsolution)
     importlib.reload(transportproperties)
+    importlib.reload(geo_patch_time_props)
 else:
     from . import (console, foam, models, sphere, add_block, block_cells,
                    block_regions, block_mesh, mesh_objs, solver, geometry,
                    snappy_steps, feature_extraction, castellated_mesh,
                    snapping, layers, mesh_quality, snappy_hexmesh, fvschemes,
-                   fvsolution, controldict, transportproperties)
+                   fvsolution, controldict, transportproperties, geo_patch_time_props)
 
 
 from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
@@ -101,6 +102,7 @@ def register():
     fvsolution.register()
     controldict.register()
     transportproperties.register()
+    geo_patch_time_props.register()
 
 def unregister():
     del_scene_attrs("common_attrs.yaml")
@@ -128,6 +130,7 @@ def unregister():
     fvsolution.unregister()
     controldict.unregister()
     transportproperties.unregister()
+    geo_patch_time_props.unregister()
 
 if __name__ == '__main__':
     register()

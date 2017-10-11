@@ -84,9 +84,6 @@ class TestCavityTutorial(TestFoamTutorial):
         self.scene.tp_dt_scalar_elt2 = 0.01
         bpy.ops.reynolds.of_transportproperties()
 
-    def _intialize_time_props(self):
-        self.scene.time_props = ['p', 'U']
-
     def _initialize_p(self):
         self.scene.time_props_dimensions['p'] = '[ 0 2 -2 0 0 0 0 ]'
         self.scene.time_props_internal_field['p'] = 'uniform 0'
@@ -122,12 +119,11 @@ class TestCavityTutorial(TestFoamTutorial):
                                                                         'U': {'type': 'noSlip'}}),
                    'frontAndBack': (['Front', 'Back'], 'empty', {'p': {'type': 'empty'},
                                                                  'U': {'type': 'empty'}})}
-        # self._intialize_time_props()
         self._initialize_p()
         self._initialize_U()
         self.select_boundary(obj, patches)
-        self.generate_time_props()
         self.generate_blockmeshdict()
+        self.generate_time_props()
         self.run_blockmesh()
         self.check_imported_wavefront_objs()
         self.set_solver_name('icoFoam')

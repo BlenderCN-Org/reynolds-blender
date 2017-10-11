@@ -78,10 +78,10 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.convert_to_meters = 1
         self.set_number_of_cells(20, 20, 20)
         self.set_grading(1, 1, 1)
-        patches = {'patch1': (['Back'], 'patch'),
-                   'patch2': (['Front'], 'patch'),
-                   'patch3': (['Top', 'Bottom'], 'patch'),
-                   'patch4': (['Left', 'Right'], 'patch')}
+        patches = {'patch1': (['Back'], 'patch', {'T': {'type': 'zeroGradient'}}),
+                   'patch2': (['Front'], 'patch', {'T': {'type': 'fixedValue', 'value': 'uniform 273'}}),
+                   'patch3': (['Top', 'Bottom'], 'patch', {'T': {'type': 'zeroGradient'}}),
+                   'patch4': (['Left', 'Right'], 'patch', {'T': {'type': 'fixedValue', 'value': 'uniform 573'}})}
         self.select_boundary(blockmesh_obj, patches)
         self.generate_blockmeshdict()
         self.run_blockmesh()
@@ -110,6 +110,36 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.assertEqual(self.scene.geometries['Flange']['included_angle'],
                          150.0)
         self.assertEqual(self.scene.geometries['Flange']['feature_level'], 0)
+
+        # we now add time props for geo patches as well
+        patches = {'flange_patch1': {'T': {'type': 'zeroGradient'}},
+                   'flange_patch2': {'T': {'type': 'fixedValue', 'value': 'uniform 273'}},
+                   'flange_patch3': {'T': {'type': 'zeroGradient'}},
+                   'flange_patch4': {'T': {'type': 'fixedValue', 'value': 'uniform 573'}}}
+        self._initialize_T()
+
+        # we first load the geo patches and then assign time props
+        bpy.ops.reynolds.load_geo_patch_objs()
+        # now select one geo patch a time and add time property
+        for i in range(len(self.scene.geo_patches.keys())):
+            self.scene.geo_patch_rindex = i
+            geo_patch = self.scene.geo_patch_objs[self.scene.geo_patch_rindex]
+            print(' Will now assign props for geo patch: ' + geo_patch.name)
+            time_prop_info = patches[geo_patch.name]
+            for prop_type, props in time_prop_info.items():
+                print(' Will now assign props for time prop : ' + prop_type)
+                print( props )
+                self.scene.time_prop_type = prop_type
+                for k, val in props.items():
+                    if k == 'type':
+                        self.scene.time_prop_patch_type = val
+                    if k == 'value':
+                        self.scene.time_prop_value = val
+                if 'value' not in props:
+                    self.scene.time_prop_value = ""
+                bpy.ops.reynolds.add_geo_patch_time_prop()
+
+        self.generate_time_props()
 
     def _add_refine_hole_geometry(self):
         self.scene.objects.active = None
@@ -218,6 +248,10 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.tp_dt_scalar_elt1 = '[ 0 2 -1 0 0 0 0]'
         self.scene.tp_dt_scalar_elt2 = 4e-05
         bpy.ops.reynolds.of_transportproperties()
+
+    def _initialize_T(self):
+        self.scene.time_props_dimensions['T'] = '[ 0 0 0 1 0 0 0 ]'
+        self.scene.time_props_internal_field['T'] = 'uniform 273'
 
     def test_snappyhexmesh_with_flange_tutorial(self):
         # --------------
