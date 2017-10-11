@@ -51,6 +51,17 @@ class TestCavityTutorial(TestFoamTutorial):
         self.copy_tutorial_case_dir(self.tutorial_name, self.test_module_dir)
         self.scene = bpy.context.scene
 
+    def generate_fv_schemes(self):
+        self.scene.ddt_schemes_default = 'Euler'
+        self.scene.grad_schemes_default = 'Gauss linear'
+        self.scene.grad_schemes_grad_p = 'Gauss linear'
+        self.scene.div_schemes_default = 'none'
+        self.scene.div_schemes_phi_U = 'Gauss linear'
+        self.scene.lap_schemes_default = 'Gauss linear orthogonal'
+        self.scene.interp_schemes_default = 'linear'
+        self.scene.sngrad_schemes_default = 'orthogonal'
+        bpy.ops.reynolds.of_fvschemes()
+
     def test_blockmesh_with_cavity_tutorial(self):
         # --------------
         # Initialization
@@ -79,6 +90,8 @@ class TestCavityTutorial(TestFoamTutorial):
         self.generate_blockmeshdict()
         self.run_blockmesh()
         self.check_imported_wavefront_objs()
+        self.set_solver_name('icoFoam')
+        self.generate_fv_schemes()
         self.solve_case('icoFoam');
         self.assertTrue(self.scene.case_solved)
         bpy.ops.wm.save_mainfile()

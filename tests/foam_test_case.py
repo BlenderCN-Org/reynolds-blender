@@ -70,6 +70,9 @@ class TestFoamTutorial(unittest.TestCase):
     def run_blockmesh(self):
         bpy.ops.reynolds.block_mesh_runner()
 
+    def set_solver_name(self, solver_name):
+        self.scene.solver_name = solver_name
+
     def solve_case(self, solver_name):
         self.scene.solver_name = solver_name
         bpy.ops.reynolds.solve_case()
