@@ -67,6 +67,9 @@ class TestFoamTutorial(unittest.TestCase):
     def generate_blockmeshdict(self):
         bpy.ops.reynolds.generate_bmd()
 
+    def generate_time_props(self):
+        bpy.ops.reynolds.generate_time_props()
+
     def run_blockmesh(self):
         bpy.ops.reynolds.block_mesh_runner()
 
@@ -88,7 +91,7 @@ class TestFoamTutorial(unittest.TestCase):
         self.scene.n_grading[2] = z
 
     def select_boundary(self, obj, patches):
-        for name, (faces, patch_type) in patches.items():
+        for name, (faces, patch_type, time_prop_info) in patches.items():
             bpy.ops.regions.list_action('INVOKE_DEFAULT', action='ADD')
             self.scene.region_name = name
             self.scene.region_type = patch_type
@@ -112,6 +115,18 @@ class TestFoamTutorial(unittest.TestCase):
                 if f == 'Right':
                     self.scene.select_right_face = True
             bpy.ops.reynolds.assign_region()
+            for prop_type, props in time_prop_info.items():
+                print(' Will now assign props for time prop : ' + prop_type)
+                print( props)
+                self.scene.time_prop_type = prop_type
+                for k, val in props.items():
+                    if k == 'type':
+                        self.scene.time_prop_patch_type = val
+                    if k == 'value':
+                        self.scene.time_prop_value = val
+                    else:
+                        self.scene.time_prop_value = ""
+                bpy.ops.reynolds.assign_time_prop()
 
     def switch_to_edit_mode(self, obj):
         self.scene.objects.active = obj

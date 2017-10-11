@@ -84,6 +84,17 @@ class TestCavityTutorial(TestFoamTutorial):
         self.scene.tp_dt_scalar_elt2 = 0.01
         bpy.ops.reynolds.of_transportproperties()
 
+    def _intialize_time_props(self):
+        self.scene.time_props = ['p', 'U']
+
+    def _initialize_p(self):
+        self.scene.time_props_dimensions['p'] = '[ 0 2 -2 0 0 0 0 ]'
+        self.scene.time_props_internal_field['p'] = 'uniform 0'
+
+    def _initialize_U(self):
+        self.scene.time_props_dimensions['U'] = '[ 0 1 -1 0 0 0 0 ]'
+        self.scene.time_props_internal_field['U'] = 'uniform (0 0 0)'
+
     def test_blockmesh_with_cavity_tutorial(self):
         # --------------
         # Initialization
@@ -105,10 +116,17 @@ class TestCavityTutorial(TestFoamTutorial):
         # 2. select face with index 3, 5, 2 as fixedWalls, set name, type
         # 3. select faces with indices 0, 1 as frontAndBack, set name, type
         # -----------------------------------------------------------------
-        patches = {'movingWall': (['Top'], 'wall'),
-                   'fixedWalls': (['Bottom', 'Left', 'Right'], 'wall'),
-                   'frontAndBack': (['Front', 'Back'], 'empty')}
+        patches = {'movingWall': (['Top'], 'wall', {'p': {'type': 'zeroGradient'},
+                                                    'U': {'type':'fixedValue', 'value':'uniform (1 0 0)'}}),
+                   'fixedWalls': (['Bottom', 'Left', 'Right'], 'wall', {'p': {'type': 'zeroGradient'},
+                                                                        'U': {'type': 'noSlip'}}),
+                   'frontAndBack': (['Front', 'Back'], 'empty', {'p': {'type': 'empty'},
+                                                                 'U': {'type': 'empty'}})}
+        # self._intialize_time_props()
+        self._initialize_p()
+        self._initialize_U()
         self.select_boundary(obj, patches)
+        self.generate_time_props()
         self.generate_blockmeshdict()
         self.run_blockmesh()
         self.check_imported_wavefront_objs()

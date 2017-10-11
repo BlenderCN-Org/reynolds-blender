@@ -163,12 +163,14 @@ def assign_time_prop(self, context):
     # Store the dimensions for a time property
     if scene.time_props_dimensions is None:
         scene.time_props_dimensions = {}
-    scene.time_props_dimensions[time_prop_type] = scene.time_prop_dimensions
+    if not time_prop_type in scene.time_props_dimensions:
+        scene.time_props_dimensions[time_prop_type] = scene.time_prop_dimensions
 
     # Store the internal field for a time property
     if scene.time_props_internal_field is None:
         scene.time_props_internal_field = {}
-    scene.time_props_internal_field[time_prop_type] = scene.time_prop_internal_field
+    if not time_prop_type in scene.time_props_internal_field:
+        scene.time_props_internal_field[time_prop_type] = scene.time_prop_internal_field
 
     # Store the time property type and value for the patch
     item = scene.bmd_regions[scene.bmd_rindex]
