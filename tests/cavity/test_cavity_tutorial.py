@@ -79,6 +79,11 @@ class TestCavityTutorial(TestFoamTutorial):
         self.scene.piso_pRefValue = 0
         bpy.ops.reynolds.of_fvsolutionop()
 
+    def _generate_transport_properties(self):
+        self.scene.tp_dt_scalar_elt1 = '[ 0 2 -1 0 0 0 0]'
+        self.scene.tp_dt_scalar_elt2 = 0.01
+        bpy.ops.reynolds.of_transportproperties()
+
     def test_blockmesh_with_cavity_tutorial(self):
         # --------------
         # Initialization
@@ -110,6 +115,7 @@ class TestCavityTutorial(TestFoamTutorial):
         self.set_solver_name('icoFoam')
         self._generate_fv_schemes()
         self._generate_fv_solution()
+        self._generate_transport_properties()
         self.solve_case('icoFoam');
         self.assertTrue(self.scene.case_solved)
         bpy.ops.wm.save_mainfile()
