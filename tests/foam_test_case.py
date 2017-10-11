@@ -74,7 +74,7 @@ class TestFoamTutorial(unittest.TestCase):
         self.scene.solver_name = solver_name
 
     def solve_case(self, solver_name):
-        self.scene.solver_name = solver_name
+        self.set_solver_name(solver_name)
         bpy.ops.reynolds.solve_case()
 
     def set_number_of_cells(self, x, y, z):

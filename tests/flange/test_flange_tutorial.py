@@ -193,6 +193,19 @@ class TestFlangeTutorial(TestFoamTutorial):
     def _run_snappyhexmesh(self):
         bpy.ops.reynolds.snappy_hexmesh_runner()
 
+    def _generate_fv_schemes(self):
+        self.scene.ddt_schemes_default = 'Euler'
+        self.scene.grad_schemes_default = 'Gauss linear'
+        self.scene.grad_schemes_grad_T = 'Gauss linear'
+        self.scene.div_schemes_default = 'none'
+        self.scene.lap_schemes_default = 'none'
+        self.scene.lap_schemes_dt_t = 'Gauss linear corrected'
+        self.scene.interp_schemes_default = 'linear'
+        self.scene.sngrad_schemes_default = 'corrected'
+        self.scene.flux_required_default = 'no'
+        self.scene.flux_required_t = 'no'
+        bpy.ops.reynolds.of_fvschemes()
+
     def test_snappyhexmesh_with_flange_tutorial(self):
         # --------------
         # Initialization
@@ -213,6 +226,8 @@ class TestFlangeTutorial(TestFoamTutorial):
         self._set_castellated_mesh_controls()
         self._set_snapping_controls()
         self._set_layers_controls()
+        self.set_solver_name('laplacianFoam')
+        self._generate_fv_schemes()
         self._generate_snappyhexmeshdict()
         self._run_snappyhexmesh()
         self.solve_case('laplacianFoam');
