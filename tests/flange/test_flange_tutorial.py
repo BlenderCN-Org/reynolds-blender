@@ -206,6 +206,14 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.flux_required_t = 'no'
         bpy.ops.reynolds.of_fvschemes()
 
+    def _generate_fv_solution(self):
+        self.scene.solvers_T_solver = 'PCG'
+        self.scene.solvers_T_preconditioner = 'DIC'
+        self.scene.solvers_T_tolerance = 1e-06
+        self.scene.solvers_T_relTol = 0
+        self.scene.simple_nNonOrthogonalCorrectors = 2
+        bpy.ops.reynolds.of_fvsolutionop()
+
     def test_snappyhexmesh_with_flange_tutorial(self):
         # --------------
         # Initialization
@@ -228,6 +236,7 @@ class TestFlangeTutorial(TestFoamTutorial):
         self._set_layers_controls()
         self.set_solver_name('laplacianFoam')
         self._generate_fv_schemes()
+        self._generate_fv_solution()
         self._generate_snappyhexmeshdict()
         self._run_snappyhexmesh()
         self.solve_case('laplacianFoam');
