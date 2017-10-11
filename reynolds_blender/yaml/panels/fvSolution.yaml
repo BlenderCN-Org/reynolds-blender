@@ -36,11 +36,11 @@ attrs:
   type: Enum
   name: "Solvers pfinal $p"
   description: "Solvers pfinal $p"
-  default: none
+  default: 'none'
   items: 
     -
-     - none
-     - none
+     - 'none'
+     - 'none'
      - ""
  solvers_pfinal_relTol:
   type: Float

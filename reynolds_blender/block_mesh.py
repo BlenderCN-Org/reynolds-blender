@@ -192,10 +192,12 @@ def generate_time_props(self, context):
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
     # Now loop through regions and generate distinct time properties in 0 dir
     for prop in scene.time_props:
-        time_prop_dict = ReynoldsFoamDict('timeProperty.foam')
+        time_prop_dict = ReynoldsFoamDict(prop + '.foam')
         time_prop_dict['dimensions'] = scene.time_props_dimensions[prop]
-        time_prop_dict['internalField'] = scene.time_props_dimensions[prop]
+        time_prop_dict['internalField'] = scene.time_props_internal_field[prop]
         patches = {}
+        # these are block mesh patches
+        print('------- Block mesh patches -------')
         for _, r in scene.regions.items():
             name, patch_type, face_labels, time_prop_info = r
             print(' name: ' + name + ' time prop info: ')
@@ -206,11 +208,26 @@ def generate_time_props(self, context):
                 v = time_prop_info[prop]['value']
                 if v != "":
                     patches[name]['value'] = v
+        # these are geometry patches
+        print('------- geometry patches -------')
+        for name, time_prop_info in scene.geo_patches.items():
+            print(' name: ' + name + ' time prop info: ')
+            print(time_prop_info)
+            patches[name] = {}
+            if prop in time_prop_info:
+                patches[name]['type'] = time_prop_info[prop]['type']
+                v = time_prop_info[prop]['value']
+                if v != "":
+                    patches[name]['value'] = v
         print('Patches for time props : ')
         print(patches)
-        time_prop_dict['boundaryField'] = patches 
+        time_prop_dict['boundaryField'] = patches
+        zero_dir = os.path.join(abs_case_dir_path, "0")
+        if not os.path.exists(zero_dir):
+            os.makedirs(zero_dir)
         prop_file_path = os.path.join(abs_case_dir_path, "0", prop)
-        with open(prop_file_path, "w") as f:
+        print('Write time property file for prop: ' + prop + ' to file ' + prop_file_path)
+        with open(prop_file_path, "w+") as f:
             f.write(str(time_prop_dict))
 
     return {'FINISHED'}

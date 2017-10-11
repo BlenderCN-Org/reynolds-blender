@@ -211,7 +211,7 @@ attrs:
   type: Enum
   name: "Flux Requried Default"
   description: "Flux Required Default"
-  default: 'no'
+  default: "no"
   items: 
     -
      - "no"
@@ -225,7 +225,7 @@ attrs:
   type: Enum
   name: "Flux Requried T"
   description: "Flux Required T"
-  default: ""
+  default: "no"
   items: 
     -
      - "no"
@@ -234,8 +234,4 @@ attrs:
     -
      - "yes"
      - "yes"
-     - ""
-    -
-     - ""
-     - ""
      - ""

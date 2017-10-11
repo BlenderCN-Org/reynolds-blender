@@ -72,86 +72,42 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
-def assign_region(self, context):
-    print("Assigning region")
-
+def load_geo_patch_objs(self, context):
+    print ('load geo patch objs from case dir')
     scene = context.scene
-    obj = context.active_object
-
-    r_faces = []
-
-    if scene.select_front_face:
-        r_faces.append("Front")
-    if scene.select_back_face:
-        r_faces.append("Back")
-    if scene.select_top_face:
-        r_faces.append("Top")
-    if scene.select_bottom_face:
-        r_faces.append("Bottom")
-    if scene.select_left_face:
-        r_faces.append("Left")
-    if scene.select_right_face:
-        r_faces.append("Right")
-
-    print(r_faces)
-    item = scene.bmd_regions[scene.bmd_rindex]
-    region_name = scene.region_name
-    face_str = region_name + " : " + ' '.join(str(f) for f in r_faces)
-    # empty {} for time properties p, U, T etc
-    r = (scene.region_name, scene.region_type, r_faces, {}) 
-    item.name = face_str
-    scene.regions[region_name] = r
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+    print(scene.geometries)
     print(scene.regions)
+    # get data items for UIList
+    geo_patch_objs = []
+    for info in scene.geometries.values():
+        # geometry
+        file_path = info.get('file_path', None)
+        if file_path:
+            key = os.path.basename(file_path)
+            key_without_ext = os.path.splitext(key)[0]
+            for r in scene.regions.keys():
+                geo_patch_objs.append(key_without_ext + "_" + r)
+    print(geo_patch_objs)
 
-    # reset selections
-    scene.select_front_face = False
-    scene.select_back_face = False
-    scene.select_top_face = False
-    scene.select_bottom_face = False
-    scene.select_right_face = False
-    scene.select_left_face = False
+    # now populate UIList
+    index = 0
+    item_coll = scene.geo_patch_objs
+    item_idx = scene.geo_patch_rindex
+    item_coll.clear()
+    for geo_patch in geo_patch_objs:
+        item = item_coll.add()
+        scene.geo_patch_rindex = index
+        item.name = geo_patch
+        index += 1
+        scene.geo_patches[geo_patch] = {}
+    print(scene.geo_patch_rindex, scene.geo_patch_objs)
 
-    return{'FINISHED'}
+    return {'FINISHED'}
 
-def remove_region(self, context):
-    print("Removing region")
-
+def add_geo_patch_time_prop(self, context):
+    print("Add geo patch time  prop")
     scene = context.scene
-    obj = context.active_object
-
-    print(scene.bmd_rindex, scene.bmd_regions[scene.bmd_rindex])
-    item = scene.bmd_regions[scene.bmd_rindex]
-    r_name, _ = item.name.split(" : ", 1)
-    scene.regions.pop(r_name, None)
-    item.name = ""
-    return{'FINISHED'}
-
-def load_regions(self, context):
-    print("Initial loading of regions")
-    scene = context.scene
-    if not scene.regions_loaded:
-        item_coll = scene.bmd_regions
-        item_coll .clear()
-        faces = ["Front", "Back", "Top", "Bottom", "Left", "Right"]
-        index = 0
-        for f in faces:
-            r_faces = [f]
-            item = item_coll.add()
-            scene.bmd_rindex = index
-            region_name = f
-            face_str = region_name + " : " + region_name
-            region_type = 'patch'
-            r = (region_name, region_type, r_faces, {})
-            item.name = face_str
-            scene.regions[region_name] = r
-            index += 1
-        scene.regions_loaded = True
-
-def assign_time_prop(self, context):
-    print("Assigning time property")
-
-    scene = context.scene
-    obj = context.active_object
 
     # Store the distint time properties
     if scene.time_props is None:
@@ -173,11 +129,11 @@ def assign_time_prop(self, context):
         scene.time_props_internal_field[time_prop_type] = scene.time_prop_internal_field
 
     # Store the time property type and value for the patch
-    item = scene.bmd_regions[scene.bmd_rindex]
-    print ('Select region: ' + item.name)
-    region_name = item.name.split(':')[0].strip()
+    item = scene.geo_patch_objs[scene.geo_patch_rindex]
+    print ('Select geo region: ' + item.name)
+    region_name = item.name
     print(' Region data: ')
-    _, _, _, time_prop_info = scene.regions[region_name]
+    time_prop_info = scene.geo_patches[region_name]
     if not time_prop_type in time_prop_info:
         time_prop_info[time_prop_type] = {}
     time_prop_info[time_prop_type]['type'] = scene.time_prop_patch_type
@@ -186,18 +142,17 @@ def assign_time_prop(self, context):
     print(scene.time_props)
     print(scene.time_props_dimensions)
     print(scene.time_props_internal_field)
-    for _, r in scene.regions.items():
-        print(r)
+    print(scene.geo_patches)
 
-    return {'FINISHED'}
+    return{'FINISHED'}
 
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------
 
-class BlockMeshRegionsOperator(bpy.types.Operator):
-    bl_idname = "reynolds.of_bmd_regions_panel"
-    bl_label = "Regions"
+class GeometryPatchTimePropsOperator(bpy.types.Operator):
+    bl_idname = "reynolds.of_geo_patch_time_props"
+    bl_label = "Add Geometry Patch Time Properties"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Tools"
@@ -205,7 +160,8 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return True
+        scene = context.scene
+        return len(scene.geometries.keys()) > 0 and len(scene.regions.keys()) > 0
 
     def execute(self, context):
         return {'FINISHED'}
@@ -215,7 +171,7 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
         return True
 
     def invoke(self, context, event):
-        load_regions(self, context)
+        load_geo_patch_objs(self, context)
         return context.window_manager.invoke_props_dialog(self, width=750)
 
     def draw(self, context):
@@ -227,7 +183,7 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
         # ---------------------------------------
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout,
-                                           'block_regions.yaml')
+                                           'geo_patch_time_props.yaml')
         gui_renderer.render()
 
 
@@ -237,12 +193,12 @@ class BlockMeshRegionsOperator(bpy.types.Operator):
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('block_regions.yaml')
-    create_custom_operators('block_regions.yaml', __name__)
+    set_scene_attrs('geo_patch_time_props.yaml')
+    create_custom_operators('geo_patch_time_props.yaml', __name__)
 
 def unregister():
     unregister_classes(__name__)
-    del_scene_attrs('block_regions.yaml')
+    del_scene_attrs('geo_patch_time_props.yaml')
 
 if __name__ == "__main__":
     register()
