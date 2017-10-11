@@ -214,6 +214,11 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.simple_nNonOrthogonalCorrectors = 2
         bpy.ops.reynolds.of_fvsolutionop()
 
+    def _generate_transport_properties(self):
+        self.scene.tp_dt_scalar_elt1 = '[ 0 2 -1 0 0 0 0]'
+        self.scene.tp_dt_scalar_elt2 = 4e-05
+        bpy.ops.reynolds.of_transportproperties()
+
     def test_snappyhexmesh_with_flange_tutorial(self):
         # --------------
         # Initialization
@@ -237,6 +242,7 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.set_solver_name('laplacianFoam')
         self._generate_fv_schemes()
         self._generate_fv_solution()
+        self._generate_transport_properties()
         self._generate_snappyhexmeshdict()
         self._run_snappyhexmesh()
         self.solve_case('laplacianFoam');
