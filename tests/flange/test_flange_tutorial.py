@@ -46,15 +46,12 @@ from tests.foam_test_case import TestFoamTutorial
 class TestFlangeTutorial(TestFoamTutorial):
     def setUp(self):
         super(TestFlangeTutorial, self).setUp()
-        self.tutorial_name = 'flange'
-        self.test_module_dir = 'flange'
-        self.copy_tutorial_case_dir(self.tutorial_name, self.test_module_dir)
+        self.create_tutorial_case_dir('flange')
         self.scene = bpy.context.scene
 
     def _add_flange_trisurface(self):
-        self.scene.stl_file_path = os.path.join(self.temp_tutorial_dir,
-                                                'constant',
-                                                'triSurface', 'flange.stl')
+        print(' add flange stl file: ' + os.path.join(self.current_dir, 'tests', 'tutorials', 'resources', 'flange.stl'))
+        self.scene.stl_file_path = os.path.join(self.current_dir, 'tests', 'tutorials', 'resources', 'flange.stl')
         bpy.ops.reynolds.import_stl()
         self.assertIsNotNone(self.scene.geometries['Flange'])
 
@@ -74,7 +71,6 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.assertIsNotNone(self.scene.objects['Cube'])
         blockmesh_obj = self.scene.objects['Cube']
         bpy.ops.object.select_all(False)
-        self.select_case_dir('//flange')
         self.scene.convert_to_meters = 1
         self.set_number_of_cells(20, 20, 20)
         self.set_grading(1, 1, 1)
@@ -244,6 +240,23 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.scene.simple_nNonOrthogonalCorrectors = 2
         bpy.ops.reynolds.of_fvsolutionop()
 
+    def _generate_controldict(self):
+        self.scene.cd_start_from = 'latestTime'
+        self.scene.cd_start_time = 0
+        self.scene.cd_stop_at = 'endTime'
+        self.scene.cd_end_time = 3
+        self.scene.cd_delta_time = 0.005
+        self.scene.cd_write_control = 'runTime'
+        self.scene.cd_write_interval = 0.1
+        self.scene.cd_purge_write = 0
+        self.scene.cd_write_format = 'ascii'
+        self.scene.cd_write_precision = 6
+        self.scene.cd_write_compression = 'off'
+        self.scene.cd_time_format = 'general'
+        self.scene.cd_time_precision = 6
+        self.scene.cd_runtime_modifiable = True
+        bpy.ops.reynolds.of_controldict()
+
     def _generate_transport_properties(self):
         self.scene.tp_dt_scalar_elt1 = '[ 0 2 -1 0 0 0 0]'
         self.scene.tp_dt_scalar_elt2 = 4e-05
@@ -260,6 +273,15 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.check_addon_loaded()
         self.start_openfoam()
         # -------------------
+        # Configure case
+        # -------------------
+        self.select_case_dir(self.temp_tutorial_dir)
+        self.set_solver_name('laplacianFoam')
+        self._generate_fv_schemes()
+        self._generate_fv_solution()
+        self._generate_controldict()
+        self._generate_transport_properties()
+        # -------------------
         # Steps to solve case
         # -------------------
         self._add_flange_trisurface()
@@ -273,10 +295,6 @@ class TestFlangeTutorial(TestFoamTutorial):
         self._set_castellated_mesh_controls()
         self._set_snapping_controls()
         self._set_layers_controls()
-        self.set_solver_name('laplacianFoam')
-        self._generate_fv_schemes()
-        self._generate_fv_solution()
-        self._generate_transport_properties()
         self._generate_snappyhexmeshdict()
         self._run_snappyhexmesh()
         self.solve_case('laplacianFoam');

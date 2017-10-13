@@ -30,14 +30,15 @@ search_file_pattern = dir_path + '/**/*.blend'
 # Make temporary directories to store solved case dirs and blend files
 # This is useful to investigate for errors and post processing with parafoam
 # -----------------------------------------------------------------------------
-if not 'TRAVIS' in os.environ:
-    temp_tutorial_dir = mkdtemp()
-    case_dir = os.path.join(temp_tutorial_dir, 'case')
-    blend_dir = os.path.join(temp_tutorial_dir, 'blend')
-    if not os.path.exists(case_dir):
-        os.makedirs(case_dir)
-    if not os.path.exists(blend_dir):
-        os.makedirs(blend_dir)
+# if not 'TRAVIS' in os.environ:
+temp_tutorial_dir = mkdtemp()
+case_dir = os.path.join(temp_tutorial_dir, 'case')
+blend_dir = os.path.join(temp_tutorial_dir, 'blend')
+if not os.path.exists(case_dir):
+    os.makedirs(case_dir)
+if not os.path.exists(blend_dir):
+    os.makedirs(blend_dir)
+os.environ['REYNOLDS_TEST_RUN_DIR'] = case_dir
 
 # -------------
 # Run the tests
@@ -79,7 +80,6 @@ for blend_file in glob.glob(search_file_pattern):
             print('TEST FAILED')
             print('--------------------------------------------------')
         if not 'TRAVIS' in os.environ:
-            os.environ['REYNOLDS_POST_TEST_RUN_DIR'] = case_dir
             copy(blend_temp_file, blend_dir)
         os.remove(blend_temp_file)
 

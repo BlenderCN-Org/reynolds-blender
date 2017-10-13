@@ -245,9 +245,10 @@ def generate_snappyhexmeshdict(self, context):
     print('--------------------')
     print(snappy_dict)
     print('--------------------')
-
-    shmd_file_path = os.path.join(abs_case_dir_path, "system",
-                                  "snappyHexMeshDict")
+    system_dir = os.path.join(abs_case_dir_path, "system")
+    if not os.path.exists(system_dir):
+        os.makedirs(system_dir)
+    shmd_file_path = os.path.join(system_dir, "snappyHexMeshDict")
     with open(shmd_file_path, "w") as f:
         f.write(str(snappy_dict))
 

@@ -116,8 +116,10 @@ class FVSolutionOperator(bpy.types.Operator):
             generate_laplacianFoam_fvsolution(fvsolution, scene)
         elif scene.solver_name == 'icoFoam':
             generate_icoFoam_fvsolution(fvsolution, scene)
-
-        fvsolution_file_path = os.path.join(abs_case_dir_path, "system", "fvSolution")
+        system_dir = os.path.join(abs_case_dir_path, "system")
+        if not os.path.exists(system_dir):
+            os.makedirs(system_dir)
+        fvsolution_file_path = os.path.join(system_dir, "fvSolution")
         with open(fvsolution_file_path, "w+") as f:
             f.write(str(fvsolution))
         return {'FINISHED'}

@@ -53,6 +53,8 @@ from mathutils import Matrix, Vector
 import glob
 import operator
 import os
+import pathlib
+from shutil import copy
 
 # ------------------------
 # reynolds blender imports
@@ -107,8 +109,10 @@ def generate_surface_dict(self, context):
 
     print(surface_feature_dict)
     abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
-    sfed_file_path = os.path.join(abs_case_dir_path, "system",
-                                  "surfaceFeatureExtractDict")
+    system_dir = os.path.join(abs_case_dir_path, "system")
+    if not os.path.exists(system_dir):
+        os.makedirs(system_dir)
+    sfed_file_path = os.path.join(system_dir, "surfaceFeatureExtractDict")
     with open(sfed_file_path, "w") as f:
         f.write(str(surface_feature_dict))
 
@@ -124,6 +128,18 @@ def extract_surface_features(self, context):
     bpy.ops.reynolds.of_console_op()
 
     scene.features_extracted = False
+
+    # first copy all obj, stl files
+    trisurface_dir = os.path.join(case_dir, 'constant', 'triSurface')
+    if not os.path.exists(trisurface_dir):
+        print('Creating trisurface dir: ', trisurface_dir)
+        pathlib.Path(trisurface_dir).mkdir(parents=True, exist_ok=True)
+    for geo_info in scene.geometries.values():
+        print(' Geo info : ')
+        if 'file_path' in geo_info:
+            src_file = geo_info['file_path']
+            print(' Copying geometry file ' + src_file + ' to ' + trisurface_dir)
+            copy(src_file, trisurface_dir)
 
     cr = FoamCmdRunner(cmd_name='surfaceFeatureExtract', case_dir=case_dir)
 
