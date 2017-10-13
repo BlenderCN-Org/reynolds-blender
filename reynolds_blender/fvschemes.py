@@ -52,6 +52,7 @@ from mathutils import Matrix, Vector
 # --------------
 import operator
 import os
+import pathlib
 
 # ------------------------
 # reynolds blender imports
@@ -115,8 +116,10 @@ class FVSchemesOperator(bpy.types.Operator):
             generate_laplacianFoam_fvschemes(fvschemes, scene)
         elif scene.solver_name == 'icoFoam':
             generate_icoFoam_fvschemes(fvschemes, scene)
-
-        fvschemes_file_path = os.path.join(abs_case_dir_path, "system", "fvSchemes")
+        system_dir = os.path.join(abs_case_dir_path, "system")
+        if not os.path.exists(system_dir):
+            os.makedirs(system_dir)
+        fvschemes_file_path = os.path.join(system_dir, "fvSchemes")
         with open(fvschemes_file_path, "w+") as f:
             f.write(str(fvschemes))
         return {'FINISHED'}

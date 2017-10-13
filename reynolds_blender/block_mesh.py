@@ -176,7 +176,11 @@ def generate_blockmeshdict(self, context):
     print("BLOCK MESH DICT")
     print(block_mesh_dict)
 
-    bmd_file_path = os.path.join(abs_case_dir_path, "system", "blockMeshDict")
+    system_dir = os.path.join(abs_case_dir_path, "system")
+    if not os.path.exists(system_dir):
+        os.makedirs(system_dir)
+
+    bmd_file_path = os.path.join(system_dir, "blockMeshDict")
     with open(bmd_file_path, "w") as f:
         f.write(str(block_mesh_dict))
 
@@ -225,7 +229,7 @@ def generate_time_props(self, context):
         zero_dir = os.path.join(abs_case_dir_path, "0")
         if not os.path.exists(zero_dir):
             os.makedirs(zero_dir)
-        prop_file_path = os.path.join(abs_case_dir_path, "0", prop)
+        prop_file_path = os.path.join(zero_dir, prop)
         print('Write time property file for prop: ' + prop + ' to file ' + prop_file_path)
         with open(prop_file_path, "w+") as f:
             f.write(str(time_prop_dict))

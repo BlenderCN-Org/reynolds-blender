@@ -106,8 +106,10 @@ class TransportPropertiesOperator(bpy.types.Operator):
             generate_laplacianFoam_transport(transport, scene)
         elif scene.solver_name == 'icoFoam':
             generate_icoFoam_transport(transport, scene)
-
-        transport_file_path = os.path.join(abs_case_dir_path, "constant",
+        constant_dir = os.path.join(abs_case_dir_path, "constant")
+        if not os.path.exists(constant_dir):
+            os.makedirs(constant_dir)
+        transport_file_path = os.path.join(constant_dir,
                                            "transportProperties")
         with open(transport_file_path, "w+") as f:
             f.write(str(transport))

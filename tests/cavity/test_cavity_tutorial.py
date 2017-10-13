@@ -46,9 +46,7 @@ from tests.foam_test_case import TestFoamTutorial
 class TestCavityTutorial(TestFoamTutorial):
     def setUp(self):
         super(TestCavityTutorial, self).setUp()
-        self.tutorial_name = 'cavity'
-        self.test_module_dir = 'cavity'
-        self.copy_tutorial_case_dir(self.tutorial_name, self.test_module_dir)
+        self.create_tutorial_case_dir('cavity')
         self.scene = bpy.context.scene
 
     def _generate_fv_schemes(self):
@@ -79,6 +77,23 @@ class TestCavityTutorial(TestFoamTutorial):
         self.scene.piso_pRefValue = 0
         bpy.ops.reynolds.of_fvsolutionop()
 
+    def _generate_controldict(self):
+        self.scene.cd_start_from = 'startTime'
+        self.scene.cd_start_time = 0
+        self.scene.cd_stop_at = 'endTime'
+        self.scene.cd_end_time = 0.5
+        self.scene.cd_delta_time = 0.005
+        self.scene.cd_write_control = 'timeStep'
+        self.scene.cd_write_interval = 20
+        self.scene.cd_purge_write = 0
+        self.scene.cd_write_format = 'ascii'
+        self.scene.cd_write_precision = 6
+        self.scene.cd_write_compression = 'off'
+        self.scene.cd_time_format = 'general'
+        self.scene.cd_time_precision = 6
+        self.scene.cd_runtime_modifiable = True
+        bpy.ops.reynolds.of_controldict()
+
     def _generate_transport_properties(self):
         self.scene.tp_dt_scalar_elt1 = '[ 0 2 -1 0 0 0 0]'
         self.scene.tp_dt_scalar_elt2 = 0.01
@@ -100,13 +115,21 @@ class TestCavityTutorial(TestFoamTutorial):
         self.start_openfoam()
         obj = self.scene.objects['Plane']
         self.switch_to_edit_mode(obj)
-        self.select_case_dir('//cavity')
+        self.select_case_dir(self.temp_tutorial_dir)
         # -------------------
         # Steps to solve case
         # -------------------
         self.scene.convert_to_meters = 0.1
         self.set_number_of_cells(20, 20, 1)
         self.set_grading(1, 1, 1)
+        # -------------------
+        # Configure case
+        # -------------------
+        self.set_solver_name('icoFoam')
+        self._generate_fv_schemes()
+        self._generate_fv_solution()
+        self._generate_controldict()
+        self._generate_transport_properties()
         # -----------------------------------------------------------------
         # set boundary
         # 1. select face with index 4 as movingWall, set name, type
@@ -126,10 +149,6 @@ class TestCavityTutorial(TestFoamTutorial):
         self.generate_time_props()
         self.run_blockmesh()
         self.check_imported_wavefront_objs()
-        self.set_solver_name('icoFoam')
-        self._generate_fv_schemes()
-        self._generate_fv_solution()
-        self._generate_transport_properties()
         self.solve_case('icoFoam');
         self.assertTrue(self.scene.case_solved)
         bpy.ops.wm.save_mainfile()

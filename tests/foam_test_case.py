@@ -48,18 +48,13 @@ class TestFoamTutorial(unittest.TestCase):
         self.current_dir = os.path.dirname(os.path.realpath(__name__))
         self.temp_tutorial_dir = None
 
-    def copy_tutorial_case_dir(self, tutorial_name, test_module_dir):
-        self.temp_tutorial_dir = os.path.join(self.current_dir,
-                                              'tests', self.test_module_dir,
-                                              self.tutorial_name)
+    def create_tutorial_case_dir(self, tutorial_name):
+        test_run_dir = os.environ['REYNOLDS_TEST_RUN_DIR']
+        self.temp_tutorial_dir = os.path.join(test_run_dir, tutorial_name)
         if not os.path.exists(self.temp_tutorial_dir):
             print('Creating temp tutorial dir: ', self.temp_tutorial_dir)
             pathlib.Path(self.temp_tutorial_dir).mkdir(parents=True,
                                                        exist_ok=True)
-        tests_parent_dir = os.path.dirname(os.path.realpath('tests'))
-        case_dir = os.path.join(tests_parent_dir, 'tests', 'tutorials',
-                                self.tutorial_name)
-        copy_tree(case_dir, self.temp_tutorial_dir)
 
     def start_openfoam(self):
         bpy.ops.reynolds.start_of()
@@ -145,14 +140,3 @@ class TestFoamTutorial(unittest.TestCase):
     def check_imported_wavefront_objs(self):
         block_objs = [ob for ob in self.scene.objects if ob.layers[1]]
         self.assertTrue(len(block_objs) > 0)
-
-    def tearDown(self):
-        if self.temp_tutorial_dir:
-            if not 'TRAVIS' in os.environ:
-                post_test_run_dir = os.environ['REYNOLDS_POST_TEST_RUN_DIR']
-                tutorial_dirname = os.path.basename(self.temp_tutorial_dir)
-                post_run_tutorial_dir = os.path.join(post_test_run_dir,
-                                                          tutorial_dirname)
-                copy_tree(self.temp_tutorial_dir, post_run_tutorial_dir)
-            print('Removing copied tutorial dir ', self.temp_tutorial_dir)
-            remove_tree(self.temp_tutorial_dir)

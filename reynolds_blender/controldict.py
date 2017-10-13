@@ -108,8 +108,10 @@ class ControlDictOperator(bpy.types.Operator):
         control_dict['application'] = scene.solver_name
         generate_controldict(control_dict, scene)
 
-        controldict_file_path = os.path.join(abs_case_dir_path, "system",
-                                             "controlDict")
+        system_dir = os.path.join(abs_case_dir_path, "system")
+        if not os.path.exists(system_dir):
+            os.makedirs(system_dir)
+        controldict_file_path = os.path.join(system_dir, "controlDict")
         with open(controldict_file_path, "w+") as f:
             f.write(str(control_dict))
         return {'FINISHED'}
