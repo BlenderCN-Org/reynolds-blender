@@ -31,13 +31,14 @@
 import bpy
 from bpy.props import (StringProperty, BoolProperty, FloatProperty, IntProperty,
                        IntVectorProperty, EnumProperty, CollectionProperty,
-                       FloatVectorProperty, IntProperty)
+                       FloatVectorProperty, IntProperty, PointerProperty)
 
 # --------------
 # python imports
 # --------------
-import yaml
 import os
+import sys
+import yaml
 
 # ------------------------
 # reynolds blender imports
@@ -111,6 +112,24 @@ def load_bool_attr(name, props):
                                  default=props.get('default', False))
     setattr(bpy.types.Scene, name, bool_property)
 
+def load_custom_attr(name, props):
+    module_name = props.get('module', None)
+    print('Importing module ' + module_name)
+    if module_name:
+        module = sys.modules[module_name]
+        print('Imported module ')
+        print(module)
+        class_name = props.get('class', None)
+        if class_name:
+            class_ = getattr(module, class_name, None)
+            if class_:
+                print('Imported class ')
+                print(class_)
+                instance = PointerProperty(type=class_)
+                print('Setting custom attr ' + name + ' with instance: ')
+                print(instance)
+                setattr(bpy.types.Scene, name, instance)
+
 def load_scene_attr(attr):
     name, props = attr
     if props['type'] == 'String':
@@ -133,6 +152,8 @@ def load_scene_attr(attr):
         load_enum_attr(name, props)
     if props['type'] == 'UIList':
         load_ui_list_attrs(name, props)
+    if props['type'] == 'Custom':
+        load_custom_attr(name, props)
 
 def set_scene_attrs(attrs_filename):
     current_dir = os.path.realpath(os.path.dirname(__file__))

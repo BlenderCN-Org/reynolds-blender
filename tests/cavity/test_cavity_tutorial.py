@@ -119,7 +119,7 @@ class TestCavityTutorial(TestFoamTutorial):
         # -------------------
         # Steps to solve case
         # -------------------
-        self.scene.convert_to_meters = 0.1
+        self.scene.block_cells_pg.convert_to_meters = 0.1
         self.set_number_of_cells(20, 20, 1)
         self.set_grading(1, 1, 1)
         # -------------------

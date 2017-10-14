@@ -128,12 +128,12 @@ def generate_blockmeshdict(self, context):
     bmd_blocks = []
     bmd_blocks.append('hex')
     bmd_blocks.append([0, 1, 2, 3, 4, 5, 6, 7])
-    bmd_blocks.append([scene.n_cells[0], scene.n_cells[1],
-                        scene.n_cells[2]])
+    bmd_blocks.append([scene.block_cells_pg.n_cells[0], scene.block_cells_pg.n_cells[1],
+                        scene.block_cells_pg.n_cells[2]])
     bmd_blocks.append('simpleGrading')
-    grading_x = [[1, 1, scene.n_grading[0]]]
-    grading_y = [[1, 1, scene.n_grading[1]]]
-    grading_z = [[1, 1, scene.n_grading[2]]]
+    grading_x = [[1, 1, scene.block_cells_pg.n_grading[0]]]
+    grading_y = [[1, 1, scene.block_cells_pg.n_grading[1]]]
+    grading_z = [[1, 1, scene.block_cells_pg.n_grading[2]]]
     grading = [grading_x, grading_y, grading_z]
     bmd_blocks.append(grading)
     print(bmd_blocks)
@@ -171,7 +171,7 @@ def generate_blockmeshdict(self, context):
     block_mesh_dict['boundary'] = bmd_boundary
 
     # set convert to meters
-    block_mesh_dict['convertToMeters'] = scene.convert_to_meters
+    block_mesh_dict['convertToMeters'] = scene.block_cells_pg.convert_to_meters
 
     print("BLOCK MESH DICT")
     print(block_mesh_dict)

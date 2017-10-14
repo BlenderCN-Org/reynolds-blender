@@ -76,14 +76,14 @@ class TestFoamTutorial(unittest.TestCase):
         bpy.ops.reynolds.solve_case()
 
     def set_number_of_cells(self, x, y, z):
-        self.scene.n_cells[0] = x
-        self.scene.n_cells[1] = y
-        self.scene.n_cells[2] = z
+        self.scene.block_cells_pg.n_cells[0] = x
+        self.scene.block_cells_pg.n_cells[1] = y
+        self.scene.block_cells_pg.n_cells[2] = z
 
     def set_grading(self, x, y, z):
-        self.scene.n_grading[0] = x
-        self.scene.n_grading[1] = y
-        self.scene.n_grading[2] = z
+        self.scene.block_cells_pg.n_grading[0] = x
+        self.scene.block_cells_pg.n_grading[1] = y
+        self.scene.block_cells_pg.n_grading[2] = z
 
     def select_boundary(self, obj, patches):
         for name, (faces, patch_type, time_prop_info) in patches.items():
