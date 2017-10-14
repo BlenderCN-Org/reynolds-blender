@@ -1,28 +1,19 @@
 attrs:
- convert_to_meters:
-  type: Float
-  name: Convert to meters
-  description: Scaling factor for all vertices
-  default: 0.001
- n_cells: 
-  type: IntVector
-  name: Cells
-  description: "Number of cells in XYZ direction"
-  default: [1, 1, 1]
- n_grading: 
-  type: IntVector
-  name: "Cell expansion ratios"
-  description: "Cell expansion ratios"
-  default: [1, 1, 1]
-  subtype: XYZ
+ block_cells_pg:
+  type: Custom
+  module: reynolds_blender.block_cells
+  class: BlockCellsPG
 
 gui:
  - box: 
    - label:
       text: Convert to meters
-   - prop: 
+   - group_prop: 
+      pointer: block_cells_pg
       scene_attr: convert_to_meters
-   - prop: 
+   - group_prop: 
+      pointer: block_cells_pg
       scene_attr: n_cells
-   - prop: 
+   - group_prop: 
+      pointer: block_cells_pg
       scene_attr: n_grading

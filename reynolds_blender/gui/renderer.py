@@ -86,6 +86,15 @@ class ReynoldsGUIRenderer(object):
             parent.enabled = enabled
             parent.prop(self.scene, metadata['scene_attr'])
 
+        if name == 'group_prop':
+            enabled = metadata.get('enabled', True)
+            parent.enabled = enabled
+            pointer_name = metadata['pointer']
+            pointer = getattr(self.scene, pointer_name, None)
+            if pointer:
+                print('Rendering group prop ' + pointer_name)
+                parent.prop(pointer, metadata['scene_attr'])
+
         if name == 'operator':
             action = metadata.get('action', False)
             if action:

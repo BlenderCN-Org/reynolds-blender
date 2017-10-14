@@ -71,7 +71,7 @@ class TestFlangeTutorial(TestFoamTutorial):
         self.assertIsNotNone(self.scene.objects['Cube'])
         blockmesh_obj = self.scene.objects['Cube']
         bpy.ops.object.select_all(False)
-        self.scene.convert_to_meters = 1
+        self.scene.block_cells_pg.convert_to_meters = 1
         self.set_number_of_cells(20, 20, 20)
         self.set_grading(1, 1, 1)
         patches = {'patch1': (['Back'], 'patch', {'T': {'type': 'zeroGradient'}}),

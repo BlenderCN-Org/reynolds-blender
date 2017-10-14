@@ -69,6 +69,21 @@ from reynolds.dict.parser import ReynoldsFoamDict
 from reynolds.foam.cmd_runner import FoamCmdRunner
 
 # ------------------------------------------------------------------------
+#    scene data models
+# ------------------------------------------------------------------------
+class BlockCellsPG(bpy.types.PropertyGroup):
+    convert_to_meters = bpy.props.FloatProperty(name='FloatProperty',
+                                                description='Scaling factor',
+                                                default=0.001)
+    n_cells = bpy.props.IntVectorProperty(name='Cells',
+                                          description='Number of cells',
+                                          default=[1, 1, 1])
+    n_grading = bpy.props.IntVectorProperty(name='Cell expansion ratios',
+                                            description='Cell expansion ratios',
+                                            default=[1, 1, 1],
+                                            subtype='XYZ')
+
+# ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
 
