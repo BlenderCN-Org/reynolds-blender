@@ -114,15 +114,19 @@ def assign_region(self, context):
     return{'FINISHED'}
 
 def remove_region(self, context):
-    print("Removing region")
-
     scene = context.scene
     obj = context.active_object
+
+    print("Before: Removing region")
+    print(scene.bmd_regions)
+
 
     print(scene.bmd_rindex, scene.bmd_regions[scene.bmd_rindex])
     item = scene.bmd_regions[scene.bmd_rindex]
     r_name, _ = item.name.split(" : ", 1)
     scene.regions.pop(r_name, None)
+    print("After: Removing region")
+    print(scene.bmd_regions)
     item.name = ""
     return{'FINISHED'}
 

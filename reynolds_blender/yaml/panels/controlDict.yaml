@@ -114,8 +114,6 @@ attrs:
 
 gui:
  - box:
-   - label:
-      text: laplacianFoam
    - row: 
      - col: 
         - prop:
