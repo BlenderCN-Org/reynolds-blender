@@ -263,36 +263,16 @@ def run_blockmesh(self, context):
         return {'FINISHED'}
 
     scene.blockmesh_executed = False
-    mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir,
-                        cmd_flags=['-blockTopology'])
+    mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir)
 
     for info in mr.run():
         self.report({'WARNING'}, info)
 
     if mr.run_status:
-        self.report({'INFO'}, 'Blockmesh -blockTopology: SUCCESS')
-        # switch to layer 1
-        context.scene.layers[0] = False
-        context.scene.layers[1] = True
-        block_obj_filepath = os.path.join(case_dir, 'blockTopology.obj')
-        bpy.ops.import_scene.obj(filepath=block_obj_filepath)
-        # switch back to layer 0
-        context.scene.layers[1] = False
-        context.scene.layers[0] = True
-        # ensure imported obj is assigned to layer 1 only
-        block_obj = context.scene.objects['blockTopology']
-        for i in range(20):
-            block_obj.layers[i] = (i == 1)
-        mr = FoamCmdRunner(cmd_name='blockMesh', case_dir=case_dir)
-        for info in mr.run():
-            self.report({'WARNING'}, info)
-        if mr.run_status:
-            scene.blockmesh_executed = True
-            self.report({'INFO'}, 'Blockmesh : SUCCESS')
-        else:
-            self.report({'ERROR'}, 'Blockmesh : FAILED')
+        self.report({'INFO'}, 'Blockmesh : SUCCESS')
+        scene.blockmesh_executed = True
     else:
-        self.report({'ERROR'}, 'Blockmesh -blockTopology: FAILED')
+        self.report({'ERROR'}, 'Blockmesh : FAILED')
 
     return{'FINISHED'}
 

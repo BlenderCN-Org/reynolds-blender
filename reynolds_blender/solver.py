@@ -46,10 +46,6 @@ from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
-from reynolds_blender.fvschemes import FVSchemesOperator
-from reynolds_blender.fvsolution import FVSolutionOperator
-from reynolds_blender.controldict import ControlDictOperator
-from reynolds_blender.transportproperties import TransportPropertiesOperator
 
 # ----------------
 # reynolds imports
@@ -130,17 +126,12 @@ class SolverPanel(Panel):
         # ---------------------------------------
         # Render Solver Panel using YAML GUI Spec
         # ---------------------------------------
-        row = layout.row()
-        row.operator(FVSchemesOperator.bl_idname, text='', icon='SETTINGS')
-        row.operator(FVSolutionOperator.bl_idname, text='', icon='SETTINGS')
-        row.operator(ControlDictOperator.bl_idname, text='', icon='SETTINGS')
-        row.operator(TransportPropertiesOperator.bl_idname, text='', icon='SETTINGS')
+
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 
 def register():
     register_classes(__name__)
-    set_scene_attrs('solver_panel.yaml')
     create_custom_operators('solver_panel.yaml', __name__)
 
 def unregister():

@@ -43,6 +43,10 @@ from progress_report import ProgressReport
 from reynolds_blender.gui.attrs import set_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.fvschemes import FVSchemesOperator
+from reynolds_blender.fvsolution import FVSolutionOperator
+from reynolds_blender.controldict import ControlDictOperator
+from reynolds_blender.transportproperties import TransportPropertiesOperator
 
 # ---------------
 # reynolds imports
@@ -100,6 +104,13 @@ class FoamPanel(Panel):
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'foam_panel.yaml')
         gui_renderer.render()
+
+        row = layout.row()
+        row.operator(FVSchemesOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(FVSolutionOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(ControlDictOperator.bl_idname, text='', icon='SETTINGS')
+        row.operator(TransportPropertiesOperator.bl_idname, text='', icon='SETTINGS')
+
 
 # ------------------------------------------------------------------------
 # register and unregister
