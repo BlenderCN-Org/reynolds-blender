@@ -291,7 +291,6 @@ class TestFlangeTutorial(TestFoamTutorial):
         self._add_refine_hole_geometry()
         self._mark_location_in_space()
         self._generate_surface_features()
-        self.check_imported_wavefront_objs()
         self._set_castellated_mesh_controls()
         self._set_snapping_controls()
         self._set_layers_controls()

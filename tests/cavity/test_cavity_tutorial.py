@@ -148,7 +148,6 @@ class TestCavityTutorial(TestFoamTutorial):
         self.generate_blockmeshdict()
         self.generate_time_props()
         self.run_blockmesh()
-        self.check_imported_wavefront_objs()
         self.solve_case('icoFoam');
         self.assertTrue(self.scene.case_solved)
         bpy.ops.wm.save_mainfile()

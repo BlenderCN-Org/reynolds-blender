@@ -136,7 +136,3 @@ class TestFoamTutorial(unittest.TestCase):
         # test if addon got loaded correctly
         # every addon must provide the "bl_info" dict
         self.assertIsNotNone(bl_info)
-
-    def check_imported_wavefront_objs(self):
-        block_objs = [ob for ob in self.scene.objects if ob.layers[1]]
-        self.assertTrue(len(block_objs) > 0)
