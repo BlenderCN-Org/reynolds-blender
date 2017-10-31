@@ -107,6 +107,39 @@ def solve_case(self, context):
 
     return{'FINISHED'}
 
+def check_mesh(self, context):
+    scene = context.scene
+    obj = context.active_object
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
+    print("Start openfoam")
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    if case_dir is None or case_dir == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
+
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
+
+    mr = FoamCmdRunner(cmd_name='checkMesh', case_dir=case_dir)
+
+    for info in mr.run():
+        self.report({'WARNING'}, info)
+
+    if mr.run_status:
+        self.report({'INFO'}, 'CheckMesh : SUCCESS')
+        scene.blockmesh_executed = True
+    else:
+        self.report({'ERROR'}, 'CheckMesh : FAILED')
+
+    return{'FINISHED'}
+
 # ------------------------------------------------------------------------
 #    Panel
 # ------------------------------------------------------------------------

@@ -5,12 +5,22 @@ operators:
    label: Solve Case
    description: Solve OpenFoam Case
    execute_func: solve_case
+  reynolds.check_mesh:
+   operator_type: Operator
+   class_name: BMDCheckMeshOperator
+   label: Check Mesh
+   description: Check generated mesh
+   execute_func: check_mesh
 
 gui:
  - box: 
-   - label: 
-      text: Solver
    - row: 
+     - operator: 
+        id: "reynolds.check_mesh"
+        icon: IPO_BACK
+   - row: 
+     - label: 
+        text: Solver
      - operator: 
         id: "reynolds.solve_case"
         icon: IPO_BACK
