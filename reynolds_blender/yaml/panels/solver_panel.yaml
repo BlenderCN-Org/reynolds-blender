@@ -4,6 +4,15 @@ attrs:
    name: "Run Solver in Parallel"
    description: "Run Solver in Parallel"
 
+  manual_datafile_path:
+   type: String
+   name: ""
+   description: Choose a data file
+   default: ""
+   maxlen: 1024
+   subtype: FILE_PATH
+
+
 operators:
   reynolds.solve_case:
    operator_type: Operator
@@ -23,6 +32,17 @@ gui:
    - row:
      - prop:
         scene_attr: solve_in_parallel
+
+   - box:
+     - row:
+       - label:
+          text: ManualCoeffs
+     - row:
+       - label:
+           text: Choose a manual datafile
+       - prop:
+           scene_attr: manual_datafile_path
+
    - row: 
      - label: 
         text: Check Mesh

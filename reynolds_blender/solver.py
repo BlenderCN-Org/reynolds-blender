@@ -46,6 +46,7 @@ from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.parallel_solver import ParallelSolverOperator
 
 # ----------------
 # reynolds imports
@@ -156,12 +157,16 @@ class SolverPanel(Panel):
         layout = self.layout
         scene = context.scene
 
+        row = layout.row()
+        row.operator(ParallelSolverOperator.bl_idname, text='', icon='PLUS')
+
         # ---------------------------------------
         # Render Solver Panel using YAML GUI Spec
         # ---------------------------------------
 
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
+
 
 def register():
     register_classes(__name__)
