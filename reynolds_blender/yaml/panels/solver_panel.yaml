@@ -1,3 +1,9 @@
+attrs:
+  solve_in_parallel:
+   type: Bool
+   name: "Run Solver in Parallel"
+   description: "Run Solver in Parallel"
+
 operators:
   reynolds.solve_case:
    operator_type: Operator
@@ -14,7 +20,12 @@ operators:
 
 gui:
  - box: 
+   - row:
+     - prop:
+        scene_attr: solve_in_parallel
    - row: 
+     - label: 
+        text: Check Mesh
      - operator: 
         id: "reynolds.check_mesh"
         icon: IPO_BACK

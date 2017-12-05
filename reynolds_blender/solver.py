@@ -165,6 +165,7 @@ class SolverPanel(Panel):
 
 def register():
     register_classes(__name__)
+    set_scene_attrs('solver_panel.yaml')
     create_custom_operators('solver_panel.yaml', __name__)
 
 def unregister():
