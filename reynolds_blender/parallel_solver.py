@@ -98,7 +98,51 @@ class ParallelSolverOperator(bpy.types.Operator):
         # --------------------------
         bpy.ops.reynolds.of_console_op()
 
-        print('Generate decomposeParDict parallel config: TBD')
+        print('Generate decomposeParDict parallel config: ')
+
+        decompose_par_dict = ReynoldsFoamDict('decomposeParDict.foam')
+
+        # mandatory
+        decompose_par_dict['numberOfSubdomains'] = scene.number_of_subdomains
+        decompose_par_dict['method'] = scene.decompose_method
+
+        # simpleCoeffs
+        simple_nxyz = (str(scene.nSimpleCoeffsX),
+                       str(scene.nSimpleCoeffsY),
+                       str(scene.nSimpleCoeffsZ))
+        decompose_par_dict['simpleCoeffs']['n'] = '(' + ' '.join(simple_nxyz) + ')'
+        decompose_par_dict['simpleCoeffs']['delta'] = scene.simpleCoeffDelta
+
+        # hierarchicalCoeffs
+        hierarchical_nxyz = (str(scene.nHierarchicalCoeffsX),
+                             str(scene.nHierarchicalCoeffsY),
+                             str(scene.nHierarchicalCoeffsZ))
+        decompose_par_dict['hierarchicalCoeffs']['n'] =  '(' + ' '.join(hierarchical_nxyz) + ')'
+        decompose_par_dict['hierarchicalCoeffs']['delta'] = scene.hierarchicalCoeffDelta
+        decompose_par_dict['hierarchicalCoeffs']['order'] = scene.order_of_decomposition
+
+        # metisCoeffs
+        decompose_par_dict['metisCoeffs']['processorWeights'] = scene.metisCoeffs_processor_weights
+        decompose_par_dict['metisCoeffs']['strategy'] = scene.metisCoeffs_strategy
+
+        # manualCoeffs
+        if scene.manual_datafile_path:
+            data_file_path = bpy.path.abspath(scene.manual_datafile_path)
+            decompose_par_dict['manualCoeffs']['datafile'] = """ '"{}"' """.format(data_file_path)
+
+
+        print("DECOMPOSE PAR DICT")
+        print(decompose_par_dict)
+
+        abs_case_dir_path = bpy.path.abspath(scene.case_dir_path)
+        system_dir = os.path.join(abs_case_dir_path, "system")
+        if not os.path.exists(system_dir):
+            os.makedirs(system_dir)
+
+        dpd_file_path = os.path.join(system_dir, "decomposeParDict")
+        with open(dpd_file_path, "w") as f:
+            f.write(str(decompose_par_dict))
+
 
         return {'FINISHED'}
 

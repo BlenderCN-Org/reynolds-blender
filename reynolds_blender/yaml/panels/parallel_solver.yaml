@@ -1,7 +1,7 @@
 attrs:
  number_of_subdomains:
   type: Int
-  default: 1
+  default: 2
   name: Number of subdomains
   description: Number of subdomains
 
