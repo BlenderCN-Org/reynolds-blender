@@ -101,26 +101,26 @@ def solve_case(self, context):
     # ----------------------------------
     case_dir = bpy.path.abspath(scene.case_dir_path)
 
-    # if case_dir is None or case_dir == '':
-    #     self.report({'ERROR'}, 'Please select a case directory')
-    #     return {'FINISHED'}
+    if case_dir is None or case_dir == '':
+        self.report({'ERROR'}, 'Please select a case directory')
+        return {'FINISHED'}
 
-    # if not scene.foam_started:
-    #     self.report({'ERROR'}, 'Please start open foam')
-    #     return {'FINISHED'}
+    if not scene.foam_started:
+        self.report({'ERROR'}, 'Please start open foam')
+        return {'FINISHED'}
 
-    # if not scene.blockmesh_executed:
-    #     self.report({'ERROR'}, 'Please run blockMesh')
-    #     return {'FINISHED'}
+    if not scene.blockmesh_executed:
+        self.report({'ERROR'}, 'Please run blockMesh')
+        return {'FINISHED'}
 
-    # shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
-    # if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
-    #     self.report({'ERROR'}, 'Please run snappyHexMesh')
-    #     return {'FINISHED'}
+    shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
+    if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
+        self.report({'ERROR'}, 'Please run snappyHexMesh')
+        return {'FINISHED'}
 
-    # if scene.solver_name is None or scene.solver_name == '':
-    #     self.report({'ERROR'}, 'Please select a solver')
-    #     return {'FINISHED'}
+    if scene.solver_name is None or scene.solver_name == '':
+        self.report({'ERROR'}, 'Please select a solver')
+        return {'FINISHED'}
 
     scene.case_solved = False
 
