@@ -128,9 +128,12 @@ def solve_case(self, context):
 
     if scene.solve_in_parallel:
         np = str(multiprocessing.cpu_count())
-        cmd_flags = ['-np', np,
-                     scene.solver_name,
-                     '-parallel']
+        cmd_flags = []
+        machines = bpy.path.abspath(scene.machines_file_path)
+        if os.path.exists(machines):
+            print("Found machines file: " + machines)
+            cmd_flags = ['--hostfile', machines]
+        cmd_flags = cmd_flags + ['-np', np, scene.solver_name, '-parallel']
         sr = FoamCmdRunner(cmd_name='mpirun',
                            case_dir=case_dir,
                            cmd_flags=cmd_flags)
