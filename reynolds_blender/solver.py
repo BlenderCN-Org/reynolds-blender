@@ -37,6 +37,7 @@ from progress_report import ProgressReport
 # python imports
 # --------------
 import os
+import multiprocessing
 
 # ------------------------
 # reynolds blender imports
@@ -46,6 +47,7 @@ from reynolds_blender.gui.attrs import set_scene_attrs, del_scene_attrs
 from reynolds_blender.gui.register import register_classes, unregister_classes
 from reynolds_blender.gui.custom_operator import create_custom_operators
 from reynolds_blender.gui.renderer import ReynoldsGUIRenderer
+from reynolds_blender.parallel_solver import ParallelSolverOperator
 
 # ----------------
 # reynolds imports
@@ -56,6 +58,34 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 # ------------------------------------------------------------------------
 #    operators
 # ------------------------------------------------------------------------
+
+def run_decompose_par(self, context):
+    scene = context.scene
+    obj = context.active_object
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
+    # ----------------------------------
+    # Reset the status of a previous run
+    # ----------------------------------
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    sr = FoamCmdRunner(cmd_name='decomposePar',
+                       case_dir=case_dir)
+    for info in sr.run():
+        self.report({'WARNING'}, info)
+
+    if sr.run_status:
+        scene.case_solved = True
+        self.report({'INFO'}, 'Run decomposePar: SUCCESS')
+    else:
+        scene.case_solved = False
+        self.report({'INFO'}, 'Run decomposePar: FAILED')
+
+    return{'FINISHED'}
 
 def solve_case(self, context):
     scene = context.scene
@@ -71,30 +101,45 @@ def solve_case(self, context):
     # ----------------------------------
     case_dir = bpy.path.abspath(scene.case_dir_path)
 
-    if case_dir is None or case_dir == '':
-        self.report({'ERROR'}, 'Please select a case directory')
-        return {'FINISHED'}
+    # if case_dir is None or case_dir == '':
+    #     self.report({'ERROR'}, 'Please select a case directory')
+    #     return {'FINISHED'}
 
-    if not scene.foam_started:
-        self.report({'ERROR'}, 'Please start open foam')
-        return {'FINISHED'}
+    # if not scene.foam_started:
+    #     self.report({'ERROR'}, 'Please start open foam')
+    #     return {'FINISHED'}
 
-    if not scene.blockmesh_executed:
-        self.report({'ERROR'}, 'Please run blockMesh')
-        return {'FINISHED'}
+    # if not scene.blockmesh_executed:
+    #     self.report({'ERROR'}, 'Please run blockMesh')
+    #     return {'FINISHED'}
 
-    shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
-    if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
-        self.report({'ERROR'}, 'Please run snappyHexMesh')
-        return {'FINISHED'}
+    # shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
+    # if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
+    #     self.report({'ERROR'}, 'Please run snappyHexMesh')
+    #     return {'FINISHED'}
 
-    if scene.solver_name is None or scene.solver_name == '':
-        self.report({'ERROR'}, 'Please select a solver')
-        return {'FINISHED'}
+    # if scene.solver_name is None or scene.solver_name == '':
+    #     self.report({'ERROR'}, 'Please select a solver')
+    #     return {'FINISHED'}
 
     scene.case_solved = False
-    sr = FoamCmdRunner(cmd_name=scene.solver_name,
-                        case_dir=case_dir)
+
+    sr = None
+
+    if scene.solve_in_parallel:
+        np = str(multiprocessing.cpu_count())
+        cmd_flags = []
+        machines = bpy.path.abspath(scene.machines_file_path)
+        if os.path.exists(machines):
+            print("Found machines file: " + machines)
+            cmd_flags = ['--hostfile', machines]
+        cmd_flags = cmd_flags + ['-np', np, scene.solver_name, '-parallel']
+        sr = FoamCmdRunner(cmd_name='mpirun',
+                           case_dir=case_dir,
+                           cmd_flags=cmd_flags)
+    else:
+        sr = FoamCmdRunner(cmd_name=scene.solver_name,
+                           case_dir=case_dir)
     for info in sr.run():
         self.report({'WARNING'}, info)
 
@@ -156,6 +201,9 @@ class SolverPanel(Panel):
         layout = self.layout
         scene = context.scene
 
+        row = layout.row()
+        row.operator(ParallelSolverOperator.bl_idname, text='', icon='PLUS')
+
         # ---------------------------------------
         # Render Solver Panel using YAML GUI Spec
         # ---------------------------------------
@@ -163,8 +211,10 @@ class SolverPanel(Panel):
         gui_renderer = ReynoldsGUIRenderer(scene, layout, 'solver_panel.yaml')
         gui_renderer.render()
 
+
 def register():
     register_classes(__name__)
+    set_scene_attrs('solver_panel.yaml')
     create_custom_operators('solver_panel.yaml', __name__)
 
 def unregister():
