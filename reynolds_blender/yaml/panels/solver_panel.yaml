@@ -20,6 +20,12 @@ operators:
    label: Solve Case
    description: Solve OpenFoam Case
    execute_func: solve_case
+  reynolds.decompose:
+   operator_type: Operator
+   class_name: DPDRunDecomposePar
+   label: Run decomposePar
+   description: Run decomposePar
+   execute_func: run_decompose_par
   reynolds.check_mesh:
    operator_type: Operator
    class_name: BMDCheckMeshOperator
@@ -48,6 +54,12 @@ gui:
         text: Check Mesh
      - operator: 
         id: "reynolds.check_mesh"
+        icon: IPO_BACK
+   - row: 
+     - label: 
+        text: Decompose
+     - operator: 
+        id: "reynolds.decompose"
         icon: IPO_BACK
    - row: 
      - label: 

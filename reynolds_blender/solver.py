@@ -37,6 +37,7 @@ from progress_report import ProgressReport
 # python imports
 # --------------
 import os
+import multiprocessing
 
 # ------------------------
 # reynolds blender imports
@@ -58,6 +59,34 @@ from reynolds.foam.cmd_runner import FoamCmdRunner
 #    operators
 # ------------------------------------------------------------------------
 
+def run_decompose_par(self, context):
+    scene = context.scene
+    obj = context.active_object
+
+    # -------------------------
+    # Start the console operatorr
+    # --------------------------
+    bpy.ops.reynolds.of_console_op()
+
+    # ----------------------------------
+    # Reset the status of a previous run
+    # ----------------------------------
+    case_dir = bpy.path.abspath(scene.case_dir_path)
+
+    sr = FoamCmdRunner(cmd_name='decomposePar',
+                       case_dir=case_dir)
+    for info in sr.run():
+        self.report({'WARNING'}, info)
+
+    if sr.run_status:
+        scene.case_solved = True
+        self.report({'INFO'}, 'Run decomposePar: SUCCESS')
+    else:
+        scene.case_solved = False
+        self.report({'INFO'}, 'Run decomposePar: FAILED')
+
+    return{'FINISHED'}
+
 def solve_case(self, context):
     scene = context.scene
     obj = context.active_object
@@ -72,30 +101,42 @@ def solve_case(self, context):
     # ----------------------------------
     case_dir = bpy.path.abspath(scene.case_dir_path)
 
-    if case_dir is None or case_dir == '':
-        self.report({'ERROR'}, 'Please select a case directory')
-        return {'FINISHED'}
+    # if case_dir is None or case_dir == '':
+    #     self.report({'ERROR'}, 'Please select a case directory')
+    #     return {'FINISHED'}
 
-    if not scene.foam_started:
-        self.report({'ERROR'}, 'Please start open foam')
-        return {'FINISHED'}
+    # if not scene.foam_started:
+    #     self.report({'ERROR'}, 'Please start open foam')
+    #     return {'FINISHED'}
 
-    if not scene.blockmesh_executed:
-        self.report({'ERROR'}, 'Please run blockMesh')
-        return {'FINISHED'}
+    # if not scene.blockmesh_executed:
+    #     self.report({'ERROR'}, 'Please run blockMesh')
+    #     return {'FINISHED'}
 
-    shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
-    if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
-        self.report({'ERROR'}, 'Please run snappyHexMesh')
-        return {'FINISHED'}
+    # shmd_file_path = os.path.join(case_dir, "system", "snappyHexMeshDict")
+    # if os.path.exists(shmd_file_path) and not scene.snappyhexmesh_executed:
+    #     self.report({'ERROR'}, 'Please run snappyHexMesh')
+    #     return {'FINISHED'}
 
-    if scene.solver_name is None or scene.solver_name == '':
-        self.report({'ERROR'}, 'Please select a solver')
-        return {'FINISHED'}
+    # if scene.solver_name is None or scene.solver_name == '':
+    #     self.report({'ERROR'}, 'Please select a solver')
+    #     return {'FINISHED'}
 
     scene.case_solved = False
-    sr = FoamCmdRunner(cmd_name=scene.solver_name,
-                        case_dir=case_dir)
+
+    sr = None
+
+    if scene.solve_in_parallel:
+        np = str(multiprocessing.cpu_count())
+        cmd_flags = ['-np', np,
+                     scene.solver_name,
+                     '-parallel']
+        sr = FoamCmdRunner(cmd_name='mpirun',
+                           case_dir=case_dir,
+                           cmd_flags=cmd_flags)
+    else:
+        sr = FoamCmdRunner(cmd_name=scene.solver_name,
+                           case_dir=case_dir)
     for info in sr.run():
         self.report({'WARNING'}, info)
 
